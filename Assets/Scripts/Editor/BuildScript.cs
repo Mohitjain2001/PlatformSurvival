@@ -14,7 +14,7 @@ public class BuildScript
         PlayerSettings.companyName = "PlatformGames";
         PlayerSettings.productName = "PlatformSurvival";
         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, "com.platformgames.platformsurvival");
-        PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel22;
+        PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
         PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
 
         // 3. Define Output Path
