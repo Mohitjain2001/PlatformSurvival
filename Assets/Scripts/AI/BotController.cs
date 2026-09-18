@@ -32,6 +32,7 @@ public class BotController : MonoBehaviour
 
     public string BotName => botName;
     public bool IsEliminated => isEliminated;
+    public bool IsGrounded => isGrounded;
 
     private void Awake()
     {
@@ -52,14 +53,18 @@ public class BotController : MonoBehaviour
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
-        MeshRenderer renderer = GetComponentInChildren<MeshRenderer>();
-        if (renderer != null)
+        MeshRenderer[] renderers = GetComponentsInChildren<MeshRenderer>();
+        Shader defaultShader = Shader.Find("Standard");
+        botMaterial = new Material(defaultShader);
+        botMaterial.color = color;
+
+        foreach (MeshRenderer r in renderers)
         {
-            Shader defaultShader = Shader.Find("Standard");
-            Shader targetShader = (renderer.sharedMaterial != null && renderer.sharedMaterial.shader != null) ? renderer.sharedMaterial.shader : defaultShader;
-            botMaterial = new Material(targetShader);
-            botMaterial.color = color;
-            renderer.material = botMaterial;
+            // Keep Visor white and Eyes/Shoes dark; only color torso and limbs
+            if (r.gameObject.name == "Torso" || r.gameObject.name.StartsWith("ArmMesh") || r.gameObject.name.StartsWith("LegMesh") || r.gameObject.name == BotName)
+            {
+                r.material = botMaterial;
+            }
         }
     }
 
