@@ -9,11 +9,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float airControlMultiplier = 0.85f;
 
     [Header("Auto-Jump Settings")]
-    [SerializeField] private float jumpForce = 8.5f;
-    [SerializeField] private float forwardJumpBoost = 2.5f;
-    [SerializeField] private float gapCheckDistance = 1.1f;
-    [SerializeField] private float groundCheckDistance = 0.45f;
-    [SerializeField] private float jumpCooldown = 0.35f;
+    [SerializeField] private float jumpForce = 8.0f;
+    [SerializeField] private float forwardJumpBoost = 2.2f;
+    [SerializeField] private float gapCheckDistance = 1.35f;
+    [SerializeField] private float groundCheckDistance = 0.35f;
+    [SerializeField] private float jumpCooldown = 0.45f;
+    [SerializeField] private float minGroundedDuration = 0.25f;
 
     [Header("Dependencies")]
     [SerializeField] private VirtualJoystick joystick;
@@ -22,6 +23,7 @@ public class PlayerController : MonoBehaviour
 
     private Rigidbody rb;
     private bool isGrounded = false;
+    private float groundedDuration = 0f;
     private float lastJumpTime = -1f;
     private bool isEliminated = false;
     private bool wasGroundedLastFrame = false;
@@ -119,12 +121,34 @@ public class PlayerController : MonoBehaviour
 
     private void CheckGrounded()
     {
-        Vector3 rayStart = transform.position + Vector3.up * 0.15f;
-        isGrounded = Physics.Raycast(rayStart, Vector3.down, groundCheckDistance);
+        Vector3 checkOrigin = transform.position + Vector3.up * 0.25f;
+        float radius = 0.25f;
+        RaycastHit[] hits = Physics.SphereCastAll(checkOrigin, radius, Vector3.down, groundCheckDistance);
 
-        if (isGrounded && !wasGroundedLastFrame && Time.time - lastJumpTime > 0.2f)
+        bool foundGround = false;
+        for (int i = 0; i < hits.Length; i++)
         {
-            if (squashAndStretch != null) squashAndStretch.TriggerLandSquash();
+            Collider col = hits[i].collider;
+            if (col != null && !col.isTrigger && col.transform != transform && !col.transform.IsChildOf(transform))
+            {
+                foundGround = true;
+                break;
+            }
+        }
+
+        isGrounded = foundGround;
+
+        if (isGrounded)
+        {
+            groundedDuration += Time.deltaTime;
+            if (!wasGroundedLastFrame && Time.time - lastJumpTime > 0.2f)
+            {
+                if (squashAndStretch != null) squashAndStretch.TriggerLandSquash();
+            }
+        }
+        else
+        {
+            groundedDuration = 0f;
         }
 
         wasGroundedLastFrame = isGrounded;
@@ -133,24 +157,39 @@ public class PlayerController : MonoBehaviour
 
     private void CheckAutoJump(Vector3 moveInput)
     {
-        if (!isGrounded || Time.time - lastJumpTime < jumpCooldown) return;
+        // Require character to be grounded, grounded long enough, and past jump cooldown
+        if (!isGrounded || groundedDuration < minGroundedDuration || Time.time - lastJumpTime < jumpCooldown) 
+            return;
+
+        // Require substantial movement input
+        if (moveInput.sqrMagnitude < 0.15f) 
+            return;
 
         Vector3 moveDir = moveInput.normalized;
-        Vector3 probeOrigin = transform.position + Vector3.up * 0.3f + moveDir * gapCheckDistance;
+        Vector3 probeOrigin = transform.position + Vector3.up * 0.35f + moveDir * gapCheckDistance;
 
-        bool hasGroundAhead = Physics.Raycast(probeOrigin, Vector3.down, out RaycastHit hit, 1.5f);
+        // Use SphereCast ahead to smoothly span hex seams without false triggers
+        RaycastHit[] aheadHits = Physics.SphereCastAll(probeOrigin, 0.3f, Vector3.down, 1.8f);
 
+        bool hasGroundAhead = false;
         bool isGroundFalling = false;
-        if (hasGroundAhead && hit.collider != null)
+
+        for (int i = 0; i < aheadHits.Length; i++)
         {
-            PlatformTile tile = hit.collider.GetComponent<PlatformTile>();
-            if (tile != null && (!tile.IsAvailable || tile.IsFalling))
+            Collider col = aheadHits[i].collider;
+            if (col != null && !col.isTrigger && col.transform != transform && !col.transform.IsChildOf(transform))
             {
-                isGroundFalling = true;
+                hasGroundAhead = true;
+                PlatformTile tile = col.GetComponent<PlatformTile>();
+                if (tile != null && (!tile.IsAvailable || tile.IsFalling))
+                {
+                    isGroundFalling = true;
+                }
+                break;
             }
         }
 
-        // Auto Jump: trigger forward leap across gap
+        // Auto Jump: only leap across genuine gaps or if the tile ahead is falling
         if (!hasGroundAhead || isGroundFalling)
         {
             PerformJump(moveDir);
@@ -161,6 +200,7 @@ public class PlayerController : MonoBehaviour
     {
         lastJumpTime = Time.time;
         isGrounded = false;
+        groundedDuration = 0f;
 
         Vector3 jumpVel = rb.linearVelocity;
         jumpVel.y = jumpForce;

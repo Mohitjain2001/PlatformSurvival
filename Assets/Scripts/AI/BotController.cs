@@ -8,11 +8,12 @@ public class BotController : MonoBehaviour
     [Header("Bot Settings")]
     [SerializeField] private float moveSpeed = 6.2f;
     [SerializeField] private float rotationSpeed = 12.0f;
-    [SerializeField] private float jumpForce = 8.5f;
-    [SerializeField] private float forwardJumpBoost = 2.2f;
-    [SerializeField] private float gapCheckDistance = 1.0f;
-    [SerializeField] private float groundCheckDistance = 0.45f;
-    [SerializeField] private float jumpCooldown = 0.4f;
+    [SerializeField] private float jumpForce = 8.0f;
+    [SerializeField] private float forwardJumpBoost = 2.0f;
+    [SerializeField] private float gapCheckDistance = 1.35f;
+    [SerializeField] private float groundCheckDistance = 0.35f;
+    [SerializeField] private float jumpCooldown = 0.45f;
+    [SerializeField] private float minGroundedDuration = 0.25f;
     [SerializeField] private float reactionDelayMin = 0.1f;
     [SerializeField] private float reactionDelayMax = 0.35f;
 
@@ -22,6 +23,7 @@ public class BotController : MonoBehaviour
 
     private Rigidbody rb;
     private bool isGrounded = false;
+    private float groundedDuration = 0f;
     private bool isEliminated = false;
     private float lastJumpTime = -1f;
     private Vector3 currentMoveTarget;
@@ -121,8 +123,31 @@ public class BotController : MonoBehaviour
 
     private void CheckGrounded()
     {
-        Vector3 rayStart = transform.position + Vector3.up * 0.15f;
-        isGrounded = Physics.Raycast(rayStart, Vector3.down, groundCheckDistance);
+        Vector3 checkOrigin = transform.position + Vector3.up * 0.25f;
+        float radius = 0.25f;
+        RaycastHit[] hits = Physics.SphereCastAll(checkOrigin, radius, Vector3.down, groundCheckDistance);
+
+        bool foundGround = false;
+        for (int i = 0; i < hits.Length; i++)
+        {
+            Collider col = hits[i].collider;
+            if (col != null && !col.isTrigger && col.transform != transform && !col.transform.IsChildOf(transform))
+            {
+                foundGround = true;
+                break;
+            }
+        }
+
+        isGrounded = foundGround;
+        if (isGrounded)
+        {
+            groundedDuration += Time.deltaTime;
+        }
+        else
+        {
+            groundedDuration = 0f;
+        }
+
         if (characterAnimator != null) characterAnimator.SetGrounded(isGrounded);
     }
 
@@ -206,18 +231,27 @@ public class BotController : MonoBehaviour
 
     private void CheckAutoJump(Vector3 moveDir)
     {
-        if (!isGrounded || Time.time - lastJumpTime < jumpCooldown) return;
+        if (!isGrounded || groundedDuration < minGroundedDuration || Time.time - lastJumpTime < jumpCooldown) 
+            return;
 
-        Vector3 probeOrigin = transform.position + Vector3.up * 0.3f + moveDir * gapCheckDistance;
-        bool hasGroundAhead = Physics.Raycast(probeOrigin, Vector3.down, out RaycastHit hit, 1.5f);
+        Vector3 probeOrigin = transform.position + Vector3.up * 0.35f + moveDir * gapCheckDistance;
+        RaycastHit[] aheadHits = Physics.SphereCastAll(probeOrigin, 0.3f, Vector3.down, 1.8f);
 
+        bool hasGroundAhead = false;
         bool isGroundFalling = false;
-        if (hasGroundAhead && hit.collider != null)
+
+        for (int i = 0; i < aheadHits.Length; i++)
         {
-            PlatformTile tile = hit.collider.GetComponent<PlatformTile>();
-            if (tile != null && (!tile.IsAvailable || tile.IsFalling))
+            Collider col = aheadHits[i].collider;
+            if (col != null && !col.isTrigger && col.transform != transform && !col.transform.IsChildOf(transform))
             {
-                isGroundFalling = true;
+                hasGroundAhead = true;
+                PlatformTile tile = col.GetComponent<PlatformTile>();
+                if (tile != null && (!tile.IsAvailable || tile.IsFalling))
+                {
+                    isGroundFalling = true;
+                }
+                break;
             }
         }
 
@@ -231,6 +265,7 @@ public class BotController : MonoBehaviour
     {
         lastJumpTime = Time.time;
         isGrounded = false;
+        groundedDuration = 0f;
 
         Vector3 jumpVel = rb.linearVelocity;
         jumpVel.y = jumpForce;
