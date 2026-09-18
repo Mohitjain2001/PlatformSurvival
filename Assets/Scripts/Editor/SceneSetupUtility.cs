@@ -170,17 +170,17 @@ public class SceneSetupUtility
         canvasObj.AddComponent<GraphicRaycaster>();
         UIManager uiManager = canvasObj.AddComponent<UIManager>();
 
-        // 5a. Joystick UI
+        // 5a. Invisible Full-Screen Touch Zone (Zero UI icons)
         GameObject joystickObj = CreateUIElement("VirtualJoystick", canvasObj.transform);
         RectTransform joyRect = joystickObj.GetComponent<RectTransform>();
-        joyRect.anchorMin = new Vector2(0.5f, 0f);
-        joyRect.anchorMax = new Vector2(0.5f, 0f);
+        joyRect.anchorMin = Vector2.zero;
+        joyRect.anchorMax = Vector2.one;
         joyRect.pivot = new Vector2(0.5f, 0.5f);
-        joyRect.anchoredPosition = new Vector2(0f, 220f);
-        joyRect.sizeDelta = new Vector2(320f, 320f);
+        joyRect.anchoredPosition = Vector2.zero;
+        joyRect.sizeDelta = Vector2.zero;
 
         Image joyBgImage = joystickObj.AddComponent<Image>();
-        joyBgImage.color = new Color(0f, 0f, 0f, 0.35f);
+        joyBgImage.color = Color.clear; // Transparent raycast target
 
         GameObject handleObj = CreateUIElement("Handle", joystickObj.transform);
         RectTransform handleRect = handleObj.GetComponent<RectTransform>();
@@ -188,10 +188,11 @@ public class SceneSetupUtility
         handleRect.anchorMax = new Vector2(0.5f, 0.5f);
         handleRect.pivot = new Vector2(0.5f, 0.5f);
         handleRect.anchoredPosition = Vector2.zero;
-        handleRect.sizeDelta = new Vector2(130f, 130f);
+        handleRect.sizeDelta = Vector2.zero;
 
         Image handleImage = handleObj.AddComponent<Image>();
-        handleImage.color = new Color(1f, 1f, 1f, 0.65f);
+        handleImage.color = Color.clear;
+        handleObj.SetActive(false);
 
         VirtualJoystick joystickScript = joystickObj.AddComponent<VirtualJoystick>();
 

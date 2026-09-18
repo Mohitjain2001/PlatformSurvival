@@ -2,18 +2,45 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+/// <summary>
+/// Invisible Touch Controller.
+/// Removes visible joystick icons while providing smooth, natural 360-degree touch drag controls.
+/// Anywhere the player touches and drags drives the character.
+/// </summary>
 public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
 {
     [Header("Joystick UI Setup")]
     [SerializeField] private RectTransform containerBackground;
     [SerializeField] private RectTransform handleGraphic;
+    [SerializeField] private float touchRadius = 90f; // Screen pixels to reach full run speed
 
     private Vector2 inputVector = Vector2.zero;
-    private Camera uiCamera;
+    private Vector2 pointerDownPosition;
+    private bool isTouching = false;
 
     public float Horizontal => inputVector.x != 0 ? inputVector.x : Input.GetAxisRaw("Horizontal");
     public float Vertical => inputVector.y != 0 ? inputVector.y : Input.GetAxisRaw("Vertical");
     public Vector2 Direction => new Vector2(Horizontal, Vertical).normalized;
+
+    private void Awake()
+    {
+        // Visually remove the joystick background and handle icons
+        Image bgImage = GetComponent<Image>();
+        if (bgImage != null)
+        {
+            bgImage.color = Color.clear; // Completely transparent, but captures touch raycasts
+        }
+
+        if (handleGraphic != null)
+        {
+            Image handleImage = handleGraphic.GetComponent<Image>();
+            if (handleImage != null)
+            {
+                handleImage.color = Color.clear;
+            }
+            handleGraphic.gameObject.SetActive(false);
+        }
+    }
 
     private void Start()
     {
@@ -21,64 +48,47 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
         {
             containerBackground = GetComponent<RectTransform>();
         }
-
-        Canvas canvas = GetComponentInParent<Canvas>();
-        if (canvas != null && canvas.renderMode == RenderMode.ScreenSpaceCamera)
-        {
-            uiCamera = canvas.worldCamera;
-        }
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        OnDrag(eventData);
+        isTouching = true;
+        pointerDownPosition = eventData.position;
+        inputVector = Vector2.zero;
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (containerBackground == null) return;
-
-        Vector2 localPoint;
-        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            containerBackground, 
-            eventData.position, 
-            uiCamera, 
-            out localPoint))
+        if (!isTouching)
         {
-            // Calculate center-relative offset for clean 360-degree control
-            Vector2 pivotOffset = new Vector2(
-                (containerBackground.pivot.x - 0.5f) * containerBackground.sizeDelta.x,
-                (containerBackground.pivot.y - 0.5f) * containerBackground.sizeDelta.y
-            );
-            Vector2 centerPoint = localPoint + pivotOffset;
+            isTouching = true;
+            pointerDownPosition = eventData.position;
+        }
 
-            float radius = Mathf.Min(containerBackground.sizeDelta.x, containerBackground.sizeDelta.y) * 0.5f;
-            Vector2 normalizedPos = centerPoint / radius;
+        Vector2 diff = eventData.position - pointerDownPosition;
+        float dist = diff.magnitude;
 
-            inputVector = (normalizedPos.magnitude > 1.0f) ? normalizedPos.normalized : normalizedPos;
-
-            if (handleGraphic != null)
-            {
-                handleGraphic.anchoredPosition = inputVector * (radius * 0.8f);
-            }
+        if (dist > 4f)
+        {
+            Vector2 dir = diff / dist;
+            float factor = Mathf.Clamp01(dist / touchRadius);
+            inputVector = dir * factor;
+        }
+        else
+        {
+            inputVector = Vector2.zero;
         }
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
+        isTouching = false;
         inputVector = Vector2.zero;
-        if (handleGraphic != null)
-        {
-            handleGraphic.anchoredPosition = Vector2.zero;
-        }
     }
 
     public void ResetJoystick()
     {
+        isTouching = false;
         inputVector = Vector2.zero;
-        if (handleGraphic != null)
-        {
-            handleGraphic.anchoredPosition = Vector2.zero;
-        }
     }
 }
