@@ -4,9 +4,9 @@ using UnityEngine;
 public class PlatformTile : MonoBehaviour
 {
     [Header("Tile Settings")]
-    [SerializeField] private float delayBeforeFall = 0.9f;
-    [SerializeField] private float shakeIntensity = 0.08f;
-    [SerializeField] private float fallSpeed = 12f;
+    [SerializeField] private float delayBeforeFall = 1.15f;
+    [SerializeField] private float shakeIntensity = 0.05f;
+    [SerializeField] private float fallSpeed = 10.0f;
 
     [Header("Visual Feedback Colors")]
     [SerializeField] private Color normalColor = new Color(0.90f, 0.38f, 0.48f); // Coral/Pink

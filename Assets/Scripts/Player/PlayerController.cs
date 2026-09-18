@@ -4,17 +4,19 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement Settings")]
-    [SerializeField] private float moveSpeed = 7.5f;
-    [SerializeField] private float rotationSpeed = 14.0f;
-    [SerializeField] private float airControlMultiplier = 0.85f;
+    [SerializeField] private float moveSpeed = 5.2f;
+    [SerializeField] private float acceleration = 14.0f;
+    [SerializeField] private float deceleration = 16.0f;
+    [SerializeField] private float rotationSpeed = 16.0f;
+    [SerializeField] private float airControlMultiplier = 0.75f;
 
     [Header("Auto-Jump Settings")]
-    [SerializeField] private float jumpForce = 8.0f;
-    [SerializeField] private float forwardJumpBoost = 2.2f;
-    [SerializeField] private float gapCheckDistance = 1.35f;
+    [SerializeField] private float jumpForce = 6.4f;
+    [SerializeField] private float forwardJumpBoost = 1.3f;
+    [SerializeField] private float gapCheckDistance = 1.25f;
     [SerializeField] private float groundCheckDistance = 0.35f;
     [SerializeField] private float jumpCooldown = 0.45f;
-    [SerializeField] private float minGroundedDuration = 0.25f;
+    [SerializeField] private float minGroundedDuration = 0.22f;
 
     [Header("Dependencies")]
     [SerializeField] private VirtualJoystick joystick;
@@ -81,20 +83,23 @@ public class PlayerController : MonoBehaviour
 
         Vector3 moveInput = GetMoveInput();
         Vector3 moveDir = new Vector3(moveInput.x, 0, moveInput.z).normalized;
+        Vector3 currentHorizontalVel = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
 
         if (moveDir.sqrMagnitude > 0.02f)
         {
             Quaternion targetRotation = Quaternion.LookRotation(moveDir);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
 
-            float currentSpeed = moveSpeed * (isGrounded ? 1.0f : airControlMultiplier);
-            Vector3 targetVelocity = moveDir * currentSpeed;
-            targetVelocity.y = rb.linearVelocity.y;
-            rb.linearVelocity = targetVelocity;
+            float currentTargetSpeed = moveSpeed * (isGrounded ? 1.0f : airControlMultiplier);
+            Vector3 targetHorizontalVel = moveDir * currentTargetSpeed;
+            Vector3 smoothedVel = Vector3.Lerp(currentHorizontalVel, targetHorizontalVel, acceleration * Time.fixedDeltaTime);
+
+            rb.linearVelocity = new Vector3(smoothedVel.x, rb.linearVelocity.y, smoothedVel.z);
         }
         else if (isGrounded)
         {
-            rb.linearVelocity = new Vector3(rb.linearVelocity.x * 0.8f, rb.linearVelocity.y, rb.linearVelocity.z * 0.8f);
+            Vector3 smoothedStopVel = Vector3.Lerp(currentHorizontalVel, Vector3.zero, deceleration * Time.fixedDeltaTime);
+            rb.linearVelocity = new Vector3(smoothedStopVel.x, rb.linearVelocity.y, smoothedStopVel.z);
         }
     }
 

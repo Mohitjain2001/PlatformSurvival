@@ -5,8 +5,8 @@ public class FollowCamera : MonoBehaviour
     [Header("Target & Offset")]
     [SerializeField] private Transform target;
     [SerializeField] private Vector3 offset = new Vector3(0, 15.0f, -11.0f);
-    [SerializeField] private float smoothTimeXZ = 0.15f;
-    [SerializeField] private float smoothTimeY = 0.45f;
+    [SerializeField] private float smoothTimeXZ = 0.22f;
+    [SerializeField] private float smoothTimeY = 0.48f;
     [SerializeField] private float minCameraY = 2.0f; // Prevent camera from plunging below arena
 
     private Vector3 currentVelocity;

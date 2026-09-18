@@ -6,14 +6,16 @@ using UnityEngine;
 public class BotController : MonoBehaviour
 {
     [Header("Bot Settings")]
-    [SerializeField] private float moveSpeed = 6.2f;
-    [SerializeField] private float rotationSpeed = 12.0f;
-    [SerializeField] private float jumpForce = 8.0f;
-    [SerializeField] private float forwardJumpBoost = 2.0f;
-    [SerializeField] private float gapCheckDistance = 1.35f;
+    [SerializeField] private float moveSpeed = 4.6f;
+    [SerializeField] private float acceleration = 12.0f;
+    [SerializeField] private float deceleration = 14.0f;
+    [SerializeField] private float rotationSpeed = 14.0f;
+    [SerializeField] private float jumpForce = 6.4f;
+    [SerializeField] private float forwardJumpBoost = 1.2f;
+    [SerializeField] private float gapCheckDistance = 1.25f;
     [SerializeField] private float groundCheckDistance = 0.35f;
     [SerializeField] private float jumpCooldown = 0.45f;
-    [SerializeField] private float minGroundedDuration = 0.25f;
+    [SerializeField] private float minGroundedDuration = 0.22f;
     [SerializeField] private float reactionDelayMin = 0.1f;
     [SerializeField] private float reactionDelayMax = 0.35f;
 
@@ -106,6 +108,7 @@ public class BotController : MonoBehaviour
 
         Vector3 moveDir = (currentMoveTarget - transform.position);
         moveDir.y = 0;
+        Vector3 currentHorizontalVel = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
 
         if (moveDir.sqrMagnitude > 0.05f)
         {
@@ -115,12 +118,13 @@ public class BotController : MonoBehaviour
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
 
             Vector3 targetVelocity = moveDir * moveSpeed;
-            targetVelocity.y = rb.linearVelocity.y;
-            rb.linearVelocity = targetVelocity;
+            Vector3 smoothedVel = Vector3.Lerp(currentHorizontalVel, targetVelocity, acceleration * Time.fixedDeltaTime);
+            rb.linearVelocity = new Vector3(smoothedVel.x, rb.linearVelocity.y, smoothedVel.z);
         }
         else if (isGrounded)
         {
-            rb.linearVelocity = new Vector3(rb.linearVelocity.x * 0.7f, rb.linearVelocity.y, rb.linearVelocity.z * 0.7f);
+            Vector3 smoothedStopVel = Vector3.Lerp(currentHorizontalVel, Vector3.zero, deceleration * Time.fixedDeltaTime);
+            rb.linearVelocity = new Vector3(smoothedStopVel.x, rb.linearVelocity.y, smoothedStopVel.z);
         }
     }
 

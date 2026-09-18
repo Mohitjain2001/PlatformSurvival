@@ -11,7 +11,7 @@ public class Character3DAnimator : MonoBehaviour
     [SerializeField] private Rigidbody rb;
 
     [Header("Tuning")]
-    [SerializeField] private float maxSpeed = 7.5f;
+    [SerializeField] private float maxSpeed = 5.2f;
 
     private bool isGrounded = true;
     private bool isEliminated = false;
@@ -103,10 +103,9 @@ public class Character3DAnimator : MonoBehaviour
 
             // Speed parameter in BlendTree: 0 = Idle, 0.5 = Walk, 1.0 = Run
             float normalizedSpeed = 0f;
-            if (currentSpeed > 0.2f)
+            if (currentSpeed > 0.12f)
             {
-                float speedRatio = Mathf.Clamp01(currentSpeed / maxSpeed);
-                normalizedSpeed = Mathf.Lerp(0.45f, 1.0f, speedRatio);
+                normalizedSpeed = Mathf.Clamp01(currentSpeed / maxSpeed);
             }
 
             animator.SetFloat(SpeedHash, isGrounded ? normalizedSpeed : 0f);
