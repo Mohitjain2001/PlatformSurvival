@@ -4,15 +4,15 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement Settings")]
-    [SerializeField] private float moveSpeed = 7.0f;
-    [SerializeField] private float rotationSpeed = 12.0f;
+    [SerializeField] private float moveSpeed = 7.5f;
+    [SerializeField] private float rotationSpeed = 14.0f;
     [SerializeField] private float airControlMultiplier = 0.85f;
 
     [Header("Auto-Jump Settings")]
     [SerializeField] private float jumpForce = 8.5f;
     [SerializeField] private float forwardJumpBoost = 2.5f;
     [SerializeField] private float gapCheckDistance = 1.1f;
-    [SerializeField] private float groundCheckDistance = 0.4f;
+    [SerializeField] private float groundCheckDistance = 0.45f;
     [SerializeField] private float jumpCooldown = 0.35f;
 
     [Header("Dependencies")]
@@ -24,6 +24,7 @@ public class PlayerController : MonoBehaviour
     private float lastJumpTime = -1f;
     private bool isEliminated = false;
     private bool wasGroundedLastFrame = false;
+    private float eliminationYThreshold = -15.0f;
 
     public bool IsGrounded => isGrounded;
     public bool IsEliminated => isEliminated;
@@ -39,9 +40,10 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void Initialize(VirtualJoystick joystickRef)
+    public void Initialize(VirtualJoystick joystickRef, float eliminationY = -15.0f)
     {
         joystick = joystickRef;
+        eliminationYThreshold = eliminationY;
         isEliminated = false;
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
@@ -59,8 +61,8 @@ public class PlayerController : MonoBehaviour
             CheckAutoJump(moveInput);
         }
 
-        // Fall elimination check
-        if (transform.position.y < -5.0f && !isEliminated)
+        // Multi-layer bottom elimination check
+        if (transform.position.y < eliminationYThreshold && !isEliminated)
         {
             Eliminate();
         }
@@ -75,11 +77,9 @@ public class PlayerController : MonoBehaviour
 
         if (moveDir.sqrMagnitude > 0.02f)
         {
-            // Rotation facing movement
             Quaternion targetRotation = Quaternion.LookRotation(moveDir);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
 
-            // Movement force/velocity
             float currentSpeed = moveSpeed * (isGrounded ? 1.0f : airControlMultiplier);
             Vector3 targetVelocity = moveDir * currentSpeed;
             targetVelocity.y = rb.linearVelocity.y;
@@ -144,7 +144,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // Auto Jump condition: No ground ahead or ground ahead is falling/destroyed
+        // Auto Jump: trigger forward leap across gap
         if (!hasGroundAhead || isGroundFalling)
         {
             PerformJump(moveDir);

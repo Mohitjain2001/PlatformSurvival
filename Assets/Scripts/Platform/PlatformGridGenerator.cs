@@ -5,21 +5,31 @@ using UnityEngine;
 public class PlatformGridGenerator : MonoBehaviour
 {
     [Header("Grid Configuration")]
-    [SerializeField] private int gridRadius = 6; // Hexagonal grid radius (e.g. 6 = ~90 tiles)
+    [SerializeField] private int gridRadius = 6; // Hexagonal grid radius
     [SerializeField] private float tileOuterRadius = 1.2f;
     [SerializeField] private float tileHeight = 0.4f;
     [SerializeField] private float tileSpacing = 0.08f;
 
-    [Header("Spawn Positions")]
-    [SerializeField] private float playerSpawnHeight = 2.0f;
+    [Header("Multi-Layer Setup")]
+    [SerializeField] private int layerCount = 3; // 3 vertical floors like Fall Race 3D!
+    [SerializeField] private float layerSpacing = 5.0f; // Vertical distance between floors
 
-    [Header("Colors")]
-    [SerializeField] private Color tileNormalColor = new Color(0.25f, 0.75f, 0.95f);
-    [SerializeField] private Color tileWarningColor = new Color(0.98f, 0.65f, 0.12f);
-    [SerializeField] private Color tileDangerColor = new Color(0.95f, 0.22f, 0.22f);
+    [Header("Layer Colors")]
+    [SerializeField] private Color[] layerNormalColors = new Color[]
+    {
+        new Color(0.20f, 0.75f, 0.95f), // Layer 1: Bright Blue / Cyan
+        new Color(0.98f, 0.70f, 0.15f), // Layer 2: Golden Yellow / Orange
+        new Color(0.90f, 0.25f, 0.75f)  // Layer 3: Pink / Magenta
+    };
+
+    [SerializeField] private Color tileWarningColor = new Color(1.0f, 0.45f, 0.0f); // Warning Orange
+    [SerializeField] private Color tileDangerColor = new Color(0.95f, 0.15f, 0.15f); // Red
 
     private List<PlatformTile> generatedTiles = new List<PlatformTile>();
     private Mesh hexMesh;
+
+    public int LayerCount => layerCount;
+    public float BottomLayerY => -(layerCount - 1) * layerSpacing - 4.0f;
 
     public List<PlatformTile> ActiveTiles
     {
@@ -48,66 +58,79 @@ public class PlatformGridGenerator : MonoBehaviour
         float xSpacing = Mathf.Sqrt(3) * effectiveRadius;
         float zSpacing = 1.5f * effectiveRadius;
 
-        List<Vector3> validSpawnPoints = new List<Vector3>();
+        List<Vector3> topLayerSpawnPoints = new List<Vector3>();
 
-        for (int q = -gridRadius; q <= gridRadius; q++)
+        // Generate Multiple Floors (Layers)
+        for (int layer = 0; layer < layerCount; layer++)
         {
-            int r1 = Mathf.Max(-gridRadius, -q - gridRadius);
-            int r2 = Mathf.Min(gridRadius, -q + gridRadius);
+            float layerY = -layer * layerSpacing;
+            GameObject layerParent = new GameObject($"Layer_{layer + 1}");
+            layerParent.transform.SetParent(transform);
 
-            for (int r = r1; r <= r2; r++)
+            Color baseColor = layerNormalColors[layer % layerNormalColors.Length];
+
+            for (int q = -gridRadius; q <= gridRadius; q++)
             {
-                float x = xSpacing * (q + r / 2.0f);
-                float z = zSpacing * r;
+                int r1 = Mathf.Max(-gridRadius, -q - gridRadius);
+                int r2 = Mathf.Min(gridRadius, -q + gridRadius);
 
-                Vector3 pos = new Vector3(x, 0, z);
-                GameObject tileObj = CreateTileObject(pos);
-                PlatformTile tile = tileObj.AddComponent<PlatformTile>();
-                tile.SetColors(tileNormalColor, tileWarningColor, tileDangerColor);
+                for (int r = r1; r <= r2; r++)
+                {
+                    float x = xSpacing * (q + r / 2.0f);
+                    float z = zSpacing * r;
 
-                generatedTiles.Add(tile);
-                validSpawnPoints.Add(pos + Vector3.up * playerSpawnHeight);
+                    Vector3 pos = new Vector3(x, layerY, z);
+                    GameObject tileObj = CreateTileObject(pos, layerParent.transform);
+                    PlatformTile tile = tileObj.AddComponent<PlatformTile>();
+                    tile.SetColors(baseColor, tileWarningColor, tileDangerColor);
+
+                    generatedTiles.Add(tile);
+
+                    if (layer == 0)
+                    {
+                        topLayerSpawnPoints.Add(pos + Vector3.up * 2.0f);
+                    }
+                }
             }
         }
 
-        // Shuffle spawn points
-        for (int i = 0; i < validSpawnPoints.Count; i++)
+        // Shuffle top layer spawn points for Player and Bots
+        for (int i = 0; i < topLayerSpawnPoints.Count; i++)
         {
-            int rnd = Random.Range(i, validSpawnPoints.Count);
-            Vector3 temp = validSpawnPoints[i];
-            validSpawnPoints[i] = validSpawnPoints[rnd];
-            validSpawnPoints[rnd] = temp;
+            int rnd = Random.Range(i, topLayerSpawnPoints.Count);
+            Vector3 temp = topLayerSpawnPoints[i];
+            topLayerSpawnPoints[i] = topLayerSpawnPoints[rnd];
+            topLayerSpawnPoints[rnd] = temp;
         }
 
-        // Set Player spawn in center region if possible
-        playerSpawn = Vector3.up * playerSpawnHeight;
+        playerSpawn = Vector3.up * 2.0f;
         botSpawns = new List<Vector3>();
 
         int spawnIndex = 0;
-        if (validSpawnPoints.Count > 0)
+        if (topLayerSpawnPoints.Count > 0)
         {
-            playerSpawn = validSpawnPoints[0];
+            playerSpawn = topLayerSpawnPoints[0];
             spawnIndex = 1;
         }
 
         for (int i = 0; i < botCount; i++)
         {
-            if (spawnIndex < validSpawnPoints.Count)
+            if (spawnIndex < topLayerSpawnPoints.Count)
             {
-                botSpawns.Add(validSpawnPoints[spawnIndex]);
+                botSpawns.Add(topLayerSpawnPoints[spawnIndex]);
                 spawnIndex++;
             }
             else
             {
-                botSpawns.Add(Vector3.up * playerSpawnHeight + new Vector3(Random.Range(-3f, 3f), 0, Random.Range(-3f, 3f)));
+                botSpawns.Add(Vector3.up * 2.0f + new Vector3(Random.Range(-3f, 3f), 0, Random.Range(-3f, 3f)));
             }
         }
     }
 
-    private GameObject CreateTileObject(Vector3 position)
+    private GameObject CreateTileObject(Vector3 position, Transform parent)
     {
         GameObject tileObj = new GameObject("HexTile");
-        tileObj.transform.SetParent(transform);
+        tileObj.transform.SetParent(parent);
         tileObj.transform.position = position;
 
         MeshFilter mf = tileObj.AddComponent<MeshFilter>();
@@ -140,7 +163,7 @@ public class PlatformGridGenerator : MonoBehaviour
         // Top face perimeter (6 vertices)
         for (int i = 0; i < 6; i++)
         {
-            float angleDeg = 60 * i - 30; // Pointy topped hex
+            float angleDeg = 60 * i - 30;
             float angleRad = Mathf.Deg2Rad * angleDeg;
             vertices.Add(new Vector3(radius * Mathf.Cos(angleRad), height / 2f, radius * Mathf.Sin(angleRad)));
             normals.Add(Vector3.up);

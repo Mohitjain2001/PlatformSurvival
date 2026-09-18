@@ -23,11 +23,11 @@ public class GameManager : MonoBehaviour
     [Header("Bot Colors")]
     [SerializeField] private Color[] botColors = new Color[]
     {
-        new Color(0.95f, 0.26f, 0.21f), // Red
-        new Color(0.61f, 0.15f, 0.69f), // Purple
-        new Color(1.00f, 0.60f, 0.00f), // Orange
-        new Color(1.00f, 0.92f, 0.23f), // Yellow
-        new Color(0.30f, 0.69f, 0.31f)  // Green
+        new Color(0.95f, 0.25f, 0.20f), // Vibrant Red
+        new Color(0.60f, 0.20f, 0.85f), // Royal Purple
+        new Color(1.00f, 0.55f, 0.00f), // Neon Orange
+        new Color(0.98f, 0.85f, 0.10f), // Sunny Yellow
+        new Color(0.20f, 0.80f, 0.35f)  // Emerald Green
     };
 
     private GameState currentState = GameState.Waiting;
@@ -59,7 +59,6 @@ public class GameManager : MonoBehaviour
         currentState = GameState.Waiting;
         aliveParticipants.Clear();
 
-        // 1. Generate Platform Grid
         Vector3 playerSpawn;
         List<Vector3> botSpawns;
         
@@ -68,7 +67,10 @@ public class GameManager : MonoBehaviour
             gridGenerator = FindObjectOfType<PlatformGridGenerator>();
         }
 
+        // 1. Generate Multi-Layer Platform Arena
         gridGenerator.GenerateGrid(out playerSpawn, out botSpawns, botCount);
+
+        float bottomEliminationY = gridGenerator.BottomLayerY;
 
         // 2. Spawn Player
         if (playerInstance != null) Destroy(playerInstance);
@@ -79,11 +81,12 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            playerInstance = CreatePrimitivePlayer(playerSpawn);
+            playerInstance = CreateCharacterBean(playerSpawn, "Player", new Color(0.12f, 0.65f, 1.0f)); // Blue Bean Player
         }
 
         PlayerController pc = playerInstance.GetComponent<PlayerController>();
-        if (pc != null) pc.Initialize(joystick);
+        if (pc == null) pc = playerInstance.AddComponent<PlayerController>();
+        pc.Initialize(joystick, bottomEliminationY);
 
         aliveParticipants.Add(playerInstance);
 
@@ -96,18 +99,20 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < botSpawns.Count; i++)
         {
             GameObject botObj;
+            Color botColor = botColors[i % botColors.Length];
+
             if (botPrefab != null)
             {
                 botObj = Instantiate(botPrefab, botSpawns[i], Quaternion.identity);
             }
             else
             {
-                botObj = CreatePrimitiveBot(botSpawns[i]);
+                botObj = CreateCharacterBean(botSpawns[i], "Bot_" + (i + 1), botColor);
             }
 
             BotController bc = botObj.GetComponent<BotController>();
-            Color color = botColors[i % botColors.Length];
-            if (bc != null) bc.Initialize("Bot " + (i + 1), color);
+            if (bc == null) bc = botObj.AddComponent<BotController>();
+            bc.Initialize("Bot " + (i + 1), botColor, bottomEliminationY);
 
             aliveParticipants.Add(botObj);
         }
@@ -167,33 +172,48 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
-    private GameObject CreatePrimitivePlayer(Vector3 spawnPos)
+    private GameObject CreateCharacterBean(Vector3 spawnPos, string name, Color bodyColor)
     {
-        GameObject player = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-        player.name = "Player";
-        player.transform.position = spawnPos;
+        GameObject character = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        character.name = name;
+        character.transform.position = spawnPos;
 
-        MeshRenderer mr = player.GetComponent<MeshRenderer>();
+        MeshRenderer mr = character.GetComponent<MeshRenderer>();
         mr.material = new Material(Shader.Find("Standard"));
+        mr.material.color = bodyColor;
 
-        player.AddComponent<CharacterSquashAndStretch>();
-        player.AddComponent<PlayerController>();
+        // Add cute Face / Visor (white oval with black eyes) like Fall Guys beans!
+        GameObject visor = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        visor.name = "VisorFace";
+        visor.transform.SetParent(character.transform);
+        visor.transform.localPosition = new Vector3(0, 0.45f, 0.48f);
+        visor.transform.localScale = new Vector3(0.45f, 0.35f, 1f);
+        visor.transform.localRotation = Quaternion.Euler(0, 0, 0);
 
-        return player;
-    }
+        MeshRenderer visorMr = visor.GetComponent<MeshRenderer>();
+        visorMr.material = new Material(Shader.Find("Standard"));
+        visorMr.material.color = new Color(0.95f, 0.95f, 0.95f); // Off-white visor faceplate
 
-    private GameObject CreatePrimitiveBot(Vector3 spawnPos)
-    {
-        GameObject bot = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-        bot.name = "Bot";
-        bot.transform.position = spawnPos;
+        // Left Eye
+        GameObject eyeL = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        eyeL.transform.SetParent(visor.transform);
+        eyeL.transform.localPosition = new Vector3(-0.22f, 0.05f, -0.05f);
+        eyeL.transform.localScale = new Vector3(0.18f, 0.25f, 0.18f);
+        eyeL.GetComponent<MeshRenderer>().material.color = Color.black;
+        Destroy(eyeL.GetComponent<Collider>());
 
-        MeshRenderer mr = bot.GetComponent<MeshRenderer>();
-        mr.material = new Material(Shader.Find("Standard"));
+        // Right Eye
+        GameObject eyeR = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        eyeR.transform.SetParent(visor.transform);
+        eyeR.transform.localPosition = new Vector3(0.22f, 0.05f, -0.05f);
+        eyeR.transform.localScale = new Vector3(0.18f, 0.25f, 0.18f);
+        eyeR.GetComponent<MeshRenderer>().material.color = Color.black;
+        Destroy(eyeR.GetComponent<Collider>());
 
-        bot.AddComponent<CharacterSquashAndStretch>();
-        bot.AddComponent<BotController>();
+        Destroy(visor.GetComponent<Collider>());
 
-        return bot;
+        character.AddComponent<CharacterSquashAndStretch>();
+
+        return character;
     }
 }

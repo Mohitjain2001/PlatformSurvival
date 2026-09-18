@@ -6,12 +6,12 @@ using UnityEngine;
 public class BotController : MonoBehaviour
 {
     [Header("Bot Settings")]
-    [SerializeField] private float moveSpeed = 6.0f;
-    [SerializeField] private float rotationSpeed = 10.0f;
+    [SerializeField] private float moveSpeed = 6.2f;
+    [SerializeField] private float rotationSpeed = 12.0f;
     [SerializeField] private float jumpForce = 8.5f;
     [SerializeField] private float forwardJumpBoost = 2.2f;
     [SerializeField] private float gapCheckDistance = 1.0f;
-    [SerializeField] private float groundCheckDistance = 0.4f;
+    [SerializeField] private float groundCheckDistance = 0.45f;
     [SerializeField] private float jumpCooldown = 0.4f;
     [SerializeField] private float reactionDelayMin = 0.1f;
     [SerializeField] private float reactionDelayMax = 0.35f;
@@ -28,6 +28,7 @@ public class BotController : MonoBehaviour
     private float nextTargetEvaluationTime = 0f;
     private string botName = "Bot";
     private Material botMaterial;
+    private float eliminationYThreshold = -15.0f;
 
     public string BotName => botName;
     public bool IsEliminated => isEliminated;
@@ -43,9 +44,10 @@ public class BotController : MonoBehaviour
         }
     }
 
-    public void Initialize(string name, Color color)
+    public void Initialize(string name, Color color, float eliminationY = -15.0f)
     {
         botName = name;
+        eliminationYThreshold = eliminationY;
         isEliminated = false;
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
@@ -81,8 +83,8 @@ public class BotController : MonoBehaviour
             CheckAutoJump(moveInput.normalized);
         }
 
-        // Fall elimination check
-        if (transform.position.y < -5.0f && !isEliminated)
+        // Multi-layer bottom elimination check
+        if (transform.position.y < eliminationYThreshold && !isEliminated)
         {
             Eliminate();
         }
@@ -120,20 +122,16 @@ public class BotController : MonoBehaviour
 
     private void EvaluateAndPickTargetTile()
     {
-        // Check current tile under bot
         PlatformTile currentTile = GetTileUnderfoot();
 
-        // If standing on a safe tile that is NOT shaking, stay or move around locally
         if (currentTile != null && currentTile.IsAvailable && !currentTile.IsShaking)
         {
-            // Pick a slight random offset on current or neighboring tile
             currentMoveTarget = currentTile.Position + new Vector3(Random.Range(-0.3f, 0.3f), 0, Random.Range(-0.3f, 0.3f));
             targetTile = currentTile;
             return;
         }
 
-        // Current tile is missing or shaking! Find nearest available stable tile
-        PlatformTile bestTile = FindBestAvailableTile();
+        PlatformTile bestTile = FindBestAvailableTileOnSameLevel();
         if (bestTile != null)
         {
             targetTile = bestTile;
@@ -141,7 +139,6 @@ public class BotController : MonoBehaviour
         }
         else
         {
-            // Emergency panic jump in random direction
             Vector3 randomDir = new Vector3(Random.Range(-1f, 1f), 0, Random.Range(-1f, 1f)).normalized;
             currentMoveTarget = transform.position + randomDir * 3.0f;
         }
@@ -156,36 +153,44 @@ public class BotController : MonoBehaviour
         return null;
     }
 
-    private PlatformTile FindBestAvailableTile()
+    private PlatformTile FindBestAvailableTileOnSameLevel()
     {
         PlatformTile[] allTiles = FindObjectsOfType<PlatformTile>();
         PlatformTile closest = null;
         float minDistance = float.MaxValue;
+        float botY = transform.position.y;
 
         foreach (PlatformTile tile in allTiles)
         {
             if (tile == null || !tile.IsAvailable || tile.IsShaking) continue;
 
-            float dist = Vector3.Distance(transform.position, tile.Position);
-            if (dist < minDistance && dist < 7.0f)
+            // Prefer tiles on current level (similar Y position)
+            if (Mathf.Abs(tile.Position.y - botY) < 2.5f)
             {
-                minDistance = dist;
-                closest = tile;
+                float dist = Vector3.Distance(transform.position, tile.Position);
+                if (dist < minDistance && dist < 7.5f)
+                {
+                    minDistance = dist;
+                    closest = tile;
+                }
             }
         }
 
-        // If all surrounding tiles are shaking, fallback to any available tile
+        // Fallback: any available tile near bot position
         if (closest == null)
         {
             foreach (PlatformTile tile in allTiles)
             {
                 if (tile == null || !tile.IsAvailable) continue;
 
-                float dist = Vector3.Distance(transform.position, tile.Position);
-                if (dist < minDistance)
+                if (tile.Position.y <= botY + 1.0f)
                 {
-                    minDistance = dist;
-                    closest = tile;
+                    float dist = Vector3.Distance(transform.position, tile.Position);
+                    if (dist < minDistance)
+                    {
+                        minDistance = dist;
+                        closest = tile;
+                    }
                 }
             }
         }
