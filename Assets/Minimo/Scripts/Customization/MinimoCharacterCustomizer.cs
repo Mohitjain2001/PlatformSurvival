@@ -1,4 +1,3 @@
-#pragma warning disable CS0619 // GetInstanceID() is obsolete in Unity 6 – third-party Minimo asset
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -3163,14 +3162,14 @@ public class MinimoCharacterCustomizer : MonoBehaviour
                 continue;
             }
 
-            boundRendererIds.Add(binding.targetRenderer.GetInstanceID());
+            boundRendererIds.Add(binding.targetRenderer.GetHashCode());
         }
 
         SkinnedMeshRenderer[] slotRenderers = legacySlotsRoot.GetComponentsInChildren<SkinnedMeshRenderer>(true);
         for (int i = 0; i < slotRenderers.Length; i++)
         {
             SkinnedMeshRenderer renderer = slotRenderers[i];
-            if (renderer == null || boundRendererIds.Contains(renderer.GetInstanceID()))
+            if (renderer == null || boundRendererIds.Contains(renderer.GetHashCode()))
             {
                 continue;
             }

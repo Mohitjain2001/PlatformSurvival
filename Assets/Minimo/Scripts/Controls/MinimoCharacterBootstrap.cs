@@ -1,4 +1,3 @@
-#pragma warning disable CS0619 // GetInstanceID() is obsolete in Unity 6 – third-party Minimo asset
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -231,7 +230,7 @@ public class MinimoCharacterBootstrap : MonoBehaviour
             return true;
         }
 
-        int characterId = character.GetInstanceID();
+        int characterId = character.GetHashCode();
         if (runtimeClaimedCharacterId == characterId)
         {
             return true;

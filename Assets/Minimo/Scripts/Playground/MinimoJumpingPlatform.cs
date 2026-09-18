@@ -1,4 +1,3 @@
-#pragma warning disable CS0619 // GetInstanceID() is obsolete in Unity 6 – third-party Minimo asset
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -42,7 +41,7 @@ public class MinimoJumpingPlatform : MonoBehaviour
             return false;
         }
 
-        int characterId = controller.GetInstanceID();
+        int characterId = controller.GetHashCode();
         if (nextBounceTimeByCharacterId.TryGetValue(characterId, out float nextBounceTime) && Time.time < nextBounceTime)
         {
             return false;

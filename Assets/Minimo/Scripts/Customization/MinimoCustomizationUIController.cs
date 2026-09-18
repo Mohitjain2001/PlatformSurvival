@@ -1,4 +1,3 @@
-#pragma warning disable CS0619 // GetInstanceID() is obsolete in Unity 6 – third-party Minimo asset
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10427,7 +10426,7 @@ public class MinimoCustomizationUIController : MonoBehaviour
             return;
         }
 
-        int cacheKey = Application.isPlaying ? mesh.GetInstanceID() : 0;
+        int cacheKey = Application.isPlaying ? mesh.GetHashCode() : 0;
         if (cacheKey != 0 && RuntimeMeshVisualSignatureCache.TryGetValue(cacheKey, out string cachedSignature))
         {
             builder.Append(cachedSignature);
@@ -10698,7 +10697,7 @@ public class MinimoCustomizationUIController : MonoBehaviour
         }
 #endif
 
-        return $"{NormalizeVisualSignatureToken(texture.name)}#{texture.width}x{texture.height}#{texture.GetInstanceID()}";
+        return $"{NormalizeVisualSignatureToken(texture.name)}#{texture.width}x{texture.height}#{texture.GetHashCode()}";
     }
 
     private static void AppendMaterialColorSignature(StringBuilder builder, Material[] materials)
@@ -11102,7 +11101,7 @@ public class MinimoCustomizationUIController : MonoBehaviour
         string assetKey = !string.IsNullOrWhiteSpace(entry.assetPath)
             ? entry.assetPath
             : entry.sourcePrefab != null
-                ? entry.sourcePrefab.GetInstanceID().ToString()
+                ? entry.sourcePrefab.GetHashCode().ToString()
                 : entry.prefabName;
         return $"preview:{PreviewRenderSettingsVersion}|prop:{assetKey}|rig:{entry.rigName}|prefab:{entry.prefabName}";
     }
@@ -17585,7 +17584,7 @@ public class MinimoCustomizationUIController : MonoBehaviour
 
             if (TryResolveSceneColorPaletteButton(child, out Button button))
             {
-                int instanceId = button.gameObject.GetInstanceID();
+                int instanceId = button.gameObject.GetHashCode();
                 if (addedButtonIds != null && !addedButtonIds.Add(instanceId))
                 {
                     continue;
@@ -17864,7 +17863,7 @@ public class MinimoCustomizationUIController : MonoBehaviour
                 background.color = channelColor;
             }
 
-            int instanceId = button.gameObject.GetInstanceID();
+            int instanceId = button.gameObject.GetHashCode();
             if (background != null && !materialChannelBaseBackgroundColors.ContainsKey(instanceId))
             {
                 materialChannelBaseBackgroundColors[instanceId] = background.color;
@@ -20280,7 +20279,7 @@ public class MinimoCustomizationUIController : MonoBehaviour
                 continue;
             }
 
-            int instanceId = extraButton.gameObject.GetInstanceID();
+            int instanceId = extraButton.gameObject.GetHashCode();
             DestroyGameObjectSafely(extraButton.gameObject);
 
             runtimeMaterialChannelButtonInstanceIds.Remove(instanceId);
@@ -20470,7 +20469,7 @@ public class MinimoCustomizationUIController : MonoBehaviour
         clone.onClick.RemoveAllListeners();
         clone.interactable = true;
         NormalizeMaterialChannelButtonRect(clone);
-        runtimeMaterialChannelButtonInstanceIds.Add(cloneObject.GetInstanceID());
+        runtimeMaterialChannelButtonInstanceIds.Add(cloneObject.GetHashCode());
         return clone;
     }
 
@@ -20575,7 +20574,7 @@ public class MinimoCustomizationUIController : MonoBehaviour
 
     private bool IsRuntimeMaterialChannelClone(Button button)
     {
-        return button != null && runtimeMaterialChannelButtonInstanceIds.Contains(button.gameObject.GetInstanceID());
+        return button != null && runtimeMaterialChannelButtonInstanceIds.Contains(button.gameObject.GetHashCode());
     }
 
     private static void ApplyMaterialChannelButtonVisualStyle(Button button, Button template)
@@ -28563,7 +28562,7 @@ public class MinimoCustomizationUIController : MonoBehaviour
         {
             if (!allowWithoutShadowTarget)
             {
-                shadowPressButtonStates.Remove(button.gameObject.GetInstanceID());
+                shadowPressButtonStates.Remove(button.gameObject.GetHashCode());
                 return;
             }
 
@@ -28572,11 +28571,11 @@ public class MinimoCustomizationUIController : MonoBehaviour
 
         if (buttonRect == null)
         {
-            shadowPressButtonStates.Remove(button.gameObject.GetInstanceID());
+            shadowPressButtonStates.Remove(button.gameObject.GetHashCode());
             return;
         }
 
-        int instanceId = button.gameObject.GetInstanceID();
+        int instanceId = button.gameObject.GetHashCode();
         if (!shadowPressButtonStates.TryGetValue(instanceId, out ShadowPressButtonState state))
         {
             float releasedBottom = ResolveShadowPressReleasedBottom(button, buttonRect);
@@ -28625,7 +28624,7 @@ public class MinimoCustomizationUIController : MonoBehaviour
             return;
         }
 
-        int instanceId = button.gameObject.GetInstanceID();
+        int instanceId = button.gameObject.GetHashCode();
         if (shadowPressButtonStates.TryGetValue(instanceId, out ShadowPressButtonState state)
             && state?.shadowEffect != null
             && state.hasEffectDistanceTarget)
@@ -28650,7 +28649,7 @@ public class MinimoCustomizationUIController : MonoBehaviour
             return;
         }
 
-        int instanceId = button.gameObject.GetInstanceID();
+        int instanceId = button.gameObject.GetHashCode();
         if (!shadowPressButtonStates.TryGetValue(instanceId, out ShadowPressButtonState state) || state == null)
         {
             return;
@@ -28666,7 +28665,7 @@ public class MinimoCustomizationUIController : MonoBehaviour
             return;
         }
 
-        int instanceId = button.gameObject.GetInstanceID();
+        int instanceId = button.gameObject.GetHashCode();
         if (!shadowPressButtonStates.TryGetValue(instanceId, out ShadowPressButtonState state) || state == null)
         {
             return;
@@ -28870,7 +28869,7 @@ public class MinimoCustomizationUIController : MonoBehaviour
             return;
         }
 
-        int instanceId = button.gameObject.GetInstanceID();
+        int instanceId = button.gameObject.GetHashCode();
         if (shadowPressButtonStates.TryGetValue(instanceId, out ShadowPressButtonState state) && state != null)
         {
             state.stickyActive = stickyActive;
