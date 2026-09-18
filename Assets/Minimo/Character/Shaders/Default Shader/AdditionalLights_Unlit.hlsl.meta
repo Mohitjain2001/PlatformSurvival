@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: b4507b92c30f05748b65a9baf280ffd8
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 363332
+  packageName: "MINIMO STARTER PACK \u2013 Free Character & Essential Controls"
+  packageVersion: 1.0.0
+  assetPath: Assets/Minimo/Character/Shaders/Default Shader/AdditionalLights_Unlit.hlsl
+  uploadId: 953250

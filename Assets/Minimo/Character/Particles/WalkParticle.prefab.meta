@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 83cd9cc9f9c88824ba18dc59b05ae328
+labels:
+- CartoonFX
+- Toon
+- Particles
+- Hit
+NativeFormatImporter:
+  userData: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 363332
+  packageName: "MINIMO STARTER PACK \u2013 Free Character & Essential Controls"
+  packageVersion: 1.0.0
+  assetPath: Assets/Minimo/Character/Particles/WalkParticle.prefab
+  uploadId: 953250

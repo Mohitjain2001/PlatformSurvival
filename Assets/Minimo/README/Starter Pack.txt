@@ -1,0 +1,443 @@
+# 🌟✨ MINIMO STARTER PACK – Free Character & Essential Controls ✨🌟
+
+A free introduction to the MINIMO character system for Unity.
+
+**MINIMO STARTER PACK** provides one ready-to-use stylized character, a modular Character Editor demo, and a playable Playground scene containing the essential third-person movement systems shown in the package preview.
+
+Use it to test the MINIMO workflow, prototype a platformer or adventure game, study the included character controller, and confirm that the visual style fits your project before expanding your collection with additional MINIMO character packs.
+
+---
+
+## 🎯 WHAT IS INCLUDED?
+
+The Starter Pack contains:
+
+* 1 free MINIMO character
+* 1 Character Editor scene
+* 1 Playground demo scene
+* A ready-to-test third-person character controller
+* Character customization and color-editing tools
+* Character preset saving and loading workflow
+* Essential locomotion, jumping, climbing, wall and action controls
+* Demo obstacles designed to test each movement feature
+* Character animations required by the included controller
+* Example UI for controls and performance information
+
+This is a starter package. Only the free character and the content supplied inside this package are included.
+
+Some areas of the Character Editor may display previews or promotional links for other MINIMO collections. Characters, outfits, props, and parts belonging to those separate collections are not included in the Starter Pack and must be obtained separately.
+
+---
+
+## 🧍 FREE MINIMO CHARACTER
+
+The included character is a compact, stylized humanoid designed for colorful platformers, adventure games, casual games, prototypes, and family-friendly projects.
+
+The character is prepared for the systems demonstrated in the package, including:
+
+* Idle and locomotion animations
+* Walking and sprinting
+* Short, long, and double-jump actions
+* Falling and landing
+* Dashing
+* Rolling
+* Crouching and sliding
+* Climbing
+* Wall jumping
+* Ground pounding
+* Reactions used by the Playground obstacles
+
+The supplied character can be opened in the Character Editor, customized with the available Starter Pack options, saved as a preset, and tested directly in the Playground scene.
+
+---
+
+## 🎨 CHARACTER EDITOR SCENE
+
+The Character Editor scene provides a visual workflow for previewing and customizing MINIMO characters.
+
+The character is displayed on a rotating presentation platform while the customization panel gives access to the available character categories, variations, and colors.
+
+### Main Character Editor Sections
+
+### 🟠 Saved Prefabs
+
+View character presets that have already been saved.
+
+### 🟣 Customize
+
+Open the modular customization interface and edit the current character.
+
+### 🟢 Play
+
+Send the selected character into the playable demo so it can be tested with the included controller.
+
+Available customization categories shown by the editor include:
+
+* Hair
+* Head
+* Shoulder
+* Arms
+* Hand
+* Hips
+* Torso
+* Legs
+* Foot
+* Props
+
+The exact number of selectable items depends on the MINIMO packs currently installed in the project. The Starter Pack itself contains only its included free content.
+
+---
+
+## 🛠️ CHARACTER CUSTOMIZATION WORKFLOW
+
+1. Open the Character Editor scene.
+2. Enter Play Mode.
+3. Select **Customize**.
+4. Choose a body-part category from the colored category buttons.
+5. Select one of the available part thumbnails.
+6. Use the color presets to recolor the selected part.
+7. Use the custom color control when a more specific color is required.
+8. Use the **None** option to remove an optional part when supported.
+9. Use the randomization controls to create a quick variation.
+10. Press **Save** to store the current character setup.
+11. Open **Saved Prefabs** to view saved character presets.
+12. Press **Play** to test the selected character in the Playground scene.
+
+The editor also demonstrates linked-part editing. Related body pieces can be kept visually synchronized so connected sections of an outfit can share coordinated changes instead of being edited one by one.
+
+Examples include linked torso, shoulder, and arm sections. The available linked parts depend on the selected modular item.
+
+---
+
+## 🎲 RANDOMIZATION AND PRESETS
+
+The Character Editor includes tools for quickly producing and testing different looks.
+
+### Random
+
+Creates a randomized character setup from the parts currently available in the project.
+
+### Category Shuffle
+
+Randomizes or changes the selection inside the active customization category.
+
+### Save
+
+Stores the current customized setup as a reusable character preset.
+
+### Saved Prefabs
+
+Displays previously saved character presets so they can be selected again without rebuilding the same combination.
+
+Before saving or distributing a character, verify that every selected part belongs to a MINIMO package installed in your project.
+
+---
+
+## 🎮 PLAYGROUND DEMO SCENE
+
+The Playground scene is a complete movement-testing area built to demonstrate the included controller and character animations.
+
+Its obstacle layout contains clearly marked sections for testing individual actions and combined movement sequences.
+
+The scene demonstrates:
+
+* Basic walking
+* Sprinting
+* Short jump
+* Long jump
+* Double jump
+* Jump-and-dash combinations
+* Falling and landing
+* Climbing
+* Wall jump
+* Rolling
+* Ground pounding
+* Crouching
+* Sliding
+* Low-clearance movement
+* Floating and elevated platforms
+* Precision platforming
+* Bounce surfaces
+* Chained movement between obstacles
+* Third-person camera control
+
+The Playground is intended both as a playable showcase and as a practical reference scene. You can inspect its setup to understand how the character, controller, camera, animations, UI, and obstacle interactions are connected.
+
+---
+
+## ⌨️ DEFAULT KEYBOARD & MOUSE CONTROLS
+
+### Move
+
+**W / A / S / D**
+
+### Sprint
+
+**Left Shift**
+
+### Camera
+
+**Mouse**
+
+### Jump
+
+**Space**
+
+### Dash
+
+**Q**
+
+### Roll
+
+**Left Alt**
+
+### Crouch / Slide
+
+**C**
+
+### Ground Pound
+
+**E** or **Left Ctrl**
+
+### Open Character Customization
+
+**Escape**
+
+### Toggle Control Overlay
+
+**F2**
+
+### Toggle Performance Overlay
+
+**F1**
+
+The included demo uses the keyboard and mouse control scheme shown above. Control bindings may be changed in the relevant controller or input configuration used by your project.
+
+---
+
+## 🏃 MOVEMENT SYSTEM DETAILS
+
+### Walk and Sprint
+
+Use standard directional movement for walking. Hold **Left Shift** while moving to sprint.
+
+### Short, Long, and Double Jump
+
+The Playground contains separate marked areas for testing the controller’s jump variations, including short jumps, longer jumps, and an additional mid-air jump.
+
+### Dash
+
+Press **Q** to perform a fast directional dash. The Playground includes sections where jumping and dashing are combined to cross larger gaps.
+
+### Roll
+
+Press **Left Alt** to perform a forward roll. Rolling can be used as an evasive or traversal action and is demonstrated in open sections of the Playground.
+
+### Crouch and Slide
+
+Press **C** to crouch. When used with movement conditions supported by the controller, the same input can initiate a slide. Low-clearance tunnels are included to test crouched traversal.
+
+### Climb
+
+The character can interact with designated climbable surfaces shown in the Playground.
+
+### Wall Jump
+
+The wall-jump section demonstrates repeated jumps against vertical surfaces to gain height.
+
+### Ground Pound
+
+While airborne, press **E** or **Left Ctrl** to perform the ground-pound action.
+
+### Bounce Surfaces
+
+The purple rounded obstacles demonstrate character reactions and airborne movement when crossing spring-like surfaces.
+
+---
+
+## 🚀 QUICK START
+
+1. Import **MINIMO STARTER PACK** into your Unity project.
+2. Allow Unity to complete script compilation and asset import.
+3. Locate the package’s Scenes folder.
+4. Open the Character Editor scene to customize and save the free character.
+5. Open the Playground scene to test the included movement controller.
+6. Enter Play Mode.
+7. Press **F2** at any time in the Playground to show or hide the control reference.
+8. Press **F1** to show or hide the performance information.
+9. Use **Escape** to return to or open the character customization interface where supported.
+10. Duplicate the included example character or prefab before making major project-specific changes.
+
+For production use, integrate the controller, character prefab, animations, and camera into a copy of your own scene rather than editing the original demo scene directly.
+
+---
+
+## 📂 RECOMMENDED INTEGRATION WORKFLOW
+
+* First test the untouched Character Editor and Playground scenes.
+* Create a backup or duplicate before modifying example prefabs.
+* Move a copy of the playable character into your own scene.
+* Confirm that its controller, animator, camera references, and ground detection work correctly.
+* Rebind inputs if your project uses a different control layout.
+* Adjust movement values to match the scale and pacing of your game.
+* Replace demo obstacles with your own level geometry after the controller has been verified.
+* Keep saved character presets organized separately from the original package content.
+* Re-test customized characters after adding parts from other MINIMO collections.
+
+---
+
+## 📦 PACKAGE CONTENT SUMMARY
+
+### Character Content
+
+* One free modular MINIMO character
+* Character materials and required visual assets
+* Character animations used by the supplied demo controller
+
+### Character Editor Content
+
+* Character preview scene
+* Modular category interface
+* Part-selection interface
+* Color presets and custom color selection
+* Randomization controls
+* Save system
+* Saved-prefab browser
+* Linked-part customization demonstration
+* Play/test transition
+
+### Gameplay Content
+
+* Playable third-person character setup
+* Character controller
+* Third-person camera setup
+* Animation setup
+* Playground test environment
+* Marked movement tutorial sections
+* Control overlay
+* Performance overlay
+* Example interactive obstacles and traversal surfaces
+
+---
+
+## 🧩 USING OTHER MINIMO PACKS
+
+The Starter Pack is designed as the entry point to the wider MINIMO collection.
+
+Additional MINIMO packs may add more:
+
+* Complete characters
+* Hairstyles
+* Heads and facial styles
+* Upper-body and lower-body clothing
+* Hands, feet, and accessories
+* Props
+* Saved character presets
+* Themed co-op character sets
+
+When another compatible MINIMO pack is installed, its available modular content may appear inside the same Character Editor workflow.
+
+Separate MINIMO products are sold and distributed independently. A preview, thumbnail, promotional window, or store button does not mean that the displayed premium content is included in this free package.
+
+---
+
+## ⚠️ IMPORTANT NOTES
+
+* This package includes one free character.
+* Other MINIMO collections shown in promotional previews are not included.
+* The Playground is a demonstration and testing scene, not a complete game.
+* The supplied controls are the defaults used by the included demo.
+* Always back up your project before importing or updating any Unity package.
+* Test the package in a clean project before merging it into a large production project.
+* Visual results can vary depending on project lighting, post-processing, quality settings, and render-pipeline configuration.
+* When moving the character to another scene, verify all required controller, animator, camera, layer, tag, and ground-detection references.
+* Do not remove required animation or controller references unless they are being replaced by your own implementation.
+
+---
+
+## 🔧 TROUBLESHOOTING
+
+### The Character Does Not Move
+
+* Confirm that the Game window is focused.
+* Verify that the character controller and input components are enabled.
+* Check that the project has completed script compilation without errors.
+* Confirm that the required input configuration is active.
+
+### The Camera Does Not Follow the Character
+
+* Verify the camera target or follow reference.
+* Confirm that the demo camera object is enabled.
+* Check whether another camera in the scene is active.
+
+### The Character Falls Through the Floor
+
+* Confirm that the floor has a collider.
+* Verify the character’s ground and collision layers.
+* Check the controller’s ground-detection settings.
+
+### Animations Do Not Play Correctly
+
+* Confirm that the supplied Animator Controller is assigned.
+* Verify that animation references have not been removed.
+* Check the Console for missing parameter or state errors.
+
+### Climb or Wall Jump Does Not Activate
+
+* Test the action on the designated Playground surfaces first.
+* Verify the required collision layers, tags, or surface settings.
+* Confirm that the character is positioned and moving toward the surface correctly.
+
+### A Customized Part Is Missing
+
+* Confirm that the MINIMO package containing that part is installed.
+* Reopen the Character Editor after Unity finishes importing.
+* Check whether the part is optional or currently set to **None**.
+
+### Materials Appear Incorrect or Pink
+
+* Confirm that the project’s render-pipeline setup matches the materials being used.
+* Reimport the package after the project has finished compiling.
+* Convert or upgrade a duplicated material only when required by your project pipeline.
+
+### A Saved Preset Contains Unavailable Parts
+
+* Install the MINIMO package that owns those parts, or replace them with Starter Pack content.
+* Save the preset again after all missing references have been resolved.
+
+---
+
+## 📋 REQUIREMENTS
+
+* Unity project capable of running the supplied demo scenes and scripts
+* Keyboard and mouse for the default demo controls
+* A project configuration compatible with the package’s included materials and input setup
+
+For the official minimum Unity version and render-pipeline compatibility, use the information declared on the Unity Asset Store product page for the version of the package you downloaded.
+
+---
+
+## 🏷️ VERSION
+
+**Version 1.0.0**
+
+Initial public release.
+
+---
+
+## 📚💬 SUPPORT & FEEDBACK
+
+For support, use the contact or community link provided on the MINIMO Asset Store page.
+
+When requesting help, include:
+
+* Unity version
+* Render pipeline
+* Target platform
+* Console error messages
+* Steps required to reproduce the issue
+* A screenshot or short video when possible
+
+If **MINIMO STARTER PACK** helps your project, consider leaving a review on the Unity Asset Store.
+
+Reviews and feedback help guide future characters, customization options, controller improvements, and additional MINIMO collections.

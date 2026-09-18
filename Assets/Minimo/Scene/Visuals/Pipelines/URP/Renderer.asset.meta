@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8b3946810114fd440950e73c376b4745
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 363332
+  packageName: "MINIMO STARTER PACK \u2013 Free Character & Essential Controls"
+  packageVersion: 1.0.0
+  assetPath: Assets/Minimo/Scene/Visuals/Pipelines/URP/Renderer.asset
+  uploadId: 953250

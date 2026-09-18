@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 37e3a4eeeba5f1d409613de38d8ba615
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 60072b568d64c40a485e0fc55012dc9f, type: 3}
+AssetOrigin:
+  serializedVersion: 1
+  productId: 363332
+  packageName: "MINIMO STARTER PACK \u2013 Free Character & Essential Controls"
+  packageVersion: 1.0.0
+  assetPath: Assets/Minimo/Character/Shaders/Face Shader/FaceColorMask.shadersubgraph
+  uploadId: 953250

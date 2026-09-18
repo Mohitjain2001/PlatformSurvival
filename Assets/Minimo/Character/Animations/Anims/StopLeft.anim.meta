@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: de5a8dbf78878754db5f7a2a79a95c1a
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 363332
+  packageName: "MINIMO STARTER PACK \u2013 Free Character & Essential Controls"
+  packageVersion: 1.0.0
+  assetPath: Assets/Minimo/Character/Animations/Anims/StopLeft.anim
+  uploadId: 953250

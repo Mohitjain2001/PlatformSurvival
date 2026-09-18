@@ -1,0 +1,885 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &910002403778922019
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6826954615059975440}
+  - component: {fileID: 3685187306831625613}
+  - component: {fileID: 960234910909913511}
+  - component: {fileID: 5607103097579349229}
+  - component: {fileID: 2951129116770048787}
+  m_Layer: 0
+  m_Name: Main Camera
+  m_TagString: MainCamera
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6826954615059975440
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 910002403778922019}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.08715573, y: -0, z: -0, w: 0.9961947}
+  m_LocalPosition: {x: 0, y: 1.3304448, z: -4.431635}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7056160030211003780}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!20 &3685187306831625613
+Camera:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 910002403778922019}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0.4117647, g: 0.6862745, b: 0.98039216, a: 1}
+  m_projectionMatrixMode: 1
+  m_GateFitMode: 2
+  m_FOVAxisMode: 0
+  m_Iso: 200
+  m_ShutterSpeed: 0.005
+  m_Aperture: 16
+  m_FocusDistance: 10
+  m_FocalLength: 50
+  m_BladeCount: 5
+  m_Curvature: {x: 2, y: 11}
+  m_BarrelClipping: 0.25
+  m_Anamorphism: 0
+  m_SensorSize: {x: 36, y: 24}
+  m_LensShift: {x: 0, y: 0}
+  m_NormalizedViewPortRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+  near clip plane: 0.3
+  far clip plane: 500
+  field of view: 61
+  orthographic: 0
+  orthographic size: 3
+  m_Depth: -1
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RenderingPath: -1
+  m_TargetTexture: {fileID: 0}
+  m_TargetDisplay: 0
+  m_TargetEye: 3
+  m_HDR: 1
+  m_AllowMSAA: 1
+  m_AllowDynamicResolution: 0
+  m_ForceIntoRT: 0
+  m_OcclusionCulling: 1
+  m_StereoConvergence: 10
+  m_StereoSeparation: 0.022
+--- !u!81 &960234910909913511
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 910002403778922019}
+  m_Enabled: 1
+--- !u!114 &5607103097579349229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 910002403778922019}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b514ad51f4d6b74e9e3e138406ad84a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneCharacter: {fileID: 8909201192210633071}
+  capsuleCharacterName: Capsule
+  capsuleVisualScale: {x: 1, y: 1, z: 1}
+  autoConfigureInEditor: 1
+  liveUpdateInEditor: 1
+  createCharacterInEditorIfMissing: 1
+  createCharacterAtRuntimeIfMissing: 1
+  characterControllerHeight: 2
+  characterControllerRadius: 0.42
+  snapCharacterToGround: 1
+  groundSnapDistance: 8
+  characterVisualPrefab: {fileID: 0}
+  characterVisualRootName: CharacterVisual
+  characterVisualLocalPosition: {x: 0, y: -1, z: 0}
+  characterVisualLocalEuler: {x: 0, y: 0, z: 0}
+  characterVisualLocalScale: {x: 1, y: 1, z: 1}
+  fitVisualToCharacterController: 1
+  hidePrimitiveRendererWhenVisualPresent: 1
+  ragdoll: 0
+  autoSetupCamera: 0
+  cameraStartPosition: {x: 0, y: 1.8, z: -4.5}
+  cameraStartEuler: {x: 10, y: 0, z: 0}
+  defaultGameplayPreset: {fileID: 11400000, guid: 24856c163e4c4f6d91f5c47e5231f2f4, type: 2}
+--- !u!114 &2951129116770048787
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 910002403778922019}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 1
+  m_Antialiasing: 2
+  m_AntialiasingQuality: 2
+  m_StopNaN: 1
+  m_Dithering: 1
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_AllowHDROutput: 1
+  m_UseScreenCoordOverride: 0
+  m_ScreenSizeOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_Version: 2
+  m_TaaSettings:
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
+--- !u!1 &8909201192210633071
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7056160030211003780}
+  - component: {fileID: 7671260442393020018}
+  - component: {fileID: 8439615534932117455}
+  - component: {fileID: 8366416388116645767}
+  - component: {fileID: 3596443631048870560}
+  - component: {fileID: 6056777277358888174}
+  m_Layer: 0
+  m_Name: Character
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7056160030211003780
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8909201192210633071}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 6826954615059975440}
+  - {fileID: 868071449544013742}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &7671260442393020018
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8909201192210633071}
+  m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!143 &8439615534932117455
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8909201192210633071}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 1
+  m_Radius: 0.25
+  m_SlopeLimit: 50
+  m_StepOffset: 0.4
+  m_SkinWidth: 0.04
+  m_MinMoveDistance: 0
+  m_Center: {x: 0, y: -0.25, z: 0}
+--- !u!114 &8366416388116645767
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8909201192210633071}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b514ad51f4d6b74e9e3e138406ad84a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneCharacter: {fileID: 8909201192210633071}
+  capsuleCharacterName: Capsule
+  capsuleVisualScale: {x: 1, y: 1, z: 1}
+  autoConfigureInEditor: 1
+  liveUpdateInEditor: 1
+  createCharacterInEditorIfMissing: 1
+  createCharacterAtRuntimeIfMissing: 1
+  characterControllerHeight: 1.5
+  characterControllerRadius: 0.25
+  snapCharacterToGround: 1
+  groundSnapDistance: 8
+  characterVisualPrefab: {fileID: 0}
+  characterVisualRootName: CharacterVisual
+  characterVisualLocalPosition: {x: 0, y: 0, z: 0}
+  characterVisualLocalEuler: {x: 0, y: 0, z: 0}
+  characterVisualLocalScale: {x: 1, y: 1, z: 1}
+  fitVisualToCharacterController: 1
+  hidePrimitiveRendererWhenVisualPresent: 1
+  ragdoll: 0
+  autoSetupCamera: 1
+  cameraStartPosition: {x: 0, y: 1.8, z: -4.5}
+  cameraStartEuler: {x: 10, y: 0, z: 0}
+  defaultGameplayPreset: {fileID: 11400000, guid: 24856c163e4c4f6d91f5c47e5231f2f4, type: 2}
+--- !u!114 &3596443631048870560
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8909201192210633071}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59b5719c062d04446bf4840d0c814881, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameplayPreset: {fileID: 11400000, guid: 24856c163e4c4f6d91f5c47e5231f2f4, type: 2}
+  applyPresetOnStart: 0
+  controlProfile: 1
+  applyControlProfileOnStart: 1
+  moveSpeed: 5
+  groundAcceleration: 100
+  turnAcceleration: 360
+  groundDeceleration: 1000
+  enableRunStopSlide: 0
+  runStopSlideMinSpeed: 5.8
+  runStopSlideDuration: 3.9
+  runStopSlideDecelerationMultiplier: 0.42
+  airAcceleration: 15
+  airControl: 0.84
+  reverseDirectionAccelerationMultiplier: 1.38
+  rotationSharpness: 45
+  airRotationMultiplier: 0.55
+  snappyReverseTurnMultiplier: 3
+  reversePivotThreshold: -0.24
+  pivotBrakeDeceleration: 100
+  movementInputDeadZone: 0.01
+  facingSpeedThreshold: 0.2
+  crouchWalkSpeedMultiplier: 0.25
+  enableSprint: 1
+  sprintKey: 304
+  sprintSpeedMultiplier: 2
+  jumpHeight: 2.28
+  gravity: -33
+  jumpHoldTime: 0.2
+  jumpHoldForce: 23.5
+  fallGravityMultiplier: 3.2
+  fastFallGravityMultiplier: 5
+  fallAnimationVerticalSpeedThreshold: 0.15
+  apexVerticalSpeedThreshold: 1.2
+  apexGravityMultiplier: 0.52
+  terminalVelocity: -60
+  coyoteTime: 0.2
+  jumpBufferTime: 0.2
+  jumpLandingCooldownDuration: 0.1
+  minimumJumpHeight: 0.85
+  jumpCutMultiplier: 0.44
+  jumpCeilingCheckDistance: 0.14
+  jumpHeadroomMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  groundedVerticalForce: -4.7
+  enableDoubleJump: 1
+  maxAirJumps: 1
+  airJumpHeightMultiplier: 0.92
+  enableWallJump: 1
+  wallJumpProbeDistance: 0.55
+  wallJumpBackwardSpeed: 8.2
+  wallJumpMaxSurfaceUpDot: 0.35
+  enableWallHang: 1
+  wallHangSlideSpeed: 1.8
+  wallHangSlideEaseInDuration: 0.22
+  wallHangSlideEaseInStartAccelerationScale: 0.08
+  wallHangHorizontalDamping: 20
+  wallHangStickSpeed: 0.75
+  wallHangReleaseGroundDistance: 0.3
+  wallHangContactDistance: 0.12
+  wallHangFacingAngleTolerance: 180
+  wallHangReleaseInputAngle: 45
+  enableLedgeHang: 1
+  leftHandLedgeTransform: {fileID: 0}
+  rightHandLedgeTransform: {fileID: 0}
+  leftHandLedgeProbeRadius: 0.08
+  rightHandLedgeProbeRadius: 0.08
+  ledgeHandContactPadding: 0.04
+  ledgeGrabAssistDistance: 0.14
+  ledgeTopProbeUpDistance: 0.45
+  ledgeTopProbeForwardInset: 0.08
+  ledgeTopProbeDownDistance: 1.1
+  ledgeTopSurfaceMinUpDot: 0.65
+  ledgeTopMaxHorizontalGap: 0.4
+  ledgeHangMinEdgeHeight: 0.15
+  ledgeHangMaxEdgeHeight: 1.6
+  ledgeHangClimbForwardInputThreshold: 0.25
+  ledgeHangLateralMoveSpeed: 1.4
+  ledgeHangLateralInputThreshold: 0.08
+  ledgeHangCornerStopDistance: 0.09
+  ledgeHangSideAnimationThreshold: 0.18
+  ledgeHangHoldBeforeClimbDuration: 0.1
+  ledgeHangEntryInputLockDuration: 0.12
+  ledgeHangReleaseBackInputThreshold: -0.2
+  ledgeHangClimbDuration: 0.45
+  ledgeHangClimbUpDistance: 1.15
+  ledgeHangClimbForwardDistance: 0.55
+  ledgeClimbStepForwardBonus: 0.18
+  ledgeHangAnchorOutwardOffset: 0.02
+  ledgeHangAnchorVerticalOffset: 0.02
+  ledgeHangHandMidpointVerticalBias: -0.35
+  ledgeHangVerticalCalibrationOffset: 0.2833
+  ledgeHangSnapHandsMidpointToEdge: 1
+  ledgeHangUseAnchorOffsets: 0
+  ledgeHangWallProximityOffset: -0.03
+  ledgeHangHandSurfaceTargetOffset: -0.004
+  ledgeHangDualHandSurfaceTolerance: 0.004
+  ledgeHangDualHandMaxExtraPush: 0.1
+  ledgeHangAnchorAlignSpeed: 7.5
+  ledgeHangAnchorAlignTolerance: 0.02
+  wallPostClimbDetachLockTime: 0.65
+  ledgeHangContactLostGraceTime: 0.12
+  ledgeHangRegrabLockTime: 0.18
+  ledgeHangCornerTransitionAssistDistance: 0.16
+  ledgeHangCornerProbeLateralOffset: 0.06
+  ledgeHangMaxEntrySnapDistance: 0.7
+  ledgeHangMaxEntryHorizontalDistance: 0.4
+  ledgeHangMaxEntryVerticalDistance: 0.5
+  ledgeHangMaxHandAboveEdge: 0.02
+  ledgeHangMaxEntryWallDistance: 0.25
+  highFallMinHeightForFallAnim: 1.75
+  highFallDoubleJumpHeightTolerance: 0.2
+  highFallMinAirTimeForRoll: 0.7
+  enableDash: 1
+  dashKey: 113
+  dashSpeed: 15.8
+  dashDuration: 0.6
+  dashCooldown: 1
+  dashBufferTime: 0.6
+  dashGravityMultiplier: 0.25
+  dashExitSpeedMultiplier: 0.72
+  dashCameraSteerSharpness: 20
+  enableDashGhostTrail: 1
+  enableSlideGhostTrail: 1
+  dashGhostSpawnInterval: 0.035
+  dashGhostDensity: 0.5
+  dashGhostMaxActiveCount: 5
+  dashGhostLifetime: 0.18
+  dashGhostStartOpacity: 0.35
+  dashGhostScale: 1
+  dashGhostBackOffset: 0.04
+  dashGhostMinPlanarSpeed: 0.2
+  enableGroundPoundGhostTrail: 1
+  groundPoundGhostMinFallSpeed: 3.5
+  dashGhostMaterial: {fileID: 0}
+  dashGhostTint: {r: 1, g: 1, b: 1, a: 0.35}
+  enableGroundPound: 1
+  groundPoundKey: 306
+  groundPoundBufferTime: 0.14
+  groundPoundStartDelay: 0.05
+  groundPoundSpeed: 46
+  groundPoundAcceleration: 270
+  groundPoundHorizontalDamping: 24
+  groundPoundLandSquashBonus: 0.18
+  groundPoundLandCameraKick: 0.2
+  groundPoundHardBounceBackSpeed: 6
+  groundPoundHardBounceUpVelocity: 6
+  groundPoundHardBounceUpImpactBonus: 6
+  groundPoundHardLandHoldTime: 1
+  enableCrouchSlide: 1
+  crouchKey: 99
+  crouchToggleMode: 1
+  crouchHeight: 1.2
+  crouchTransitionSpeed: 12
+  slideBufferTime: 3
+  slideStartMinSpeed: 3.8
+  slideInitialBoost: 2.9
+  slideMaxSpeed: 11
+  slideDuration: 3
+  slideMinimumHoldTime: 0.2
+  slideDeceleration: 10
+  slideSteerControl: 4.5
+  slideMaxSteerAngle: 14
+  slideCameraSteerDrift: 0.35
+  slideEndSpeed: 2.2
+  lockSlideSpeedInLowClearance: 1
+  enableDiveRoll: 1
+  diveKey: 101
+  diveBufferTime: 0.18
+  diveForwardSpeed: 14.2
+  diveForwardBoost: 5.5
+  diveDownwardSpeed: 11.8
+  diveGravityMultiplier: 1.75
+  diveSteerControl: 8
+  diveDuration: 0.5
+  rollKey: 308
+  rollBufferTime: 0.6
+  rollWindowTime: 0.6
+  rollMinImpactSpeed: 0.6
+  rollBaseSpeed: 0.6
+  rollMomentumConversion: 0.84
+  rollDuration: 0.5
+  rollDurationMultiplier: 1.12
+  rollLandingResumeDurationRatio: 0.85
+  rollLandingResumeMaxDuration: 1.6
+  rollDeceleration: 0.5
+  rollSteerControl: 2
+  lockRollDirectionForIdleJumpLanding: 1
+  idleJumpRollDirectionLockSpeedThreshold: 0.25
+  diveMissRecoveryMultiplier: 0.22
+  enableSlopeSlide: 1
+  slopeSlideMinAngle: 10
+  slopeSlideEnterMinSpeed: 4.4
+  slopeSlideDownhillAcceleration: 35
+  slopeSlideFriction: 1.55
+  slopeSlideSteerControl: 2.8
+  slopeSlideMaxSteerAngle: 18
+  slopeSlideCameraSteerDrift: 0.25
+  slopeSlideMaxSpeed: 29
+  slopeSlideExitFlatAngle: 4
+  slopeMomentumCarryDuration: 0.95
+  slopeMomentumRetention: 0.91
+  slopeMomentumDecay: 10.5
+  slopeJumpSpeedMultiplier: 1.13
+  enableTeetering: 1
+  teeterMaxEntrySpeed: 4.2
+  teeterProbeForwardDistance: 0.42
+  teeterEdgeEarlyDetectDistance: 0.35
+  teeterProbeDepth: 0.9
+  teeterSnapBackDistance: 0.08
+  teeterHoldBackSpeed: 0.85
+  teeterFallInputThreshold: 0.7
+  teeterRecoverInputThreshold: 0.2
+  teeterLateralExitInputThreshold: 0.12
+  teeterLockForwardWalk: 1
+  teeterFacingEdgeAlignmentThreshold: 0.08
+  teeterOpenSpaceRadius: 0.18
+  teeterOpenSpaceForwardOffset: 0.09
+  teeterOpenSpaceVerticalOffset: 0.06
+  teeterOpenSpaceUpperVerticalOffset: 0.34
+  teeterReentryLockDuration: 0.12
+  teeterAudioCooldown: 0.6
+  teeterNoInputEntrySpeedMultiplier: 1.8
+  groundProbeOffset: 0.1
+  groundProbeDistance: 0.15
+  groundProbeRadius: 0.4
+  ignoreGroundProbeUpwardSpeed: 1
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  customClimbMask:
+    serializedVersion: 2
+    m_Bits: 256
+  standUpBlockMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  minimumStandClearanceHeight: 1.155
+  slopeSpeedInfluence: 0.72
+  uphillSpeedPenalty: 0.22
+  downhillSpeedBoost: 0.14
+  slopeAntiSlideDeceleration: 33
+  slopeAlignmentSharpness: 16.5
+  enableStepUp: 1
+  maxStepHeight: 0.42
+  stepCheckDistance: 0.4
+  stepForwardOffset: 0.06
+  stepSurfaceProbeHeight: 0.08
+  enableMovingPlatformCompensation: 1
+  movingPlatformRotationInfluence: 1
+  movingPlatformMaxDeltaPerFrame: 2
+  disablePlatformCompensationWhenParented: 1
+  suppressGravityWhenParentedToPlatform: 1
+  enableCharacterFeel: 1
+  visualRoot: {fileID: 0}
+  visualResponse: 10
+  maxSideLean: 5
+  maxForwardLean: 5
+  accelerationLean: 0
+  turnLean: 0
+  moveStretch: 0
+  accelerationStretch: 0
+  brakeSquash: 0
+  jumpStretch: 0.12
+  enableJumpBlobEffect: 1
+  jumpBlobHorizontalCompression: 0.4
+  jumpBlobVerticalStretch: 1
+  jumpBlobVerticalVelocityInfluence: 0.45
+  enableDashBlobEffect: 1
+  dashBlobPulse: 0.26
+  dashBlobHorizontalCompression: 0.28
+  dashBlobVerticalCompression: 0.22
+  dashBlobForwardStretch: 0.58
+  dashBlobDecaySpeed: 12
+  fallShapeAmount: 0.12
+  fallShapeMaxSpeed: 24
+  airSideLeanMultiplier: 0.6
+  airForwardLeanMultiplier: 0.45
+  landSquash: 0.3
+  landRecoverSpeed: 9
+  landingImpactStartSpeed: 1.5
+  landingImpactMinSpeed: 2
+  landingImpactMaxSpeed: 24
+  minVisualScaleRatio: {x: 0.55, y: 0.45, z: 0.55}
+  jumpStretchDecaySpeed: 6
+  groundedVisualSink: 0.035
+  crouchVisualSinkBonus: 0.02
+  followDistance: 4.5
+  minZoomDistance: 2
+  maxZoomDistance: 8
+  zoomLevelCount: 5
+  zoomSharpness: 10
+  shoulderOffset: 0
+  pivotHeight: 0.55
+  cameraPositionSmooth: 0
+  rollCameraPivotReleaseDuration: 0.12
+  rollCameraPivotReleaseSharpness: 18
+  rollCameraPivotStabilizationDeadZone: 0.035
+  rollCameraPivotStabilizationSharpness: 16
+  rollCameraPivotStabilizationMaxLag: 0.28
+  ragdollFreeCameraMoveSpeed: 10
+  ragdollFreeCameraLookSensitivityMultiplier: 1
+  ragdollFreeCameraFastMultiplier: 2
+  ragdollFreeCameraSlowMultiplier: 0.35
+  minPitch: -35
+  maxPitch: 75
+  mouseXSensitivity: 205
+  mouseYSensitivity: 160
+  wallJumpCameraTurnSpeed: 840
+  invertY: 0
+  collisionProbeRadius: 0.2
+  collisionBuffer: 0.1
+  cameraCollisionMinDistance: 0.25
+  cameraCollisionMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  enableLowClearanceCameraMode: 1
+  lowClearanceCameraPivotSharpness: 14
+  lowClearanceCameraBlendSpeed: 4
+  enableCameraAssist: 0
+  cameraAssistYawWeight: 0.35
+  cameraAssistYawSharpness: 5
+  cameraLookAheadDistance: 0
+  cameraLookAheadSharpness: 8
+  enableSpeedFov: 1
+  baseCameraFov: 61
+  maxBoostCameraFov: 76
+  fovBoostSharpness: 7
+  fovRecoverSharpness: 5.5
+  enableDashCameraBoost: 1
+  dashFovFloor01: 0.72
+  dashFovWeight: 1.35
+  dashFovBoostSharpness: 16
+  dashFovRecoverSharpness: 8
+  dashCameraShakeMultiplier: 0.55
+  dashMotionBlurVolume: {fileID: 0}
+  dashMotionBlurMaxWeight: 1
+  dashMotionBlurBoostSharpness: 20
+  dashMotionBlurRecoverSharpness: 11
+  airDashFovWeight: 0.2
+  slopeSlideFovWeight: 0.558
+  fovSpeedReference: 20
+  speedFovWeight: 0
+  enableWindOverlay: 0
+  windOverlayMaxAlpha: 0.22
+  windOverlayWidth: 0.16
+  windOverlayLineCount: 6
+  windOverlaySharpness: 7
+  enableCameraMotionFx: 0
+  maxCameraBankAngle: 7
+  cameraBankVelocityInfluence: 0.95
+  cameraBankAccelerationInfluence: 0.55
+  cameraBankSharpness: 7
+  teeterCameraSwayAngle: 2.1
+  teeterCameraSwayFrequency: 7
+  cameraShakeMaxAmplitude: 0.11
+  cameraShakeFrequency: 23
+  cameraShakeDamping: 8.5
+  landingCameraShakeMultiplier: 1
+  useAnimatorParameters: 1
+  animatorOverride: {fileID: 8225547687027349433}
+  animSpeedParam: Speed
+  animMoveSpeedParam: MoveSpeed
+  animVerticalSpeedParam: VerticalSpeed
+  animGroundedParam: Grounded
+  animFallParam: Fall
+  animHangParam: Hang
+  animHangLeftParam: HangLeft
+  animHangRightParam: HangRight
+  animClimbParam: Climb
+  animClimbJumpParam: ClimbJump
+  animCrouchParam: Crouch
+  animSlideParam: Slide
+  animDashParam: Dash
+  animGroundPoundParam: Land
+  animHardFallParam: HardFall
+  animHardLandParam: HardLand
+  animStateParam: Idle
+  animStopParam: Stop
+  animJumpTrigger: Jump
+  animJumpMirrorParam: Mirror
+  enableJumpMirrorAlternation: 1
+  animDashMirrorParam: DashMirror
+  enableDashMirrorAlternation: 1
+  animFrontflipTrigger: DoubleJump
+  animBackflipTrigger: WallJump
+  animLandParam: Landing
+  animDiveParam: Fall
+  animRollParam: Roll
+  animTeeterParam: Teether
+  stopAnimationHoldTime: 0.24
+  stopArmAnimatorSpeedThreshold: 0.9
+  stopTriggerAnimatorSpeedThreshold: 0.01
+  stopSprintPrimeMinPlanarSpeed: 0.2
+  stopSprintReleaseTriggerSpeed01: 0.35
+  holdStopBoolUntilAnimationEnds: 1
+  stopAnimationStateTag: Stop
+  stopAnimationEndNormalizedTime: 0.98
+  stopAnimationLayerIndex: 0
+  animSpeedSmoothness: 7.5
+  animDashSpeedValue: 1
+  animatorNormalPlaybackSpeed: 1
+  animatorDashPlaybackSpeed: 0.2
+  animatorPlaybackSpeedLinearRise: 12
+  animatorPlaybackSpeedLinearFall: 18
+  animSpeedLinearRise: 5.5
+  animSpeedLinearFall: 7.5
+  animSpeedLinearRateScale: 0.7
+  animMoveSpeedLinearRise: 22
+  animMoveSpeedLinearFall: 28
+  animVerticalSpeedLinearRate: 45
+  planarStopSnapSpeed: 0.08
+  animatorSpeedZeroEpsilon: 0.02
+  enableFeedback: 0
+  audioSourceOverride: {fileID: 0}
+  feedbackVolume: 0.85
+  jumpClip: {fileID: 0}
+  landClip: {fileID: 0}
+  dashClip: {fileID: 0}
+  groundPoundStartClip: {fileID: 0}
+  groundPoundLandClip: {fileID: 0}
+  slideClip: {fileID: 0}
+  teeterClip: {fileID: 0}
+  footstepClip: {fileID: 0}
+  particleLocalPosition: {x: 0, y: -0.7959717, z: 0}
+  walkingParticlePrefab: {fileID: 19800000, guid: 83cd9cc9f9c88824ba18dc59b05ae328, type: 3}
+  landingParticlePrefab: {fileID: 5648610327614715498, guid: 3587a80fd6eafd846b3e76ac134f41a8, type: 3}
+  jumpCameraKick: 0.04
+  landCameraKick: 0.1
+  dashCameraKick: 0.07
+  cameraKickRecoverSpeed: 6
+  enableFootsteps: 1
+  footstepMinSpeed: 2.2
+  footstepBaseInterval: 0.45
+  enableGamepadInput: 1
+  gamepadJumpButton: 330
+  gamepadSprintButton: 0
+  useGamepadLeftTriggerForSprint: 1
+  gamepadSprintAxis: RightTrigger
+  gamepadSprintDeadZone: 0.1
+  gamepadDashButton: 333
+  gamepadGroundPoundButton: 335
+  gamepadDiveButton: 0
+  gamepadRollButton: 331
+  gamepadCrouchButton: 332
+  gamepadKillButton: 334
+  gamepadMoveXAxis: LeftStickX
+  gamepadMoveYAxis: LeftStickY
+  gamepadLookXAxis: RightStickX
+  gamepadLookYAxis: RightStickY
+  gamepadLookSensitivity: 185
+  gamepadMoveDeadZone: 0.16
+  gamepadLookDeadZone: 0.15
+  showControlsOverlay: 1
+  controlsOverlayToggleKey: 283
+  showStateHud: 1
+  stateHudToggleKey: 282
+  performanceSampleInterval: 0.18
+  hideAndLockCursor: 1
+  unlockCursorWithEscape: 0
+  showDebugOverlay: 1
+  debugToggleKey: 284
+  debugGizmoToggleKey: 285
+  showDebugGizmos: 1
+  drawGroundProbeGizmo: 1
+  drawSlopeGizmo: 1
+  drawStepGizmo: 1
+  drawTeeterGizmo: 1
+  drawTeeterEventGizmo: 1
+  drawDashGizmo: 1
+  drawDiveGizmo: 1
+  drawSlideGizmo: 1
+  drawActionDirectionGizmo: 1
+  drawJumpHeadroomGizmo: 1
+  drawLandingGizmo: 1
+  actionGizmoHistoryDuration: 2.5
+  drawCameraPivotGizmo: 0
+  showGizmoHoverLabel: 1
+  gizmoHoverPixelRadius: 18
+  gizmoHoverLabelTextColor: {r: 1, g: 1, b: 1, a: 1}
+  gizmoHoverLabelBackgroundColor: {r: 0, g: 0, b: 0, a: 0.8}
+  groundProbeGizmoColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  slopeNormalGizmoColor: {r: 0, g: 1, b: 0, a: 1}
+  slopeDownhillGizmoColor: {r: 1, g: 0, b: 0, a: 1}
+  stepClearGizmoColor: {r: 0, g: 1, b: 0, a: 1}
+  stepBlockedGizmoColor: {r: 1, g: 0, b: 0, a: 1}
+  stepSurfaceGizmoColor: {r: 0, g: 1, b: 1, a: 1}
+  stepCandidateGizmoColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  teeterGroundedGizmoColor: {r: 0, g: 1, b: 0, a: 1}
+  teeterOpenEdgeGizmoColor: {r: 1, g: 0.5, b: 0, a: 1}
+  teeterDirectionGizmoColor: {r: 1, g: 0, b: 1, a: 1}
+  teeterEventGizmoColor: {r: 1, g: 0.45, b: 0.1, a: 1}
+  teeterSnapBackGizmoColor: {r: 0.2, g: 0.9, b: 1, a: 1}
+  dashGizmoColor: {r: 1, g: 0.2, b: 0.9, a: 1}
+  diveGizmoColor: {r: 0.25, g: 0.75, b: 1, a: 1}
+  rollGizmoColor: {r: 1, g: 0.7, b: 0.2, a: 1}
+  slideGizmoColor: {r: 0.35, g: 1, b: 0.35, a: 1}
+  slopeSlideGizmoColor: {r: 1, g: 0.85, b: 0.15, a: 1}
+  activeSlidePredictionGizmoColor: {r: 1, g: 1, b: 1, a: 0.9}
+  jumpHeadroomBlockedGizmoColor: {r: 1, g: 0, b: 0, a: 1}
+  jumpHeadroomClearGizmoColor: {r: 0, g: 1, b: 0, a: 1}
+  landingGizmoColor: {r: 1, g: 0.8, b: 0.2, a: 1}
+  cameraPivotGizmoColor: {r: 0, g: 1, b: 1, a: 1}
+  debugState: 0
+--- !u!114 &6056777277358888174
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8909201192210633071}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c8ff77e255f4036a8f3cd31884f27d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  platformDetectionMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  platformProbeDistance: 0.65
+  platformProbeRadiusScale: 0.8
+  requireGrounded: 1
+  platformContactLostGraceTime: 0.1
+  airborneProbeExtraDistance: 0.2
+  disableRigidbodyGravityWhileAttached: 1
+--- !u!1001 &5613791001493381462
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 7056160030211003780}
+    m_Modifications:
+    - target: {fileID: 971110433747771906, guid: 296c2c9bb36e11f4d838e0fb84c828a8, type: 3}
+      propertyPath: m_Name
+      value: CharacterVisual
+      objectReference: {fileID: 0}
+    - target: {fileID: 4747976318916138744, guid: 296c2c9bb36e11f4d838e0fb84c828a8, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4747976318916138744, guid: 296c2c9bb36e11f4d838e0fb84c828a8, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1.0459718
+      objectReference: {fileID: 0}
+    - target: {fileID: 4747976318916138744, guid: 296c2c9bb36e11f4d838e0fb84c828a8, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4747976318916138744, guid: 296c2c9bb36e11f4d838e0fb84c828a8, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4747976318916138744, guid: 296c2c9bb36e11f4d838e0fb84c828a8, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4747976318916138744, guid: 296c2c9bb36e11f4d838e0fb84c828a8, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4747976318916138744, guid: 296c2c9bb36e11f4d838e0fb84c828a8, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4747976318916138744, guid: 296c2c9bb36e11f4d838e0fb84c828a8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4747976318916138744, guid: 296c2c9bb36e11f4d838e0fb84c828a8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 180
+      objectReference: {fileID: 0}
+    - target: {fileID: 4747976318916138744, guid: 296c2c9bb36e11f4d838e0fb84c828a8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 296c2c9bb36e11f4d838e0fb84c828a8, type: 3}
+--- !u!4 &868071449544013742 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4747976318916138744, guid: 296c2c9bb36e11f4d838e0fb84c828a8, type: 3}
+  m_PrefabInstance: {fileID: 5613791001493381462}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &8225547687027349433 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 4597952183353292527, guid: 296c2c9bb36e11f4d838e0fb84c828a8, type: 3}
+  m_PrefabInstance: {fileID: 5613791001493381462}
+  m_PrefabAsset: {fileID: 0}

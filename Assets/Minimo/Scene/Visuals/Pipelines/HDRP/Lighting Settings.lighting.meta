@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8d19505ad53c690418f57902510c9d50
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 4890085278179872738
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 363332
+  packageName: "MINIMO STARTER PACK \u2013 Free Character & Essential Controls"
+  packageVersion: 1.0.0
+  assetPath: Assets/Minimo/Scene/Visuals/Pipelines/HDRP/Lighting Settings.lighting
+  uploadId: 953250

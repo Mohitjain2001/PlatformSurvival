@@ -1,0 +1,87 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d584658328349249f43e7a17ad459a0, type: 3}
+  m_Name: MinimoPreset
+  m_EditorClassIdentifier: 
+  moveSpeed: 7.3
+  groundAcceleration: 52
+  turnAcceleration: 78
+  groundDeceleration: 56
+  airAcceleration: 15
+  airControl: 0.84
+  reverseDirectionAccelerationMultiplier: 1.38
+  rotationSharpness: 20
+  snappyReverseTurnMultiplier: 3
+  reversePivotThreshold: -0.24
+  pivotBrakeDeceleration: 88
+  jumpHeight: 2.28
+  gravity: -33
+  jumpHoldTime: 0.2
+  jumpHoldForce: 23.5
+  fallGravityMultiplier: 3.2
+  fastFallGravityMultiplier: 5
+  apexVerticalSpeedThreshold: 1.2
+  apexGravityMultiplier: 0.52
+  terminalVelocity: -60
+  coyoteTime: 0.2
+  jumpBufferTime: 0.2
+  jumpCutMultiplier: 0.44
+  groundedVerticalForce: -4.7
+  enableDoubleJump: 1
+  maxAirJumps: 1
+  airJumpHeightMultiplier: 0.92
+  slopeSpeedInfluence: 0.72
+  uphillSpeedPenalty: 0.22
+  downhillSpeedBoost: 0.14
+  slopeAntiSlideDeceleration: 33
+  slopeAlignmentSharpness: 16.5
+  maxStepHeight: 0.42
+  stepCheckDistance: 0.4
+  dashSpeed: 15.8
+  dashDuration: 0.16
+  dashCooldown: 0.42
+  groundPoundSpeed: 46
+  groundPoundAcceleration: 270
+  crouchHeight: 1.2
+  slideDuration: 0.6
+  slideInitialBoost: 2.9
+  slideDeceleration: 17.5
+  diveForwardSpeed: 14.2
+  diveForwardBoost: 5.5
+  diveDownwardSpeed: 11.8
+  diveGravityMultiplier: 1.75
+  diveDuration: 0.5
+  rollBaseSpeed: 10.4
+  rollMomentumConversion: 0.84
+  rollDuration: 0.43
+  rollDeceleration: 24.5
+  slopeSlideMinAngle: 10
+  slopeSlideEnterMinSpeed: 4.4
+  slopeSlideDownhillAcceleration: 35
+  slopeSlideFriction: 1.55
+  slopeSlideMaxSpeed: 29
+  slopeMomentumCarryDuration: 0.95
+  slopeMomentumRetention: 0.91
+  slopeMomentumDecay: 10.5
+  slopeJumpSpeedMultiplier: 1.13
+  followDistance: 4.5
+  minZoomDistance: 2
+  maxZoomDistance: 8
+  mouseXSensitivity: 205
+  mouseYSensitivity: 160
+  baseCameraFov: 61
+  maxBoostCameraFov: 76
+  airDashFovWeight: 0
+  slopeSlideFovWeight: 0
+  fovSpeedReference: 20
+  speedFovWeight: 0
+  landingCameraShakeMultiplier: 1

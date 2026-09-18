@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: db32599dca35a4f4c99dde3526368178
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 363332
+  packageName: "MINIMO STARTER PACK \u2013 Free Character & Essential Controls"
+  packageVersion: 1.0.0
+  assetPath: Assets/Minimo/Character/Animations/Anims/FlipFront.anim
+  uploadId: 953250

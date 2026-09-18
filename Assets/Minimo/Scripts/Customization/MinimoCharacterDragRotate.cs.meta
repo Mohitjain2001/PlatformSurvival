@@ -1,0 +1,18 @@
+﻿fileFormatVersion: 2
+guid: b4f2b9b53f6d4f3b9d0a6f8a2c3e7d11
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 363332
+  packageName: "MINIMO STARTER PACK \u2013 Free Character & Essential Controls"
+  packageVersion: 1.0.0
+  assetPath: Assets/Minimo/Scripts/Customization/MinimoCharacterDragRotate.cs
+  uploadId: 953250
