@@ -183,34 +183,38 @@ public class GameManager : MonoBehaviour
         mr.material.color = bodyColor;
 
         // Add cute Face / Visor (white oval with black eyes) like Fall Guys beans!
-        GameObject visor = GameObject.CreatePrimitive(PrimitiveType.Quad);
-        visor.name = "VisorFace";
+        GameObject visor = new GameObject("VisorFace");
         visor.transform.SetParent(character.transform);
         visor.transform.localPosition = new Vector3(0, 0.45f, 0.48f);
         visor.transform.localScale = new Vector3(0.45f, 0.35f, 1f);
         visor.transform.localRotation = Quaternion.Euler(0, 0, 0);
 
-        MeshRenderer visorMr = visor.GetComponent<MeshRenderer>();
+        MeshFilter visorMf = visor.AddComponent<MeshFilter>();
+        GameObject tempQuad = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        visorMf.sharedMesh = tempQuad.GetComponent<MeshFilter>().sharedMesh;
+        DestroyImmediate(tempQuad);
+
+        MeshRenderer visorMr = visor.AddComponent<MeshRenderer>();
         visorMr.material = new Material(Shader.Find("Standard"));
         visorMr.material.color = new Color(0.95f, 0.95f, 0.95f); // Off-white visor faceplate
 
         // Left Eye
         GameObject eyeL = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        DestroyImmediate(eyeL.GetComponent<Collider>());
+        eyeL.name = "EyeL";
         eyeL.transform.SetParent(visor.transform);
         eyeL.transform.localPosition = new Vector3(-0.22f, 0.05f, -0.05f);
         eyeL.transform.localScale = new Vector3(0.18f, 0.25f, 0.18f);
         eyeL.GetComponent<MeshRenderer>().material.color = Color.black;
-        Destroy(eyeL.GetComponent<Collider>());
 
         // Right Eye
         GameObject eyeR = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        DestroyImmediate(eyeR.GetComponent<Collider>());
+        eyeR.name = "EyeR";
         eyeR.transform.SetParent(visor.transform);
         eyeR.transform.localPosition = new Vector3(0.22f, 0.05f, -0.05f);
         eyeR.transform.localScale = new Vector3(0.18f, 0.25f, 0.18f);
         eyeR.GetComponent<MeshRenderer>().material.color = Color.black;
-        Destroy(eyeR.GetComponent<Collider>());
-
-        Destroy(visor.GetComponent<Collider>());
 
         character.AddComponent<CharacterSquashAndStretch>();
 
