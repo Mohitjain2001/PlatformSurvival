@@ -47,7 +47,7 @@ public class BotController : MonoBehaviour
     {
         botName = name;
         isEliminated = false;
-        rb.velocity = Vector3.zero;
+        rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
         MeshRenderer renderer = GetComponentInChildren<MeshRenderer>();
@@ -103,12 +103,12 @@ public class BotController : MonoBehaviour
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
 
             Vector3 targetVelocity = moveDir * moveSpeed;
-            targetVelocity.y = rb.velocity.y;
-            rb.velocity = targetVelocity;
+            targetVelocity.y = rb.linearVelocity.y;
+            rb.linearVelocity = targetVelocity;
         }
         else if (isGrounded)
         {
-            rb.velocity = new Vector3(rb.velocity.x * 0.7f, rb.velocity.y, rb.velocity.z * 0.7f);
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x * 0.7f, rb.linearVelocity.y, rb.linearVelocity.z * 0.7f);
         }
     }
 
@@ -221,10 +221,10 @@ public class BotController : MonoBehaviour
         lastJumpTime = Time.time;
         isGrounded = false;
 
-        Vector3 jumpVel = rb.velocity;
+        Vector3 jumpVel = rb.linearVelocity;
         jumpVel.y = jumpForce;
         jumpVel += moveDir * forwardJumpBoost;
-        rb.velocity = jumpVel;
+        rb.linearVelocity = jumpVel;
 
         if (squashAndStretch != null)
         {

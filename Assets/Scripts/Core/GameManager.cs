@@ -171,12 +171,10 @@ public class GameManager : MonoBehaviour
     {
         GameObject player = GameObject.CreatePrimitive(PrimitiveType.Capsule);
         player.name = "Player";
-        player.tag = "Player";
         player.transform.position = spawnPos;
 
         MeshRenderer mr = player.GetComponent<MeshRenderer>();
         mr.material = new Material(Shader.Find("Standard"));
-        mr.material.color = new Color(0.1f, 0.6f, 1.0f); // Bright Blue
 
         player.AddComponent<CharacterSquashAndStretch>();
         player.AddComponent<PlayerController>();
@@ -188,7 +186,6 @@ public class GameManager : MonoBehaviour
     {
         GameObject bot = GameObject.CreatePrimitive(PrimitiveType.Capsule);
         bot.name = "Bot";
-        bot.tag = "Bot";
         bot.transform.position = spawnPos;
 
         MeshRenderer mr = bot.GetComponent<MeshRenderer>();

@@ -71,7 +71,7 @@ public class PlatformTile : MonoBehaviour
         if (isSteppedOn || isFalling) return;
 
         // Check if collision is coming from player or bot
-        if (target.CompareTag("Player") || target.CompareTag("Bot") || target.GetComponent<PlayerController>() != null || target.GetComponent<BotController>() != null)
+        if (target.GetComponent<PlayerController>() != null || target.GetComponent<BotController>() != null)
         {
             TriggerFallSequence();
         }

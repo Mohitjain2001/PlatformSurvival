@@ -43,7 +43,7 @@ public class PlayerController : MonoBehaviour
     {
         joystick = joystickRef;
         isEliminated = false;
-        rb.velocity = Vector3.zero;
+        rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
     }
 
@@ -82,12 +82,12 @@ public class PlayerController : MonoBehaviour
             // Movement force/velocity
             float currentSpeed = moveSpeed * (isGrounded ? 1.0f : airControlMultiplier);
             Vector3 targetVelocity = moveDir * currentSpeed;
-            targetVelocity.y = rb.velocity.y;
-            rb.velocity = targetVelocity;
+            targetVelocity.y = rb.linearVelocity.y;
+            rb.linearVelocity = targetVelocity;
         }
         else if (isGrounded)
         {
-            rb.velocity = new Vector3(rb.velocity.x * 0.8f, rb.velocity.y, rb.velocity.z * 0.8f);
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x * 0.8f, rb.linearVelocity.y, rb.linearVelocity.z * 0.8f);
         }
     }
 
@@ -156,10 +156,10 @@ public class PlayerController : MonoBehaviour
         lastJumpTime = Time.time;
         isGrounded = false;
 
-        Vector3 jumpVel = rb.velocity;
+        Vector3 jumpVel = rb.linearVelocity;
         jumpVel.y = jumpForce;
         jumpVel += moveDir * forwardJumpBoost;
-        rb.velocity = jumpVel;
+        rb.linearVelocity = jumpVel;
 
         if (squashAndStretch != null)
         {
