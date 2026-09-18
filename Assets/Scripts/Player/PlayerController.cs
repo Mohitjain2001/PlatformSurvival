@@ -143,6 +143,7 @@ public class PlayerController : MonoBehaviour
             groundedDuration += Time.deltaTime;
             if (!wasGroundedLastFrame && Time.time - lastJumpTime > 0.2f)
             {
+                if (characterAnimator != null) characterAnimator.TriggerLand();
                 if (squashAndStretch != null) squashAndStretch.TriggerLandSquash();
             }
         }
@@ -207,6 +208,11 @@ public class PlayerController : MonoBehaviour
         jumpVel += moveDir * forwardJumpBoost;
         rb.linearVelocity = jumpVel;
 
+        if (characterAnimator != null)
+        {
+            characterAnimator.TriggerJump();
+        }
+
         if (squashAndStretch != null)
         {
             squashAndStretch.TriggerJumpSquash();
@@ -216,6 +222,10 @@ public class PlayerController : MonoBehaviour
     private void Eliminate()
     {
         isEliminated = true;
+        if (characterAnimator != null)
+        {
+            characterAnimator.SetEliminated(true);
+        }
         gameObject.SetActive(false);
 
         if (GameManager.Instance != null)

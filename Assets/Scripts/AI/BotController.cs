@@ -59,14 +59,17 @@ public class BotController : MonoBehaviour
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
-        MeshRenderer renderer = GetComponentInChildren<MeshRenderer>();
-        if (renderer != null)
+        Renderer[] allRenderers = GetComponentsInChildren<Renderer>();
+        foreach (Renderer rend in allRenderers)
         {
-            Shader defaultShader = Shader.Find("Standard");
-            Shader targetShader = (renderer.sharedMaterial != null && renderer.sharedMaterial.shader != null) ? renderer.sharedMaterial.shader : defaultShader;
-            botMaterial = new Material(targetShader);
-            botMaterial.color = color;
-            renderer.material = botMaterial;
+            if (rend.gameObject.name.Contains("Torso") || rend.gameObject.name.Contains("Shoulder") || rend.gameObject.name.Contains("Arm"))
+            {
+                Material mat = new Material(rend.material);
+                if (mat.HasProperty("_Color")) mat.SetColor("_Color", color);
+                if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", color);
+                mat.color = color;
+                rend.material = mat;
+            }
         }
     }
 
@@ -272,6 +275,11 @@ public class BotController : MonoBehaviour
         jumpVel += moveDir * forwardJumpBoost;
         rb.linearVelocity = jumpVel;
 
+        if (characterAnimator != null)
+        {
+            characterAnimator.TriggerJump();
+        }
+
         if (squashAndStretch != null)
         {
             squashAndStretch.TriggerJumpSquash();
@@ -281,6 +289,10 @@ public class BotController : MonoBehaviour
     private void Eliminate()
     {
         isEliminated = true;
+        if (characterAnimator != null)
+        {
+            characterAnimator.SetEliminated(true);
+        }
         gameObject.SetActive(false);
 
         if (GameManager.Instance != null)

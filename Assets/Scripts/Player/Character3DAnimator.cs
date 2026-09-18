@@ -1,167 +1,129 @@
 using UnityEngine;
 
 /// <summary>
-/// Procedural 3D Character Runner Rig and Animator.
-/// Creates a cute, lively Fall Guys / 3D Runner style character with:
-/// - Rounded Head with animated visor/eyes
-/// - Torso / Body
-/// - Left and Right Arms that swing naturally
-/// - Left and Right Legs that step and run
-/// - Full State Animation: Idle breathing, Running cycle, In-Air jumping, and Elimination fall!
+/// Character 3D Animator Bridge for Minimo 3D Character (Character-01).
+/// Drives the Animator Controller (Speed, Jump, Fall, Land) based on physics velocity and ground state.
 /// </summary>
 public class Character3DAnimator : MonoBehaviour
 {
-    [Header("Bone References")]
-    [SerializeField] private Transform torso;
-    [SerializeField] private Transform head;
-    [SerializeField] private Transform leftArm;
-    [SerializeField] private Transform rightArm;
-    [SerializeField] private Transform leftLeg;
-    [SerializeField] private Transform rightLeg;
-
-    [Header("Movement & State References")]
+    [Header("Dependencies")]
+    [SerializeField] private Animator animator;
     [SerializeField] private Rigidbody rb;
 
-    private float runCycleTime = 0f;
-    private float idleCycleTime = 0f;
+    [Header("Tuning")]
+    [SerializeField] private float maxSpeed = 7.5f;
+
     private bool isGrounded = true;
     private bool isEliminated = false;
+    private float landTimer = 0f;
 
-    private Vector3 initialTorsoPos;
+    private static readonly int SpeedHash = Animator.StringToHash("Speed");
+    private static readonly int JumpHash = Animator.StringToHash("Jump");
+    private static readonly int FallHash = Animator.StringToHash("Fall");
+    private static readonly int LandHash = Animator.StringToHash("Land");
+
+    public Animator RuntimeAnimator => animator;
+
+    public void SetupAnimator(Animator anim, Rigidbody body)
+    {
+        animator = anim;
+        rb = body;
+    }
 
     private void Awake()
     {
         if (rb == null) rb = GetComponent<Rigidbody>();
-        if (torso != null) initialTorsoPos = torso.localPosition;
+        if (animator == null) animator = GetComponentInChildren<Animator>();
+    }
+
+    public void SetGrounded(bool grounded)
+    {
+        if (!isGrounded && grounded)
+        {
+            TriggerLand();
+        }
+        isGrounded = grounded;
     }
 
     public void SetEliminated(bool eliminated)
     {
         isEliminated = eliminated;
+        if (animator != null && isEliminated)
+        {
+            animator.SetBool(FallHash, true);
+            animator.SetBool(JumpHash, false);
+            animator.SetFloat(SpeedHash, 0f);
+        }
     }
 
-    public void SetGrounded(bool grounded)
+    public void TriggerJump()
     {
-        isGrounded = grounded;
+        if (animator != null)
+        {
+            animator.SetBool(JumpHash, true);
+            animator.SetBool(FallHash, false);
+            animator.SetBool(LandHash, false);
+        }
+    }
+
+    public void TriggerLand()
+    {
+        if (animator != null)
+        {
+            animator.SetBool(LandHash, true);
+            animator.SetBool(JumpHash, false);
+            animator.SetBool(FallHash, false);
+            landTimer = 0.22f;
+        }
     }
 
     private void Update()
     {
-        if (rb == null) return;
+        if (animator == null) return;
 
-        Vector3 horizontalVel = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
-        float speed = horizontalVel.magnitude;
-        bool isMoving = speed > 0.4f;
+        if (landTimer > 0f)
+        {
+            landTimer -= Time.deltaTime;
+            if (landTimer <= 0f)
+            {
+                animator.SetBool(LandHash, false);
+            }
+        }
 
         if (isEliminated)
         {
-            AnimateEliminated();
+            animator.SetBool(FallHash, true);
             return;
         }
 
-        if (!isGrounded)
+        if (rb != null)
         {
-            AnimateInAir();
-            return;
+            Vector3 horizontalVel = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+            float currentSpeed = horizontalVel.magnitude;
+
+            // Speed parameter in BlendTree: 0 = Idle, 0.5 = Walk, 1.0 = Run
+            float normalizedSpeed = 0f;
+            if (currentSpeed > 0.2f)
+            {
+                float speedRatio = Mathf.Clamp01(currentSpeed / maxSpeed);
+                normalizedSpeed = Mathf.Lerp(0.45f, 1.0f, speedRatio);
+            }
+
+            animator.SetFloat(SpeedHash, isGrounded ? normalizedSpeed : 0f);
+
+            // In-air falling state
+            if (!isGrounded)
+            {
+                if (rb.linearVelocity.y < -0.8f)
+                {
+                    animator.SetBool(FallHash, true);
+                    animator.SetBool(JumpHash, false);
+                }
+            }
+            else
+            {
+                animator.SetBool(FallHash, false);
+            }
         }
-
-        if (isMoving)
-        {
-            AnimateRunning(speed);
-        }
-        else
-        {
-            AnimateIdle();
-        }
-    }
-
-    private void AnimateRunning(float speed)
-    {
-        float runSpeedMultiplier = Mathf.Clamp(speed * 2.2f, 8f, 18f);
-        runCycleTime += Time.deltaTime * runSpeedMultiplier;
-
-        float sin = Mathf.Sin(runCycleTime);
-        float cos = Mathf.Cos(runCycleTime);
-
-        // Torso bobs up and down while sprinting
-        if (torso != null)
-        {
-            torso.localPosition = initialTorsoPos + new Vector3(0, Mathf.Abs(sin) * 0.08f, 0);
-            torso.localRotation = Quaternion.Euler(sin * 3f, 0, cos * 4f);
-        }
-
-        // Legs run cycle (Opposite alternation)
-        float legAngle = sin * 42f;
-        if (leftLeg != null)
-        {
-            leftLeg.localRotation = Quaternion.Euler(legAngle, 0, 0);
-        }
-        if (rightLeg != null)
-        {
-            rightLeg.localRotation = Quaternion.Euler(-legAngle, 0, 0);
-        }
-
-        // Arms swing opposite to legs (Natural running gait)
-        float armAngle = -sin * 48f;
-        if (leftArm != null)
-        {
-            leftArm.localRotation = Quaternion.Euler(armAngle, 0, 15f + Mathf.Abs(cos) * 8f);
-        }
-        if (rightArm != null)
-        {
-            rightArm.localRotation = Quaternion.Euler(-armAngle, 0, -15f - Mathf.Abs(cos) * 8f);
-        }
-
-        // Head bounce
-        if (head != null)
-        {
-            head.localRotation = Quaternion.Euler(-Mathf.Abs(sin) * 5f, 0, 0);
-        }
-    }
-
-    private void AnimateIdle()
-    {
-        idleCycleTime += Time.deltaTime * 3f;
-        float sin = Mathf.Sin(idleCycleTime);
-
-        // Gentle breathing bob
-        if (torso != null)
-        {
-            torso.localPosition = Vector3.Lerp(torso.localPosition, initialTorsoPos + new Vector3(0, sin * 0.025f, 0), Time.deltaTime * 10f);
-            torso.localRotation = Quaternion.Slerp(torso.localRotation, Quaternion.identity, Time.deltaTime * 8f);
-        }
-
-        // Gentle resting limbs
-        if (leftLeg != null) leftLeg.localRotation = Quaternion.Slerp(leftLeg.localRotation, Quaternion.identity, Time.deltaTime * 10f);
-        if (rightLeg != null) rightLeg.localRotation = Quaternion.Slerp(rightLeg.localRotation, Quaternion.identity, Time.deltaTime * 10f);
-
-        if (leftArm != null) leftArm.localRotation = Quaternion.Slerp(leftArm.localRotation, Quaternion.Euler(0, 0, 12f + sin * 3f), Time.deltaTime * 10f);
-        if (rightArm != null) rightArm.localRotation = Quaternion.Slerp(rightArm.localRotation, Quaternion.Euler(0, 0, -12f - sin * 3f), Time.deltaTime * 10f);
-
-        if (head != null) head.localRotation = Quaternion.Slerp(head.localRotation, Quaternion.Euler(sin * 2f, 0, 0), Time.deltaTime * 8f);
-    }
-
-    private void AnimateInAir()
-    {
-        // Jump pose: Arms thrown up high, legs tucked
-        float t = Time.deltaTime * 12f;
-
-        if (leftArm != null) leftArm.localRotation = Quaternion.Slerp(leftArm.localRotation, Quaternion.Euler(-135f, 0, 25f), t);
-        if (rightArm != null) rightArm.localRotation = Quaternion.Slerp(rightArm.localRotation, Quaternion.Euler(-135f, 0, -25f), t);
-
-        if (leftLeg != null) leftLeg.localRotation = Quaternion.Slerp(leftLeg.localRotation, Quaternion.Euler(-25f, 0, 0), t);
-        if (rightLeg != null) rightLeg.localRotation = Quaternion.Slerp(rightLeg.localRotation, Quaternion.Euler(20f, 0, 0), t);
-
-        if (head != null) head.localRotation = Quaternion.Slerp(head.localRotation, Quaternion.Euler(-15f, 0, 0), t);
-    }
-
-    private void AnimateEliminated()
-    {
-        // Flailing panic animation while tumbling into void
-        float tumble = Time.time * 15f;
-        if (leftArm != null) leftArm.localRotation = Quaternion.Euler(Mathf.Sin(tumble) * 70f, 0, 45f);
-        if (rightArm != null) rightArm.localRotation = Quaternion.Euler(Mathf.Cos(tumble) * 70f, 0, -45f);
-        if (leftLeg != null) leftLeg.localRotation = Quaternion.Euler(Mathf.Cos(tumble * 1.2f) * 50f, 0, 0);
-        if (rightLeg != null) rightLeg.localRotation = Quaternion.Euler(Mathf.Sin(tumble * 1.2f) * 50f, 0, 0);
     }
 }
