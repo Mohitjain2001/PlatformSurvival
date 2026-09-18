@@ -65,11 +65,10 @@ public class SceneSetupUtility
         platformObj.transform.localScale = new Vector3(4.5f, 0.3f, 4.5f);
         platformObj.GetComponent<MeshRenderer>().material.color = new Color(0.20f, 0.75f, 0.95f);
 
-        // Decorative Player Bean
-        GameObject bean = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-        bean.name = "PreviewBean";
-        bean.transform.position = new Vector3(0, 1.2f, 0);
-        bean.GetComponent<MeshRenderer>().material.color = new Color(0.12f, 0.65f, 1.0f);
+        // Decorative 3D Runner Character
+        GameObject bean = CharacterModelBuilder.BuildRunnerCharacter("PreviewBean", new Color(0.12f, 0.65f, 1.0f));
+        bean.transform.position = new Vector3(0, 0.15f, 0);
+        Object.DestroyImmediate(bean.GetComponent<Rigidbody>());
 
         // 3. UI Canvas
         GameObject eventSystemObj = new GameObject("EventSystem");
@@ -284,13 +283,11 @@ public class SceneSetupUtility
         podiumObj.transform.localScale = new Vector3(3.2f, 0.4f, 3.2f);
         podiumObj.GetComponent<MeshRenderer>().material.color = new Color(1.0f, 0.84f, 0.0f); // Gold podium
 
-        // Winner Bean Character
-        GameObject winnerBean = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-        winnerBean.name = "WinnerBean";
-        winnerBean.transform.position = new Vector3(0, 1.4f, 0);
+        // Winner 3D Runner Character
+        GameObject winnerBean = CharacterModelBuilder.BuildRunnerCharacter("WinnerBean", new Color(0.12f, 0.65f, 1.0f));
+        winnerBean.transform.position = new Vector3(0, 0.4f, 0);
         winnerBean.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
-        winnerBean.GetComponent<MeshRenderer>().material.color = new Color(0.12f, 0.65f, 1.0f); // Player blue
-        winnerBean.AddComponent<CharacterSquashAndStretch>();
+        Object.DestroyImmediate(winnerBean.GetComponent<Rigidbody>());
 
         // 3. UI Canvas
         GameObject eventSystemObj = new GameObject("EventSystem");

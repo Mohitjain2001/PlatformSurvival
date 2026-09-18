@@ -18,6 +18,7 @@ public class PlayerController : MonoBehaviour
     [Header("Dependencies")]
     [SerializeField] private VirtualJoystick joystick;
     [SerializeField] private CharacterSquashAndStretch squashAndStretch;
+    [SerializeField] private Character3DAnimator characterAnimator;
 
     private Rigidbody rb;
     private bool isGrounded = false;
@@ -37,6 +38,10 @@ public class PlayerController : MonoBehaviour
         if (squashAndStretch == null)
         {
             squashAndStretch = GetComponent<CharacterSquashAndStretch>();
+        }
+        if (characterAnimator == null)
+        {
+            characterAnimator = GetComponent<Character3DAnimator>();
         }
     }
 
@@ -123,6 +128,7 @@ public class PlayerController : MonoBehaviour
         }
 
         wasGroundedLastFrame = isGrounded;
+        if (characterAnimator != null) characterAnimator.SetGrounded(isGrounded);
     }
 
     private void CheckAutoJump(Vector3 moveInput)

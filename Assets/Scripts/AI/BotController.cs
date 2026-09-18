@@ -18,6 +18,7 @@ public class BotController : MonoBehaviour
 
     [Header("Dependencies")]
     [SerializeField] private CharacterSquashAndStretch squashAndStretch;
+    [SerializeField] private Character3DAnimator characterAnimator;
 
     private Rigidbody rb;
     private bool isGrounded = false;
@@ -32,7 +33,6 @@ public class BotController : MonoBehaviour
 
     public string BotName => botName;
     public bool IsEliminated => isEliminated;
-    public bool IsGrounded => isGrounded;
 
     private void Awake()
     {
@@ -42,6 +42,10 @@ public class BotController : MonoBehaviour
         if (squashAndStretch == null)
         {
             squashAndStretch = GetComponent<CharacterSquashAndStretch>();
+        }
+        if (characterAnimator == null)
+        {
+            characterAnimator = GetComponent<Character3DAnimator>();
         }
     }
 
@@ -53,18 +57,14 @@ public class BotController : MonoBehaviour
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
-        MeshRenderer[] renderers = GetComponentsInChildren<MeshRenderer>();
-        Shader defaultShader = Shader.Find("Standard");
-        botMaterial = new Material(defaultShader);
-        botMaterial.color = color;
-
-        foreach (MeshRenderer r in renderers)
+        MeshRenderer renderer = GetComponentInChildren<MeshRenderer>();
+        if (renderer != null)
         {
-            // Keep Visor white and Eyes/Shoes dark; only color torso and limbs
-            if (r.gameObject.name == "Torso" || r.gameObject.name.StartsWith("ArmMesh") || r.gameObject.name.StartsWith("LegMesh") || r.gameObject.name == BotName)
-            {
-                r.material = botMaterial;
-            }
+            Shader defaultShader = Shader.Find("Standard");
+            Shader targetShader = (renderer.sharedMaterial != null && renderer.sharedMaterial.shader != null) ? renderer.sharedMaterial.shader : defaultShader;
+            botMaterial = new Material(targetShader);
+            botMaterial.color = color;
+            renderer.material = botMaterial;
         }
     }
 
@@ -123,6 +123,7 @@ public class BotController : MonoBehaviour
     {
         Vector3 rayStart = transform.position + Vector3.up * 0.15f;
         isGrounded = Physics.Raycast(rayStart, Vector3.down, groundCheckDistance);
+        if (characterAnimator != null) characterAnimator.SetGrounded(isGrounded);
     }
 
     private void EvaluateAndPickTargetTile()
