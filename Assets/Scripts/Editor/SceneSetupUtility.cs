@@ -173,10 +173,10 @@ public class SceneSetupUtility
         // 5a. Joystick UI
         GameObject joystickObj = CreateUIElement("VirtualJoystick", canvasObj.transform);
         RectTransform joyRect = joystickObj.GetComponent<RectTransform>();
-        joyRect.anchorMin = new Vector2(0f, 0f);
-        joyRect.anchorMax = new Vector2(0f, 0f);
-        joyRect.pivot = new Vector2(0f, 0f);
-        joyRect.anchoredPosition = new Vector2(80f, 80f);
+        joyRect.anchorMin = new Vector2(0.5f, 0f);
+        joyRect.anchorMax = new Vector2(0.5f, 0f);
+        joyRect.pivot = new Vector2(0.5f, 0.5f);
+        joyRect.anchoredPosition = new Vector2(0f, 220f);
         joyRect.sizeDelta = new Vector2(320f, 320f);
 
         Image joyBgImage = joystickObj.AddComponent<Image>();

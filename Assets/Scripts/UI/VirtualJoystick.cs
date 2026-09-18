@@ -36,27 +36,30 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     public void OnDrag(PointerEventData eventData)
     {
-        Vector2 position = Vector2.zero;
+        if (containerBackground == null) return;
+
+        Vector2 localPoint;
         if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
             containerBackground, 
             eventData.position, 
             uiCamera, 
-            out position))
+            out localPoint))
         {
-            position.x = (position.x / containerBackground.sizeDelta.x);
-            position.y = (position.y / containerBackground.sizeDelta.y);
+            // Calculate center-relative offset for clean 360-degree control
+            Vector2 pivotOffset = new Vector2(
+                (containerBackground.pivot.x - 0.5f) * containerBackground.sizeDelta.x,
+                (containerBackground.pivot.y - 0.5f) * containerBackground.sizeDelta.y
+            );
+            Vector2 centerPoint = localPoint + pivotOffset;
 
-            // Pivot compensation
-            position = (containerBackground.pivot.x == 1) ? position * 2 + new Vector2(1, 0) : position * 2 - new Vector2(1, 0);
+            float radius = Mathf.Min(containerBackground.sizeDelta.x, containerBackground.sizeDelta.y) * 0.5f;
+            Vector2 normalizedPos = centerPoint / radius;
 
-            inputVector = (position.magnitude > 1.0f) ? position.normalized : position;
+            inputVector = (normalizedPos.magnitude > 1.0f) ? normalizedPos.normalized : normalizedPos;
 
             if (handleGraphic != null)
             {
-                handleGraphic.anchoredPosition = new Vector2(
-                    inputVector.x * (containerBackground.sizeDelta.x / 2.5f),
-                    inputVector.y * (containerBackground.sizeDelta.y / 2.5f)
-                );
+                handleGraphic.anchoredPosition = inputVector * (radius * 0.8f);
             }
         }
     }
