@@ -17,9 +17,9 @@ public class PlatformGridGenerator : MonoBehaviour
     [Header("Layer Colors")]
     [SerializeField] private Color[] layerNormalColors = new Color[]
     {
-        new Color(0.20f, 0.75f, 0.95f), // Layer 1: Bright Blue / Cyan
-        new Color(0.98f, 0.70f, 0.15f), // Layer 2: Golden Yellow / Orange
-        new Color(0.90f, 0.25f, 0.75f)  // Layer 3: Pink / Magenta
+        new Color(0.88f, 0.38f, 0.48f), // Layer 1: Coral / Pink (matching user reference image!)
+        new Color(0.20f, 0.75f, 0.95f), // Layer 2: Bright Blue / Cyan
+        new Color(0.98f, 0.70f, 0.15f)  // Layer 3: Golden Yellow / Orange
     };
 
     [SerializeField] private Color tileWarningColor = new Color(1.0f, 0.45f, 0.0f); // Warning Orange

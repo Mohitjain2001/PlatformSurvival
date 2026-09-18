@@ -9,9 +9,10 @@ public class PlatformTile : MonoBehaviour
     [SerializeField] private float fallSpeed = 12f;
 
     [Header("Visual Feedback Colors")]
-    [SerializeField] private Color normalColor = new Color(0.2f, 0.8f, 0.9f); // Cyan/Teal
+    [SerializeField] private Color normalColor = new Color(0.90f, 0.38f, 0.48f); // Coral/Pink
+    [SerializeField] private Color steppedColor = Color.white; // Pure white when stepped on!
     [SerializeField] private Color warningColor = new Color(1.0f, 0.6f, 0.0f); // Orange
-    [SerializeField] private Color dangerColor = new Color(0.9f, 0.1f, 0.1f); // Red
+    [SerializeField] private Color dangerColor = new Color(0.95f, 0.15f, 0.15f); // Red
 
     private MeshRenderer meshRenderer;
     private Collider tileCollider;
@@ -34,9 +35,22 @@ public class PlatformTile : MonoBehaviour
         
         if (meshRenderer != null)
         {
-            // Instantiate material so color changes don't affect shared material
             tileMaterial = meshRenderer.material;
-            tileMaterial.color = normalColor;
+            SetTileColor(normalColor);
+        }
+    }
+
+    public void SetTileColor(Color color)
+    {
+        if (tileMaterial == null && meshRenderer != null)
+        {
+            tileMaterial = meshRenderer.material;
+        }
+        if (tileMaterial != null)
+        {
+            if (tileMaterial.HasProperty("_Color")) tileMaterial.SetColor("_Color", color);
+            if (tileMaterial.HasProperty("_BaseColor")) tileMaterial.SetColor("_BaseColor", color);
+            tileMaterial.color = color;
         }
     }
 
@@ -50,10 +64,7 @@ public class PlatformTile : MonoBehaviour
         normalColor = normal;
         warningColor = warning;
         dangerColor = danger;
-        if (tileMaterial != null)
-        {
-            tileMaterial.color = normalColor;
-        }
+        SetTileColor(normalColor);
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -86,6 +97,9 @@ public class PlatformTile : MonoBehaviour
     private IEnumerator FallRoutine()
     {
         isSteppedOn = true;
+        // Instantly turn solid white when stepped on, matching the reference image!
+        SetTileColor(steppedColor);
+
         float elapsed = 0f;
 
         while (elapsed < delayBeforeFall)
@@ -102,17 +116,16 @@ public class PlatformTile : MonoBehaviour
 
             transform.position = initialPosition + shakeOffset;
 
-            // Color shift from normal -> warning -> danger
-            if (tileMaterial != null)
+            // Stay solid white for the majority of the shake duration
+            if (progress < 0.70f)
             {
-                if (progress < 0.5f)
-                {
-                    tileMaterial.color = Color.Lerp(normalColor, warningColor, progress * 2f);
-                }
-                else
-                {
-                    tileMaterial.color = Color.Lerp(warningColor, dangerColor, (progress - 0.5f) * 2f);
-                }
+                SetTileColor(steppedColor);
+            }
+            else
+            {
+                // Quick red warning flash just before dropping
+                float flash = (progress - 0.70f) / 0.30f;
+                SetTileColor(Color.Lerp(steppedColor, dangerColor, flash));
             }
 
             yield return null;

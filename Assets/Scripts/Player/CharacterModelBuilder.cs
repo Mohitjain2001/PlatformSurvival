@@ -77,6 +77,13 @@ public static class CharacterModelBuilder
         Character3DAnimator animBridge = root.AddComponent<Character3DAnimator>();
         animBridge.SetupAnimator(animator, rb);
 
+        // Add floating "Player" billboard text above character head if player
+        if (isPlayer)
+        {
+            CharacterNameTag nameTag = root.AddComponent<CharacterNameTag>();
+            nameTag.Setup("Player", new Color(0.33f, 0.92f, 0.22f), 1.80f);
+        }
+
         return root;
     }
 
