@@ -137,13 +137,16 @@ public class GameManager : MonoBehaviour
         aliveParticipants.Remove(playerObj);
         int rank = aliveParticipants.Count + 1;
 
+        currentState = GameState.GameOver;
+        GameDataManager.RecordMatchResult(rank, totalParticipants, false);
+
         if (uiManager != null)
         {
             uiManager.UpdateAliveCount(aliveParticipants.Count, totalParticipants);
             uiManager.ShowGameOver(rank, totalParticipants);
         }
 
-        currentState = GameState.GameOver;
+        StartCoroutine(TransitionToSceneRoutine("GameOverScene", 1.5f));
     }
 
     public void OnBotEliminated(GameObject botObj)
@@ -161,11 +164,21 @@ public class GameManager : MonoBehaviour
         if (aliveParticipants.Count == 1 && aliveParticipants[0] == playerInstance)
         {
             currentState = GameState.Victory;
+            GameDataManager.RecordMatchResult(1, totalParticipants, true);
+
             if (uiManager != null)
             {
                 uiManager.ShowVictory();
             }
+
+            StartCoroutine(TransitionToSceneRoutine("WinScene", 1.5f));
         }
+    }
+
+    private IEnumerator TransitionToSceneRoutine(string sceneName, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        SceneManager.LoadScene(sceneName);
     }
 
     public void RestartMatch()

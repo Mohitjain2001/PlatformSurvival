@@ -18,20 +18,23 @@ public class SceneSetupUtility
 
         SetupSplashScene();
         SetupGameplayScene();
+        SetupWinScene();
+        SetupGameOverScene();
 
-        // Configure EditorBuildSettings
+        // Configure EditorBuildSettings for all 4 distinct scenes
         EditorBuildSettingsScene[] buildScenes = new EditorBuildSettingsScene[]
         {
             new EditorBuildSettingsScene("Assets/Scenes/SplashScene.unity", true),
             new EditorBuildSettingsScene("Assets/Scenes/GameplayScene.unity", true),
-            new EditorBuildSettingsScene("Assets/Scenes/SampleScene.unity", true)
+            new EditorBuildSettingsScene("Assets/Scenes/WinScene.unity", true),
+            new EditorBuildSettingsScene("Assets/Scenes/GameOverScene.unity", true)
         };
         EditorBuildSettings.scenes = buildScenes;
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        Debug.Log("All Project Scenes (SplashScene, GameplayScene) successfully created, arranged, and added to Build Settings!");
+        Debug.Log("All 4 Scenes (Splash, Gameplay, Win, GameOver) successfully created, linked, and added to Build Settings!");
     }
 
     public static void SetupSplashScene()
@@ -249,9 +252,165 @@ public class SceneSetupUtility
         soGM.FindProperty("uiManager").objectReferenceValue = uiManager;
         soGM.ApplyModifiedProperties();
 
-        // Save both GameplayScene and SampleScene
+        // Save GameplayScene
         EditorSceneManager.SaveScene(scene, "Assets/Scenes/GameplayScene.unity");
-        EditorSceneManager.SaveScene(scene, "Assets/Scenes/SampleScene.unity");
+    }
+
+    public static void SetupWinScene()
+    {
+        var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+
+        // 1. Lighting & Camera
+        GameObject lightObj = new GameObject("Directional Light");
+        Light lightComp = lightObj.AddComponent<Light>();
+        lightComp.type = LightType.Directional;
+        lightComp.intensity = 1.3f;
+        lightComp.color = new Color(1.0f, 0.95f, 0.85f);
+        lightObj.transform.rotation = Quaternion.Euler(50f, -30f, 0f);
+
+        GameObject cameraObj = new GameObject("Main Camera");
+        cameraObj.tag = "MainCamera";
+        Camera cameraComp = cameraObj.AddComponent<Camera>();
+        cameraComp.clearFlags = CameraClearFlags.SolidColor;
+        cameraComp.backgroundColor = new Color(0.15f, 0.65f, 0.45f); // Vibrant winner emerald
+        cameraObj.AddComponent<AudioListener>();
+        cameraObj.transform.position = new Vector3(0, 3.5f, -6.0f);
+        cameraObj.transform.rotation = Quaternion.Euler(20f, 0f, 0f);
+
+        // 2. Winner Podium 3D Setup
+        GameObject podiumObj = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        podiumObj.name = "VictoryPodium";
+        podiumObj.transform.position = new Vector3(0, 0, 0);
+        podiumObj.transform.localScale = new Vector3(3.2f, 0.4f, 3.2f);
+        podiumObj.GetComponent<MeshRenderer>().material.color = new Color(1.0f, 0.84f, 0.0f); // Gold podium
+
+        // Winner Bean Character
+        GameObject winnerBean = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        winnerBean.name = "WinnerBean";
+        winnerBean.transform.position = new Vector3(0, 1.4f, 0);
+        winnerBean.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
+        winnerBean.GetComponent<MeshRenderer>().material.color = new Color(0.12f, 0.65f, 1.0f); // Player blue
+        winnerBean.AddComponent<CharacterSquashAndStretch>();
+
+        // 3. UI Canvas
+        GameObject eventSystemObj = new GameObject("EventSystem");
+        eventSystemObj.AddComponent<EventSystem>();
+        eventSystemObj.AddComponent<StandaloneInputModule>();
+
+        GameObject canvasObj = new GameObject("UI Canvas");
+        Canvas canvas = canvasObj.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+
+        CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1080, 1920);
+        scaler.matchWidthOrHeight = 0.5f;
+
+        canvasObj.AddComponent<GraphicRaycaster>();
+        WinSceneManager winMgr = canvasObj.AddComponent<WinSceneManager>();
+
+        // Header Title
+        TextMeshProUGUI title = CreateTMPText("VictoryTitle", canvasObj.transform, "VICTORY!", 72, new Vector2(0, 520f));
+        title.color = new Color(1.0f, 0.90f, 0.20f);
+
+        // Subtitle
+        TextMeshProUGUI subtitle = CreateTMPText("Subtitle", canvasObj.transform, "LAST PLAYER STANDING!", 36, new Vector2(0, 430f));
+        subtitle.color = Color.white;
+
+        // Buttons
+        Button playAgainBtn = CreateButton("PlayAgainButton", canvasObj.transform, "PLAY AGAIN", new Vector2(0, -420f), new Color(0.20f, 0.85f, 0.40f));
+        Button menuBtn = CreateButton("MenuButton", canvasObj.transform, "MAIN MENU", new Vector2(0, -560f), new Color(0.35f, 0.55f, 0.85f));
+
+        // Connect references
+        SerializedObject soWin = new SerializedObject(winMgr);
+        soWin.FindProperty("titleText").objectReferenceValue = title;
+        soWin.FindProperty("subtitleText").objectReferenceValue = subtitle;
+        soWin.FindProperty("playAgainButton").objectReferenceValue = playAgainBtn;
+        soWin.FindProperty("mainMenuButton").objectReferenceValue = menuBtn;
+        soWin.FindProperty("winnerBeanTransform").objectReferenceValue = winnerBean.transform;
+        soWin.ApplyModifiedProperties();
+
+        EditorSceneManager.SaveScene(scene, "Assets/Scenes/WinScene.unity");
+    }
+
+    public static void SetupGameOverScene()
+    {
+        var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+
+        // 1. Lighting & Camera
+        GameObject lightObj = new GameObject("Directional Light");
+        Light lightComp = lightObj.AddComponent<Light>();
+        lightComp.type = LightType.Directional;
+        lightComp.intensity = 1.0f;
+        lightComp.color = new Color(0.9f, 0.85f, 0.85f);
+        lightObj.transform.rotation = Quaternion.Euler(50f, -30f, 0f);
+
+        GameObject cameraObj = new GameObject("Main Camera");
+        cameraObj.tag = "MainCamera";
+        Camera cameraComp = cameraObj.AddComponent<Camera>();
+        cameraComp.clearFlags = CameraClearFlags.SolidColor;
+        cameraComp.backgroundColor = new Color(0.18f, 0.12f, 0.16f); // Moody dark plum/red
+        cameraObj.AddComponent<AudioListener>();
+        cameraObj.transform.position = new Vector3(0, 3.5f, -6.0f);
+        cameraObj.transform.rotation = Quaternion.Euler(20f, 0f, 0f);
+
+        // 2. Fallen platform visual
+        GameObject fallenHex = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        fallenHex.name = "FallenHex";
+        fallenHex.transform.position = new Vector3(0, -0.5f, 0);
+        fallenHex.transform.localScale = new Vector3(3.5f, 0.2f, 3.5f);
+        fallenHex.GetComponent<MeshRenderer>().material.color = new Color(0.85f, 0.25f, 0.25f);
+
+        // 3. UI Canvas
+        GameObject eventSystemObj = new GameObject("EventSystem");
+        eventSystemObj.AddComponent<EventSystem>();
+        eventSystemObj.AddComponent<StandaloneInputModule>();
+
+        GameObject canvasObj = new GameObject("UI Canvas");
+        Canvas canvas = canvasObj.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+
+        CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1080, 1920);
+        scaler.matchWidthOrHeight = 0.5f;
+
+        canvasObj.AddComponent<GraphicRaycaster>();
+        GameOverSceneManager gameOverMgr = canvasObj.AddComponent<GameOverSceneManager>();
+
+        // Header Title
+        TextMeshProUGUI title = CreateTMPText("GameOverTitle", canvasObj.transform, "ELIMINATED!", 72, new Vector2(0, 480f));
+        title.color = new Color(0.95f, 0.35f, 0.35f);
+
+        // Rank info
+        TextMeshProUGUI rank = CreateTMPText("RankText", canvasObj.transform, "You were eliminated!", 42, new Vector2(0, 360f));
+        rank.color = Color.white;
+
+        // Tip text panel
+        GameObject tipCard = CreatePanel("TipCard", canvasObj.transform, new Color(0.12f, 0.08f, 0.12f, 0.85f));
+        RectTransform tipRt = tipCard.GetComponent<RectTransform>();
+        tipRt.anchorMin = new Vector2(0.5f, 0.5f);
+        tipRt.anchorMax = new Vector2(0.5f, 0.5f);
+        tipRt.sizeDelta = new Vector2(750f, 220f);
+        tipRt.anchoredPosition = new Vector2(0, 40f);
+
+        TextMeshProUGUI tip = CreateTMPText("TipText", tipCard.transform, "PRO TIP:\nDon't stop moving!\nHexagons drop shortly after you touch them!", 32, Vector2.zero);
+        tip.color = new Color(0.90f, 0.90f, 0.90f);
+
+        // Buttons
+        Button retryBtn = CreateButton("RetryButton", canvasObj.transform, "TRY AGAIN", new Vector2(0, -320f), new Color(0.20f, 0.80f, 0.40f));
+        Button menuBtn = CreateButton("MenuButton", canvasObj.transform, "MAIN MENU", new Vector2(0, -460f), new Color(0.35f, 0.55f, 0.85f));
+
+        // Connect references
+        SerializedObject soGameOver = new SerializedObject(gameOverMgr);
+        soGameOver.FindProperty("titleText").objectReferenceValue = title;
+        soGameOver.FindProperty("rankText").objectReferenceValue = rank;
+        soGameOver.FindProperty("tipText").objectReferenceValue = tip;
+        soGameOver.FindProperty("retryButton").objectReferenceValue = retryBtn;
+        soGameOver.FindProperty("mainMenuButton").objectReferenceValue = menuBtn;
+        soGameOver.ApplyModifiedProperties();
+
+        EditorSceneManager.SaveScene(scene, "Assets/Scenes/GameOverScene.unity");
     }
 
     private static GameObject CreateUIElement(string name, Transform parent)
