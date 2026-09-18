@@ -35642,6 +35642,87 @@ public class MinimoCustomizationUIController : MonoBehaviour
             return null;
         }
     }
+
+#if !UNITY_EDITOR
+    private string BuildCurrentCustomizerStateSignature() => string.Empty;
+
+    private static bool CanDeleteSavedPrefab(string assetPath) => false;
+
+    private static string BuildRelativeTransformPath(Transform root, Transform target)
+    {
+        if (root == null || target == null)
+        {
+            return string.Empty;
+        }
+
+        if (ReferenceEquals(root, target))
+        {
+            return ".";
+        }
+
+        List<string> segments = new List<string>();
+        Transform cursor = target;
+        while (cursor != null && !ReferenceEquals(cursor, root))
+        {
+            segments.Add($"{cursor.name}#{cursor.GetSiblingIndex()}");
+            cursor = cursor.parent;
+        }
+
+        if (cursor == null)
+        {
+            return target.name;
+        }
+
+        segments.Reverse();
+        return string.Join("/", segments);
+    }
+
+    private static int GetRendererComponentIndex(Renderer renderer)
+    {
+        if (renderer == null || renderer.transform == null)
+        {
+            return 0;
+        }
+
+        Component[] components = renderer.transform.GetComponents<Component>();
+        int index = 0;
+        for (int i = 0; i < components.Length; i++)
+        {
+            Component component = components[i];
+            if (component == null || component.GetType() != renderer.GetType())
+            {
+                continue;
+            }
+
+            if (ReferenceEquals(component, renderer))
+            {
+                return index;
+            }
+
+            index++;
+        }
+
+        return 0;
+    }
+
+    private static void PreparePreviewInstanceForTPose(GameObject instance)
+    {
+        if (instance == null)
+        {
+            return;
+        }
+
+        Animator[] animators = instance.GetComponentsInChildren<Animator>(true);
+        for (int i = 0; i < animators.Length; i++)
+        {
+            Animator animator = animators[i];
+            if (animator != null)
+            {
+                animator.enabled = false;
+            }
+        }
+    }
+#endif
 }
 
 internal static class MinimoButtonExtensions
