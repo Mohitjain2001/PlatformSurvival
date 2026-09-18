@@ -8,7 +8,7 @@ public class BuildScript
     public static void BuildAndroid()
     {
         // 1. Ensure scene setup is ran before build
-        SceneSetupUtility.SetupScene();
+        SceneSetupUtility.SetupAllScenes();
 
         // 2. Configure Player Settings
         PlayerSettings.companyName = "PlatformGames";
@@ -25,8 +25,12 @@ public class BuildScript
         }
         string apkPath = Path.Combine(buildDir, "PlatformSurvival.apk");
 
-        // 4. Define Build Scenes
-        string[] scenes = new string[] { "Assets/Scenes/SampleScene.unity" };
+        // 4. Define Build Scenes in Order (Splash -> Gameplay)
+        string[] scenes = new string[] 
+        { 
+            "Assets/Scenes/SplashScene.unity",
+            "Assets/Scenes/GameplayScene.unity"
+        };
 
         // 5. Build Options
         BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions

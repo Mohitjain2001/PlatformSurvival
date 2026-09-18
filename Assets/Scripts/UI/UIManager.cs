@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
@@ -12,11 +13,19 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI gameOverTitleText;
     [SerializeField] private TextMeshProUGUI rankText;
     [SerializeField] private Button retryGameOverButton;
+    [SerializeField] private Button menuGameOverButton;
 
     [Header("Victory Panel")]
     [SerializeField] private GameObject victoryPanel;
     [SerializeField] private TextMeshProUGUI victoryTitleText;
     [SerializeField] private Button retryVictoryButton;
+    [SerializeField] private Button menuVictoryButton;
+
+    private void Awake()
+    {
+        HideGameOver();
+        HideVictory();
+    }
 
     private void Start()
     {
@@ -27,6 +36,14 @@ public class UIManager : MonoBehaviour
         if (retryVictoryButton != null)
         {
             retryVictoryButton.onClick.AddListener(OnRetryClicked);
+        }
+        if (menuGameOverButton != null)
+        {
+            menuGameOverButton.onClick.AddListener(OnMenuClicked);
+        }
+        if (menuVictoryButton != null)
+        {
+            menuVictoryButton.onClick.AddListener(OnMenuClicked);
         }
 
         HideGameOver();
@@ -89,5 +106,14 @@ public class UIManager : MonoBehaviour
         {
             GameManager.Instance.RestartMatch();
         }
+        else
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
+    }
+
+    private void OnMenuClicked()
+    {
+        SceneManager.LoadScene("SplashScene");
     }
 }
