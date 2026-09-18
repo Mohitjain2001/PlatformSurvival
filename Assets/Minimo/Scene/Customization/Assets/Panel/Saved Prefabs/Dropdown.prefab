@@ -136,7 +136,7 @@ MonoBehaviour:
     - m_Text: Default
       m_Image: {fileID: 0}
       m_Color: {r: 1, g: 1, b: 1, a: 1}
-    - m_Text: Adventure
+    - m_Text: Action
       m_Image: {fileID: 0}
       m_Color: {r: 1, g: 1, b: 1, a: 1}
     - m_Text: Casual

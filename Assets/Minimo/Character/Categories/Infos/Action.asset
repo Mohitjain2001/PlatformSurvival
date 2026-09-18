@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9982894f042c80e43b95398dedd6646e, type: 3}
+  m_Name: Action
+  m_EditorClassIdentifier: 
+  theme: Action
+  headerText: MINIMO FIGURE COLLECTION
+  subHeaderText: Adventure Co-op Character Set 02
+  previewSprite: {fileID: -1448236282, guid: cd47075d01acbc2409fde0db37c362be, type: 3}
+  contextText: Total 2 Adventure Character Pack with 2 Props
+  link: https://assetstore.unity.com/publishers/116468

@@ -1870,8 +1870,7 @@ public class MinimoTpsController : MonoBehaviour
         if (Application.isPlaying
             || EditorApplication.isPlayingOrWillChangePlaymode
             || EditorApplication.isCompiling
-            || EditorApplication.isUpdating
-            || EditorUtility.IsPersistent(this))
+            || EditorApplication.isUpdating)
         {
             return;
         }
@@ -2680,7 +2679,7 @@ public class MinimoTpsController : MonoBehaviour
     private void CacheAnimatorParameters()
     {
         animatorParameterTypes.Clear();
-        if (!CanAccessAnimatorParameters())
+        if (runtimeAnimator == null || runtimeAnimator.runtimeAnimatorController == null)
         {
             return;
         }

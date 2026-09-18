@@ -205,6 +205,16 @@ public class MinimoCharacterCustomizer : MonoBehaviour
         }
 
 #if UNITY_EDITOR
+        // PrefabImporter can invoke OnValidate while it is producing an import
+        // artifact. AssetDatabase queries and serialized mutations from that
+        // context can make two imports of the same prefab produce different
+        // results. Prefab Mode objects are not persistent, so authoring there
+        // still receives the normal validation pass.
+        if (EditorUtility.IsPersistent(this) || PrefabUtility.IsPartOfPrefabAsset(gameObject))
+        {
+            return;
+        }
+
         bool isSavedPrefabAsset = IsSavedPrefabAsset();
         if (isSavedPrefabAsset)
         {

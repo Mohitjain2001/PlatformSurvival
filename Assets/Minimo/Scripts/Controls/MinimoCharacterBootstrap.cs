@@ -133,12 +133,7 @@ public class MinimoCharacterBootstrap : MonoBehaviour
 
     private void OnValidate()
     {
-        if (Application.isPlaying
-            || EditorApplication.isPlayingOrWillChangePlaymode
-            || EditorApplication.isCompiling
-            || EditorApplication.isUpdating
-            || EditorUtility.IsPersistent(this)
-            || !autoConfigureInEditor)
+        if (Application.isPlaying || !autoConfigureInEditor)
         {
             return;
         }
@@ -149,14 +144,7 @@ public class MinimoCharacterBootstrap : MonoBehaviour
 
     private void QueueEditorRefresh()
     {
-        if (Application.isPlaying
-            || EditorApplication.isPlayingOrWillChangePlaymode
-            || EditorApplication.isCompiling
-            || EditorApplication.isUpdating
-            || EditorUtility.IsPersistent(this)
-            || !autoConfigureInEditor
-            || !liveUpdateInEditor
-            || editorRefreshQueued)
+        if (Application.isPlaying || !autoConfigureInEditor || !liveUpdateInEditor || editorRefreshQueued)
         {
             return;
         }
@@ -181,14 +169,7 @@ public class MinimoCharacterBootstrap : MonoBehaviour
         editorRefreshQueued = false;
         EditorApplication.delayCall -= PerformQueuedEditorRefresh;
 
-        if (this == null
-            || Application.isPlaying
-            || EditorApplication.isPlayingOrWillChangePlaymode
-            || EditorApplication.isCompiling
-            || EditorApplication.isUpdating
-            || EditorUtility.IsPersistent(this)
-            || !autoConfigureInEditor
-            || !liveUpdateInEditor)
+        if (this == null || Application.isPlaying || !autoConfigureInEditor || !liveUpdateInEditor)
         {
             return;
         }

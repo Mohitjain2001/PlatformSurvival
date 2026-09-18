@@ -546,6 +546,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1214890849403258359, guid: 14f345417ee7b1746a2249c9802604ea, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1450601916240024298, guid: 14f345417ee7b1746a2249c9802604ea, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -660,7 +664,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2369813315988355200, guid: 14f345417ee7b1746a2249c9802604ea, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.00012207031
+      value: -0.0009765625
       objectReference: {fileID: 0}
     - target: {fileID: 2881437275618147601, guid: 14f345417ee7b1746a2249c9802604ea, type: 3}
       propertyPath: m_AnchorMax.y
@@ -690,10 +694,6 @@ PrefabInstance:
       propertyPath: m_fontSize
       value: 15
       objectReference: {fileID: 0}
-    - target: {fileID: 3089694602105100088, guid: 14f345417ee7b1746a2249c9802604ea, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 15
-      objectReference: {fileID: 0}
     - target: {fileID: 3141877818118646192, guid: 14f345417ee7b1746a2249c9802604ea, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -701,10 +701,6 @@ PrefabInstance:
     - target: {fileID: 3141877818118646192, guid: 14f345417ee7b1746a2249c9802604ea, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3253792449507914047, guid: 14f345417ee7b1746a2249c9802604ea, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 3573397817838457810, guid: 14f345417ee7b1746a2249c9802604ea, type: 3}
       propertyPath: m_AnchorMax.y
@@ -1198,10 +1194,6 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -24
       objectReference: {fileID: 0}
-    - target: {fileID: 7243369139879300950, guid: 14f345417ee7b1746a2249c9802604ea, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 15
-      objectReference: {fileID: 0}
     - target: {fileID: 7400155275263952056, guid: 14f345417ee7b1746a2249c9802604ea, type: 3}
       propertyPath: m_fontSize
       value: 15
@@ -1338,6 +1330,14 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8582322135764456437, guid: 14f345417ee7b1746a2249c9802604ea, type: 3}
+      propertyPath: m_Size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8582322135764456437, guid: 14f345417ee7b1746a2249c9802604ea, type: 3}
+      propertyPath: m_Value
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8672578507929720134, guid: 14f345417ee7b1746a2249c9802604ea, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
@@ -1369,7 +1369,7 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 1947724025353871904, guid: 14f345417ee7b1746a2249c9802604ea, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 8137232363868729578}
+      addedObject: {fileID: 8768403305536978708}
   m_SourcePrefab: {fileID: 100100000, guid: 14f345417ee7b1746a2249c9802604ea, type: 3}
 --- !u!114 &20004489713194624 stripped
 MonoBehaviour:
@@ -1414,7 +1414,7 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 1947724025353871904, guid: 14f345417ee7b1746a2249c9802604ea, type: 3}
   m_PrefabInstance: {fileID: 1506500815670044977}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &8137232363868729578
+--- !u!114 &8768403305536978708
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1426,7 +1426,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_EffectColor: {r: 0.1764706, g: 0.5686275, b: 0.76862746, a: 1}
+  m_EffectColor: {r: 0.375, g: 0.6233443, b: 0.75, a: 1}
   m_EffectDistance: {x: 10, y: 10}
   m_UseGraphicAlpha: 1
 --- !u!114 &1725704503109138349 stripped

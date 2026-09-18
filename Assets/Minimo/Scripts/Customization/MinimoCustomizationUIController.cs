@@ -130,6 +130,10 @@ public class MinimoCustomizationUIController : MonoBehaviour
         public List<PersistentFaceChannelColor> faceChannelColors = new List<PersistentFaceChannelColor>();
         public string selectedPropRigName;
         public List<PersistentPropSelection> equippedProps = new List<PersistentPropSelection>();
+        public string loadedSavedPrefabPath;
+        public string loadedSavedPrefabStateSignature;
+        public string stateSignature;
+        [NonSerialized] public List<RendererStateSnapshot> partRendererStates = new List<RendererStateSnapshot>();
     }
 
     [Serializable]
@@ -4851,6 +4855,9 @@ public class MinimoCustomizationUIController : MonoBehaviour
         }
 
         CapturePersistentPropState(state);
+        state.partRendererStates = CapturePersistentPartRendererStates();
+        state.stateSignature = BuildCurrentCustomizerStateSignature();
+        CaptureLoadedSavedPrefabUndoState(state);
         return state;
     }
 
@@ -4941,11 +4948,97 @@ public class MinimoCustomizationUIController : MonoBehaviour
             }
 
             ApplyPersistentPropState(state);
+            RestoreRendererStateSnapshots(state.partRendererStates);
+            RestoreLoadedSavedPrefabUndoState(state);
         }
         finally
         {
             isApplyingPersistentState = false;
         }
+    }
+
+    private List<RendererStateSnapshot> CapturePersistentPartRendererStates()
+    {
+        if (customizer == null)
+        {
+            return null;
+        }
+
+        List<RendererStateSnapshot> snapshots = new List<RendererStateSnapshot>();
+        IReadOnlyList<MinimoCharacterCustomizer.PartSlot> slots = MinimoCharacterCustomizer.Slots;
+        for (int i = 0; i < slots.Count; i++)
+        {
+            MinimoCharacterCustomizer.PartSlot slot = slots[i];
+            if (!customizer.TryGetPartRenderer(slot, out SkinnedMeshRenderer renderer) || renderer == null)
+            {
+                continue;
+            }
+
+            Material[] materials = renderer.sharedMaterials;
+            Transform[] bones = renderer.bones;
+            snapshots.Add(new RendererStateSnapshot
+            {
+                renderer = renderer,
+                enabled = renderer.enabled,
+                sharedMesh = renderer.sharedMesh,
+                sharedMaterials = CopyMaterialArray(materials),
+                rootBone = renderer.rootBone,
+                bones = CopyTransformArray(bones),
+                localBounds = renderer.localBounds,
+                materialPropertyBlocks = CaptureMaterialPropertyBlocks(renderer, materials)
+            });
+        }
+
+        return snapshots.Count > 0 ? snapshots : null;
+    }
+
+    private void CaptureLoadedSavedPrefabUndoState(PersistentCustomizationState state)
+    {
+        if (state == null)
+        {
+            return;
+        }
+
+        state.loadedSavedPrefabPath = string.Empty;
+        state.loadedSavedPrefabStateSignature = string.Empty;
+        if (string.IsNullOrWhiteSpace(loadedSavedPrefabPath)
+            || string.IsNullOrWhiteSpace(loadedSavedPrefabStateSignature)
+            || string.IsNullOrWhiteSpace(state.stateSignature)
+            || !string.Equals(state.stateSignature, loadedSavedPrefabStateSignature, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        state.loadedSavedPrefabPath = loadedSavedPrefabPath.Replace('\\', '/');
+        state.loadedSavedPrefabStateSignature = loadedSavedPrefabStateSignature;
+    }
+
+    private void RestoreLoadedSavedPrefabUndoState(PersistentCustomizationState state)
+    {
+        if (state == null)
+        {
+            return;
+        }
+
+        string restoredPath = string.IsNullOrWhiteSpace(state.loadedSavedPrefabPath)
+            ? string.Empty
+            : state.loadedSavedPrefabPath.Replace('\\', '/');
+        loadedSavedPrefabPath = restoredPath;
+        loadedSavedPrefabStateSignature = string.IsNullOrWhiteSpace(restoredPath)
+            ? string.Empty
+            : (!string.IsNullOrWhiteSpace(state.loadedSavedPrefabStateSignature)
+                ? state.loadedSavedPrefabStateSignature
+                : state.stateSignature);
+
+#if UNITY_EDITOR
+        if (!string.IsNullOrWhiteSpace(restoredPath))
+        {
+            RefreshSavedPrefabCategoryDropdownOptions();
+            SelectSavedPrefabCategoryFilter(ResolveSavedPrefabCategoryDisplayName(restoredPath));
+            RebuildSavedPrefabButtons(true);
+            SelectSavedPrefabEntryByPath(restoredPath);
+        }
+#endif
     }
 
     private void CapturePersistentPropState(PersistentCustomizationState state)
@@ -5363,7 +5456,7 @@ public class MinimoCustomizationUIController : MonoBehaviour
             return;
         }
 
-        string signature = JsonUtility.ToJson(state) ?? string.Empty;
+        string signature = BuildUndoStateHistorySignature(state);
 
         if (undoStateSignatures.Count > 0
             && string.Equals(undoStateSignatures[undoStateSignatures.Count - 1], signature, StringComparison.Ordinal))
@@ -5375,6 +5468,22 @@ public class MinimoCustomizationUIController : MonoBehaviour
         undoStateSignatures.Add(signature);
         TrimUndoStateHistoryIfNeeded();
         UpdateBackButtonUndoInteractivity();
+    }
+
+    private static string BuildUndoStateHistorySignature(PersistentCustomizationState state)
+    {
+        if (state == null)
+        {
+            return string.Empty;
+        }
+
+        StringBuilder builder = new StringBuilder();
+        builder.Append(!string.IsNullOrWhiteSpace(state.stateSignature)
+            ? state.stateSignature
+            : (JsonUtility.ToJson(state) ?? string.Empty));
+        builder.Append("|saved=");
+        builder.Append(state.loadedSavedPrefabPath ?? string.Empty);
+        return builder.ToString();
     }
 
     private void TrimUndoStateHistoryIfNeeded()
@@ -5437,7 +5546,7 @@ public class MinimoCustomizationUIController : MonoBehaviour
         try
         {
             ApplyPersistentCustomizationState(undoState);
-            RestoreHairRendererStateFromCurrentVariant();
+            SyncHairRendererUnlockFromCurrentRenderer();
             currentSetIndex = -1;
             helperOverrideMessage = "Undo applied.";
             RefreshFromCustomizer();
@@ -22754,6 +22863,10 @@ public class MinimoCustomizationUIController : MonoBehaviour
                 continue;
             }
 
+            signature.Append("V").Append((int)slot).Append(":");
+            AppendRendererVisualStateSignature(signature, renderer);
+            signature.Append(";");
+
             Material[] materials = renderer.sharedMaterials;
             int materialCount = materials != null ? materials.Length : 0;
             for (int materialIndex = 0; materialIndex < materialCount; materialIndex++)
@@ -22794,6 +22907,34 @@ public class MinimoCustomizationUIController : MonoBehaviour
         AppendPropStateToSignature(signature, sourceCustomizer);
 
         return signature.ToString();
+    }
+
+    private static void AppendRendererVisualStateSignature(StringBuilder builder, Renderer renderer)
+    {
+        if (builder == null)
+        {
+            return;
+        }
+
+        if (renderer == null)
+        {
+            builder.Append("none");
+            return;
+        }
+
+        builder.Append(renderer.enabled ? "E1" : "E0");
+        builder.Append(":mesh=");
+        if (TryGetRendererSignatureMesh(renderer, out Mesh mesh) && mesh != null)
+        {
+            AppendMeshVisualSignature(builder, mesh);
+        }
+        else
+        {
+            builder.Append("none");
+        }
+
+        builder.Append(":mat=");
+        AppendMaterialVisualSignature(builder, renderer.sharedMaterials);
     }
 
     private static void AppendColorToSignature(StringBuilder signature, Color color)

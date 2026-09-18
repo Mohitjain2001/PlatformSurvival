@@ -387,6 +387,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: ColorWheel
       objectReference: {fileID: 0}
+    - target: {fileID: 128409456397463805, guid: bb1107b799248f44b99d606d0c90110d, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 472248692846858462, guid: bb1107b799248f44b99d606d0c90110d, type: 3}
+      propertyPath: m_Texture
+      value: 
+      objectReference: {fileID: 2800000, guid: 97f938b950cdd504cbf5e251f26e037e, type: 3}
     - target: {fileID: 8853890897582766986, guid: bb1107b799248f44b99d606d0c90110d, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
