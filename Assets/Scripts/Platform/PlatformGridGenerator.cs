@@ -234,7 +234,7 @@ public class PlatformGridGenerator : MonoBehaviour
 
         mesh.SetVertices(vertices);
         mesh.SetTriangles(triangles, 0);
-        mesh.SetNormals(normals);
+        mesh.RecalculateNormals();
         mesh.RecalculateBounds();
 
         return mesh;

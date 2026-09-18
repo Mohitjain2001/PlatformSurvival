@@ -92,6 +92,7 @@ public class GameManager : MonoBehaviour
 
         if (followCamera != null)
         {
+            followCamera.SetMinCameraY(bottomEliminationY + 6.0f);
             followCamera.SetTarget(playerInstance.transform);
         }
 
