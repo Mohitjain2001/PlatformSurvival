@@ -25,11 +25,13 @@ public class BuildScript
         }
         string apkPath = Path.Combine(buildDir, "PlatformSurvival.apk");
 
-        // 4. Define Build Scenes in Order (Splash -> Gameplay)
+        // 4. Define Build Scenes in Order (Splash -> Gameplay -> Win -> GameOver)
         string[] scenes = new string[] 
         { 
             "Assets/Scenes/SplashScene.unity",
-            "Assets/Scenes/GameplayScene.unity"
+            "Assets/Scenes/GameplayScene.unity",
+            "Assets/Scenes/WinScene.unity",
+            "Assets/Scenes/GameOverScene.unity"
         };
 
         // 5. Build Options

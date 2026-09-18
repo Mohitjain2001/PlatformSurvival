@@ -40,8 +40,11 @@ public class PlatformGridGenerator : MonoBehaviour
         }
     }
 
+    public static PlatformGridGenerator Instance { get; private set; }
+
     private void Awake()
     {
+        Instance = this;
         hexMesh = CreateHexagonMesh(tileOuterRadius - tileSpacing, tileHeight);
     }
 

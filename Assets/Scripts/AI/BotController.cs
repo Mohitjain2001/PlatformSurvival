@@ -193,13 +193,23 @@ public class BotController : MonoBehaviour
 
     private PlatformTile FindBestAvailableTileOnSameLevel()
     {
-        PlatformTile[] allTiles = FindObjectsOfType<PlatformTile>();
+        IList<PlatformTile> allTiles = null;
+        if (PlatformGridGenerator.Instance != null)
+        {
+            allTiles = PlatformGridGenerator.Instance.ActiveTiles;
+        }
+        else
+        {
+            allTiles = FindObjectsOfType<PlatformTile>();
+        }
+
         PlatformTile closest = null;
         float minDistance = float.MaxValue;
         float botY = transform.position.y;
 
-        foreach (PlatformTile tile in allTiles)
+        for (int i = 0; i < allTiles.Count; i++)
         {
+            PlatformTile tile = allTiles[i];
             if (tile == null || !tile.IsAvailable || tile.IsShaking) continue;
 
             // Prefer tiles on current level (similar Y position)
@@ -217,8 +227,9 @@ public class BotController : MonoBehaviour
         // Fallback: any available tile near bot position
         if (closest == null)
         {
-            foreach (PlatformTile tile in allTiles)
+            for (int i = 0; i < allTiles.Count; i++)
             {
+                PlatformTile tile = allTiles[i];
                 if (tile == null || !tile.IsAvailable) continue;
 
                 if (tile.Position.y <= botY + 1.0f)

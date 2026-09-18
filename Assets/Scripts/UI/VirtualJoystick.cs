@@ -12,7 +12,7 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
     [Header("Joystick UI Setup")]
     [SerializeField] private RectTransform containerBackground;
     [SerializeField] private RectTransform handleGraphic;
-    [SerializeField] private float touchRadius = 90f; // Screen pixels to reach full run speed
+    [SerializeField] private float touchRadius = 120f; // Screen pixels to reach full run speed
 
     private Vector2 inputVector = Vector2.zero;
     private Vector2 pointerDownPosition;
