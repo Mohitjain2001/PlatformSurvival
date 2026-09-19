@@ -273,7 +273,7 @@ public class SceneSetupUtility
         float effectiveRadius = 1.2f;
         float xSpacing = Mathf.Sqrt(3) * effectiveRadius;
         float zSpacing = 1.5f * effectiveRadius;
-        float layerSpacing = 5.0f;
+        float layerSpacing = 12.0f;
 
         for (int layer = 0; layer < 3; layer++)
         {

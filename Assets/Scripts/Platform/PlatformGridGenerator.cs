@@ -12,7 +12,7 @@ public class PlatformGridGenerator : MonoBehaviour
 
     [Header("Multi-Layer Setup")]
     [SerializeField] private int layerCount = 3; // 3 vertical floors like Fall Race 3D!
-    [SerializeField] private float layerSpacing = 5.0f; // Vertical distance between floors
+    [SerializeField] private float layerSpacing = 12.0f; // Vertical distance between floors (generous gap so upper floors never clip camera)
 
     [Header("Layer Colors")]
     [SerializeField] private Color[] layerNormalColors = new Color[]

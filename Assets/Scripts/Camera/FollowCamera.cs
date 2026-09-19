@@ -4,10 +4,10 @@ public class FollowCamera : MonoBehaviour
 {
     [Header("Target & Offset")]
     [SerializeField] private Transform target;
-    [SerializeField] private Vector3 offset = new Vector3(0, 9.5f, -7.8f);
-    [SerializeField] private Vector3 lookOffset = new Vector3(0, 0.8f, 0.6f);
-    [SerializeField] private float smoothTimeXZ = 0.20f;
-    [SerializeField] private float smoothTimeY = 0.38f;
+    [SerializeField] private Vector3 offset = new Vector3(0, 6.5f, -6.2f);
+    [SerializeField] private Vector3 lookOffset = new Vector3(0, 0.8f, 0.8f);
+    [SerializeField] private float smoothTimeXZ = 0.18f;
+    [SerializeField] private float smoothTimeY = 0.25f;
     [SerializeField] private float minCameraY = 2.0f; // Prevent camera from plunging below arena
 
     private Vector3 currentVelocity;
@@ -59,10 +59,10 @@ public class FollowCamera : MonoBehaviour
         float desiredX = targetPos.x + offset.x;
         float desiredZ = targetPos.z + offset.z;
         
-        // Smooth Y gently between floors, but freeze if player fell off the arena
+        // Fast and smooth vertical follow so camera drops cleanly with player between floors
         if (!isPlayerFallingToVoid)
         {
-            targetY = Mathf.MoveTowards(targetY, targetPos.y, Time.deltaTime * 8.0f);
+            targetY = Mathf.Lerp(targetY, targetPos.y, Time.deltaTime * 18.0f);
         }
 
         float desiredY = Mathf.Max(targetY + offset.y, minCameraY);
@@ -73,7 +73,7 @@ public class FollowCamera : MonoBehaviour
             transform.position, 
             desiredCameraPos, 
             ref currentVelocity, 
-            Mathf.Max(smoothTimeXZ, smoothTimeY)
+            smoothTimeXZ
         );
 
         // Look at player or last known focus point with lookOffset
