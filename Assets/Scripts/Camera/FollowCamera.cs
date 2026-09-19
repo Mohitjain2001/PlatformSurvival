@@ -4,9 +4,10 @@ public class FollowCamera : MonoBehaviour
 {
     [Header("Target & Offset")]
     [SerializeField] private Transform target;
-    [SerializeField] private Vector3 offset = new Vector3(0, 15.0f, -11.0f);
-    [SerializeField] private float smoothTimeXZ = 0.22f;
-    [SerializeField] private float smoothTimeY = 0.48f;
+    [SerializeField] private Vector3 offset = new Vector3(0, 9.5f, -7.8f);
+    [SerializeField] private Vector3 lookOffset = new Vector3(0, 0.8f, 0.6f);
+    [SerializeField] private float smoothTimeXZ = 0.20f;
+    [SerializeField] private float smoothTimeY = 0.38f;
     [SerializeField] private float minCameraY = 2.0f; // Prevent camera from plunging below arena
 
     private Vector3 currentVelocity;
@@ -33,7 +34,7 @@ public class FollowCamera : MonoBehaviour
             Vector3 initPos = target.position + offset;
             initPos.y = Mathf.Max(initPos.y, minCameraY);
             transform.position = initPos;
-            transform.LookAt(target.position + Vector3.up * 0.8f);
+            transform.LookAt(target.position + lookOffset);
         }
     }
 
@@ -75,8 +76,8 @@ public class FollowCamera : MonoBehaviour
             Mathf.Max(smoothTimeXZ, smoothTimeY)
         );
 
-        // Look at player or last known focus point
-        Vector3 lookTarget = new Vector3(targetPos.x, targetY + 0.8f, targetPos.z);
+        // Look at player or last known focus point with lookOffset
+        Vector3 lookTarget = new Vector3(targetPos.x + lookOffset.x, targetY + lookOffset.y, targetPos.z + lookOffset.z);
         transform.rotation = Quaternion.Slerp(
             transform.rotation, 
             Quaternion.LookRotation(lookTarget - transform.position), 

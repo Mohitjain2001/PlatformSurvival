@@ -7728,9 +7728,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FollowCamera
   target: {fileID: 0}
-  offset: {x: 0, y: 15, z: -11}
-  smoothTimeXZ: 0.22
-  smoothTimeY: 0.48
+  offset: {x: 0, y: 9.5, z: -7.8}
+  lookOffset: {x: 0, y: 0.8, z: 0.6}
+  smoothTimeXZ: 0.2
+  smoothTimeY: 0.38
   minCameraY: 2
 --- !u!81 &548627342
 AudioListener:
@@ -7799,8 +7800,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 548627340}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.43837115, y: 0, z: 0, w: 0.89879405}
-  m_LocalPosition: {x: 0, y: 15, z: -11}
+  m_LocalRotation: {x: 0.414693, y: 0, z: 0, w: 0.909961}
+  m_LocalPosition: {x: 0, y: 11.5, z: -7.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

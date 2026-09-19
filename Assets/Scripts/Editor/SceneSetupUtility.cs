@@ -247,8 +247,8 @@ public class SceneSetupUtility
         cameraComp.fieldOfView = 65f;
         cameraObj.AddComponent<AudioListener>();
         FollowCamera followCamera = cameraObj.AddComponent<FollowCamera>();
-        cameraObj.transform.position = new Vector3(0, 15.0f, -11.0f);
-        cameraObj.transform.rotation = Quaternion.Euler(52f, 0f, 0f);
+        cameraObj.transform.position = new Vector3(0, 11.5f, -7.8f);
+        cameraObj.transform.rotation = Quaternion.Euler(49f, 0f, 0f);
 
         // 3. Setup Grid Generator & Pre-Bake 3-Floor Hexagon Arena into the Scene!
         GameObject gridObj = new GameObject("Arena_GridGenerator");
