@@ -10,11 +10,113 @@ using UnityEngine.UI;
 
 public class SceneSetupUtility
 {
+    [InitializeOnLoadMethod]
+    private static void AutoEnsureSceneBaked()
+    {
+        EditorApplication.delayCall += () =>
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode) return;
+            string tilePrefabPath = "Assets/Prefabs/PlatformTile.prefab";
+            if (!File.Exists(tilePrefabPath))
+            {
+                Debug.Log("[SceneSetupUtility] First-time setup: Baking assets, prefabs, and arena in GameplayScene...");
+                SetupAllScenes();
+            }
+        };
+    }
+
+    [MenuItem("Tools/Bake Arena In GameplayScene")]
+    public static void BakeArenaInGameplayScene()
+    {
+        EnsureAssetsAndPrefabsExist();
+        SetupGameplayScene();
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        Debug.Log("Arena successfully baked in GameplayScene!");
+    }
+
+    public static void EnsureAssetsAndPrefabsExist()
+    {
+        if (!Directory.Exists("Assets/Models")) Directory.CreateDirectory("Assets/Models");
+        if (!Directory.Exists("Assets/Materials")) Directory.CreateDirectory("Assets/Materials");
+        if (!Directory.Exists("Assets/Prefabs")) Directory.CreateDirectory("Assets/Prefabs");
+
+        // 1. Hexagon Tile Mesh Asset
+        Mesh hexMesh = AssetDatabase.LoadAssetAtPath<Mesh>("Assets/Models/HexagonTileMesh.asset");
+        if (hexMesh == null)
+        {
+            hexMesh = PlatformGridGenerator.CreateHexagonMesh(1.2f - 0.08f, 0.4f);
+            hexMesh.name = "HexagonTileMesh";
+            AssetDatabase.CreateAsset(hexMesh, "Assets/Models/HexagonTileMesh.asset");
+        }
+
+        // 2. Materials
+        Shader stdShader = Shader.Find("Standard");
+        Material matCoral = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Tile_Layer1_Coral.mat");
+        if (matCoral == null)
+        {
+            matCoral = new Material(stdShader) { color = new Color(0.88f, 0.38f, 0.48f) };
+            AssetDatabase.CreateAsset(matCoral, "Assets/Materials/Tile_Layer1_Coral.mat");
+        }
+        Material matCyan = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Tile_Layer2_Cyan.mat");
+        if (matCyan == null)
+        {
+            matCyan = new Material(stdShader) { color = new Color(0.20f, 0.75f, 0.95f) };
+            AssetDatabase.CreateAsset(matCyan, "Assets/Materials/Tile_Layer2_Cyan.mat");
+        }
+        Material matGold = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Tile_Layer3_Gold.mat");
+        if (matGold == null)
+        {
+            matGold = new Material(stdShader) { color = new Color(0.98f, 0.70f, 0.15f) };
+            AssetDatabase.CreateAsset(matGold, "Assets/Materials/Tile_Layer3_Gold.mat");
+        }
+
+        // 3. Platform Tile Prefab
+        GameObject tilePrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/PlatformTile.prefab");
+        if (tilePrefab == null)
+        {
+            GameObject tempTile = new GameObject("PlatformTile");
+            MeshFilter mf = tempTile.AddComponent<MeshFilter>();
+            mf.sharedMesh = hexMesh;
+            MeshRenderer mr = tempTile.AddComponent<MeshRenderer>();
+            mr.sharedMaterial = matCoral;
+            MeshCollider mc = tempTile.AddComponent<MeshCollider>();
+            mc.sharedMesh = hexMesh;
+            mc.convex = true;
+            PlatformTile pt = tempTile.AddComponent<PlatformTile>();
+            pt.SetColors(new Color(0.88f, 0.38f, 0.48f), new Color(1.0f, 0.45f, 0.0f), new Color(0.95f, 0.15f, 0.15f));
+            PrefabUtility.SaveAsPrefabAsset(tempTile, "Assets/Prefabs/PlatformTile.prefab");
+            Object.DestroyImmediate(tempTile);
+        }
+
+        // 4. Player and Bot Prefabs
+        GameObject playerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Player.prefab");
+        if (playerPrefab == null)
+        {
+            GameObject tempPlayer = CharacterModelBuilder.BuildRunnerCharacter("Player", new Color(0.12f, 0.65f, 1.0f), true);
+            tempPlayer.AddComponent<PlayerController>();
+            PrefabUtility.SaveAsPrefabAsset(tempPlayer, "Assets/Prefabs/Player.prefab");
+            Object.DestroyImmediate(tempPlayer);
+        }
+        GameObject botPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Bot.prefab");
+        if (botPrefab == null)
+        {
+            GameObject tempBot = CharacterModelBuilder.BuildRunnerCharacter("Bot", new Color(0.95f, 0.25f, 0.20f), false);
+            tempBot.AddComponent<BotController>();
+            PrefabUtility.SaveAsPrefabAsset(tempBot, "Assets/Prefabs/Bot.prefab");
+            Object.DestroyImmediate(tempBot);
+        }
+
+        AssetDatabase.SaveAssets();
+    }
+
     [MenuItem("Tools/Setup All Project Scenes")]
     public static void SetupAllScenes()
     {
         string scenesDir = "Assets/Scenes";
         if (!Directory.Exists(scenesDir)) Directory.CreateDirectory(scenesDir);
+
+        EnsureAssetsAndPrefabsExist();
 
         SetupSplashScene();
         SetupGameplayScene();
@@ -148,9 +250,82 @@ public class SceneSetupUtility
         cameraObj.transform.position = new Vector3(0, 15.0f, -11.0f);
         cameraObj.transform.rotation = Quaternion.Euler(52f, 0f, 0f);
 
-        // 3. Setup Grid Generator
-        GameObject gridObj = new GameObject("GridGenerator");
+        // 3. Setup Grid Generator & Pre-Bake 3-Floor Hexagon Arena into the Scene!
+        GameObject gridObj = new GameObject("Arena_GridGenerator");
         PlatformGridGenerator gridGenerator = gridObj.AddComponent<PlatformGridGenerator>();
+
+        GameObject tilePrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/PlatformTile.prefab");
+        Material matCoral = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Tile_Layer1_Coral.mat");
+        Material matCyan = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Tile_Layer2_Cyan.mat");
+        Material matGold = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Tile_Layer3_Gold.mat");
+        Material[] layerMats = new Material[] { matCoral, matCyan, matGold };
+
+        Color[] layerColors = new Color[]
+        {
+            new Color(0.88f, 0.38f, 0.48f),
+            new Color(0.20f, 0.75f, 0.95f),
+            new Color(0.98f, 0.70f, 0.15f)
+        };
+        Color tileWarning = new Color(1.0f, 0.45f, 0.0f);
+        Color tileDanger = new Color(0.95f, 0.15f, 0.15f);
+
+        int gridRadius = 6;
+        float effectiveRadius = 1.2f;
+        float xSpacing = Mathf.Sqrt(3) * effectiveRadius;
+        float zSpacing = 1.5f * effectiveRadius;
+        float layerSpacing = 5.0f;
+
+        for (int layer = 0; layer < 3; layer++)
+        {
+            float layerY = -layer * layerSpacing;
+            GameObject layerParent = new GameObject($"Layer_{layer + 1}");
+            layerParent.transform.SetParent(gridObj.transform);
+
+            Material layerMat = layerMats[layer % layerMats.Length];
+            Color baseColor = layerColors[layer % layerColors.Length];
+
+            for (int q = -gridRadius; q <= gridRadius; q++)
+            {
+                int r1 = Mathf.Max(-gridRadius, -q - gridRadius);
+                int r2 = Mathf.Min(gridRadius, -q + gridRadius);
+
+                for (int r = r1; r <= r2; r++)
+                {
+                    float x = xSpacing * (q + r / 2.0f);
+                    float z = zSpacing * r;
+                    Vector3 pos = new Vector3(x, layerY, z);
+
+                    GameObject tileObj;
+                    if (tilePrefab != null)
+                    {
+                        tileObj = (GameObject)PrefabUtility.InstantiatePrefab(tilePrefab, layerParent.transform);
+                        tileObj.transform.position = pos;
+                        tileObj.name = $"HexTile_{layer + 1}_{q}_{r}";
+                    }
+                    else
+                    {
+                        tileObj = new GameObject($"HexTile_{layer + 1}_{q}_{r}");
+                        tileObj.transform.SetParent(layerParent.transform);
+                        tileObj.transform.position = pos;
+                    }
+
+                    if (layerMat != null)
+                    {
+                        MeshRenderer mr = tileObj.GetComponent<MeshRenderer>();
+                        if (mr != null) mr.sharedMaterial = layerMat;
+                    }
+
+                    PlatformTile tile = tileObj.GetComponent<PlatformTile>();
+                    if (tile == null) tile = tileObj.AddComponent<PlatformTile>();
+                    tile.SetColors(baseColor, tileWarning, tileDanger);
+                    tile.SetInitialPosition(pos);
+                }
+            }
+        }
+
+        SerializedObject soGrid = new SerializedObject(gridGenerator);
+        soGrid.FindProperty("tilePrefab").objectReferenceValue = tilePrefab;
+        soGrid.ApplyModifiedProperties();
 
         // 4. Setup EventSystem
         GameObject eventSystemObj = new GameObject("EventSystem");
@@ -245,7 +420,12 @@ public class SceneSetupUtility
         GameObject gmObj = new GameObject("GameManager");
         GameManager gm = gmObj.AddComponent<GameManager>();
 
+        GameObject playerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Player.prefab");
+        GameObject botPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Bot.prefab");
+
         SerializedObject soGM = new SerializedObject(gm);
+        soGM.FindProperty("playerPrefab").objectReferenceValue = playerPrefab;
+        soGM.FindProperty("botPrefab").objectReferenceValue = botPrefab;
         soGM.FindProperty("gridGenerator").objectReferenceValue = gridGenerator;
         soGM.FindProperty("joystick").objectReferenceValue = joystickScript;
         soGM.FindProperty("followCamera").objectReferenceValue = followCamera;

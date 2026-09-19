@@ -59,6 +59,34 @@ public class PlatformTile : MonoBehaviour
         initialPosition = transform.position;
     }
 
+    public void SetInitialPosition(Vector3 pos)
+    {
+        initialPosition = pos;
+    }
+
+    public void ResetTile()
+    {
+        StopAllCoroutines();
+        isSteppedOn = false;
+        isFalling = false;
+        isAvailable = true;
+        gameObject.SetActive(true);
+        if (initialPosition != Vector3.zero)
+        {
+            transform.position = initialPosition;
+        }
+        else
+        {
+            initialPosition = transform.position;
+        }
+        transform.localScale = Vector3.one;
+        if (tileCollider != null)
+        {
+            tileCollider.enabled = true;
+        }
+        SetTileColor(normalColor);
+    }
+
     public void SetColors(Color normal, Color warning, Color danger)
     {
         normalColor = normal;

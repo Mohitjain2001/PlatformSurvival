@@ -25,6 +25,9 @@ public class PlatformGridGenerator : MonoBehaviour
     [SerializeField] private Color tileWarningColor = new Color(1.0f, 0.45f, 0.0f); // Warning Orange
     [SerializeField] private Color tileDangerColor = new Color(0.95f, 0.15f, 0.15f); // Red
 
+    [Header("Tile Prefab")]
+    [SerializeField] private GameObject tilePrefab;
+
     private List<PlatformTile> generatedTiles = new List<PlatformTile>();
     private Mesh hexMesh;
 
@@ -45,16 +48,70 @@ public class PlatformGridGenerator : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        hexMesh = CreateHexagonMesh(tileOuterRadius - tileSpacing, tileHeight);
+        if (hexMesh == null)
+        {
+            hexMesh = CreateHexagonMesh(tileOuterRadius - tileSpacing, tileHeight);
+        }
     }
 
     public void GenerateGrid(out Vector3 playerSpawn, out List<Vector3> botSpawns, int botCount)
     {
-        // Clear previous children
-        foreach (Transform child in transform)
+        // 1. Check if scene ALREADY has pre-baked tiles in the hierarchy!
+        PlatformTile[] existingTiles = GetComponentsInChildren<PlatformTile>(true);
+        if (existingTiles.Length > 0)
         {
-            Destroy(child.gameObject);
+            generatedTiles.Clear();
+            List<Vector3> topSpawnPoints = new List<Vector3>();
+
+            for (int i = 0; i < existingTiles.Length; i++)
+            {
+                PlatformTile tile = existingTiles[i];
+                tile.ResetTile();
+                generatedTiles.Add(tile);
+
+                // Top layer tiles (Y near 0) are spawn candidates
+                if (Mathf.Abs(tile.Position.y) < 1.0f)
+                {
+                    topSpawnPoints.Add(tile.Position + Vector3.up * 2.0f);
+                }
+            }
+
+            // Shuffle top layer spawn points
+            for (int i = 0; i < topSpawnPoints.Count; i++)
+            {
+                int rnd = Random.Range(i, topSpawnPoints.Count);
+                Vector3 temp = topSpawnPoints[i];
+                topSpawnPoints[i] = topSpawnPoints[rnd];
+                topSpawnPoints[rnd] = temp;
+            }
+
+            playerSpawn = Vector3.up * 2.0f;
+            botSpawns = new List<Vector3>();
+
+            int sIdx = 0;
+            if (topSpawnPoints.Count > 0)
+            {
+                playerSpawn = topSpawnPoints[0];
+                sIdx = 1;
+            }
+
+            for (int i = 0; i < botCount; i++)
+            {
+                if (sIdx < topSpawnPoints.Count)
+                {
+                    botSpawns.Add(topSpawnPoints[sIdx]);
+                    sIdx++;
+                }
+                else
+                {
+                    botSpawns.Add(Vector3.up * 2.0f + new Vector3(Random.Range(-3f, 3f), 0, Random.Range(-3f, 3f)));
+                }
+            }
+            return;
         }
+
+        // 2. Fallback: Procedural generation at runtime if no baked tiles exist
+        ClearGrid();
         generatedTiles.Clear();
 
         float effectiveRadius = tileOuterRadius;
@@ -63,7 +120,6 @@ public class PlatformGridGenerator : MonoBehaviour
 
         List<Vector3> topLayerSpawnPoints = new List<Vector3>();
 
-        // Generate Multiple Floors (Layers)
         for (int layer = 0; layer < layerCount; layer++)
         {
             float layerY = -layer * layerSpacing;
@@ -84,7 +140,8 @@ public class PlatformGridGenerator : MonoBehaviour
 
                     Vector3 pos = new Vector3(x, layerY, z);
                     GameObject tileObj = CreateTileObject(pos, layerParent.transform);
-                    PlatformTile tile = tileObj.AddComponent<PlatformTile>();
+                    PlatformTile tile = tileObj.GetComponent<PlatformTile>();
+                    if (tile == null) tile = tileObj.AddComponent<PlatformTile>();
                     tile.SetColors(baseColor, tileWarningColor, tileDangerColor);
 
                     generatedTiles.Add(tile);
@@ -130,9 +187,83 @@ public class PlatformGridGenerator : MonoBehaviour
         }
     }
 
+    [ContextMenu("Bake Grid in Scene")]
+    public void BakeGridInScene()
+    {
+        ClearGrid();
+
+        if (hexMesh == null)
+        {
+            hexMesh = CreateHexagonMesh(tileOuterRadius - tileSpacing, tileHeight);
+        }
+
+        float effectiveRadius = tileOuterRadius;
+        float xSpacing = Mathf.Sqrt(3) * effectiveRadius;
+        float zSpacing = 1.5f * effectiveRadius;
+
+        for (int layer = 0; layer < layerCount; layer++)
+        {
+            float layerY = -layer * layerSpacing;
+            GameObject layerParent = new GameObject($"Layer_{layer + 1}");
+            layerParent.transform.SetParent(transform);
+
+            Color baseColor = layerNormalColors[layer % layerNormalColors.Length];
+
+            for (int q = -gridRadius; q <= gridRadius; q++)
+                {
+                int r1 = Mathf.Max(-gridRadius, -q - gridRadius);
+                int r2 = Mathf.Min(gridRadius, -q + gridRadius);
+
+                for (int r = r1; r <= r2; r++)
+                {
+                    float x = xSpacing * (q + r / 2.0f);
+                    float z = zSpacing * r;
+
+                    Vector3 pos = new Vector3(x, layerY, z);
+                    GameObject tileObj = CreateTileObject(pos, layerParent.transform);
+                    PlatformTile tile = tileObj.GetComponent<PlatformTile>();
+                    if (tile == null) tile = tileObj.AddComponent<PlatformTile>();
+                    tile.SetColors(baseColor, tileWarningColor, tileDangerColor);
+                    tile.SetInitialPosition(pos);
+                }
+            }
+        }
+        Debug.Log($"Successfully baked {layerCount} floors of Hexagonal Grid into the scene!");
+    }
+
+    [ContextMenu("Clear Grid")]
+    public void ClearGrid()
+    {
+        List<GameObject> children = new List<GameObject>();
+        foreach (Transform child in transform)
+        {
+            children.Add(child.gameObject);
+        }
+        for (int i = children.Count - 1; i >= 0; i--)
+        {
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                DestroyImmediate(children[i]);
+                continue;
+            }
+#endif
+            Destroy(children[i]);
+        }
+        generatedTiles.Clear();
+    }
+
     private GameObject CreateTileObject(Vector3 position, Transform parent)
     {
-        GameObject tileObj = new GameObject("HexTile");
+        GameObject tileObj;
+        if (tilePrefab != null)
+        {
+            tileObj = Instantiate(tilePrefab, position, Quaternion.identity, parent);
+            tileObj.name = "HexTile";
+            return tileObj;
+        }
+
+        tileObj = new GameObject("HexTile");
         tileObj.transform.SetParent(parent);
         tileObj.transform.position = position;
 
@@ -150,7 +281,7 @@ public class PlatformGridGenerator : MonoBehaviour
         return tileObj;
     }
 
-    private Mesh CreateHexagonMesh(float radius, float height)
+    public static Mesh CreateHexagonMesh(float radius, float height)
     {
         Mesh mesh = new Mesh();
         mesh.name = "ProceduralHexagon";

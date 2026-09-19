@@ -532,7 +532,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -1989,6 +1989,7 @@ MonoBehaviour:
   - {r: 0.9, g: 0.25, b: 0.75, a: 1}
   tileWarningColor: {r: 1, g: 0.45, b: 0, a: 1}
   tileDangerColor: {r: 0.95, g: 0.15, b: 0.15, a: 1}
+  tilePrefab: {fileID: 0}
 --- !u!4 &1495985706
 Transform:
   m_ObjectHideFlags: 0
@@ -2128,7 +2129,7 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
   m_UseReflectionProbes: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -2484,6 +2485,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VirtualJoystick
   containerBackground: {fileID: 0}
   handleGraphic: {fileID: 0}
+  touchRadius: 120
 --- !u!1 &2130668455
 GameObject:
   m_ObjectHideFlags: 0
