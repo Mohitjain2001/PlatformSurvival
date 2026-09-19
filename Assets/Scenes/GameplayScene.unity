@@ -23361,7 +23361,7 @@ MonoBehaviour:
   tileHeight: 0.4
   tileSpacing: 0.08
   layerCount: 3
-  layerSpacing: 12
+  layerSpacing: 10
   layerNormalColors:
   - {r: 0.88, g: 0.38, b: 0.48, a: 1}
   - {r: 0.2, g: 0.75, b: 0.95, a: 1}
