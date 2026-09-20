@@ -243,12 +243,19 @@ public class SceneSetupUtility
         cameraObj.tag = "MainCamera";
         Camera cameraComp = cameraObj.AddComponent<Camera>();
         cameraComp.clearFlags = CameraClearFlags.SolidColor;
-        cameraComp.backgroundColor = new Color(0.42f, 0.68f, 0.95f);
+        cameraComp.backgroundColor = new Color(0.16f, 0.11f, 0.28f); // Deep Twilight Royal Violet (Stunning contrast for Pink, Cyan & Gold tiles)
         cameraComp.fieldOfView = 65f;
         cameraObj.AddComponent<AudioListener>();
         FollowCamera followCamera = cameraObj.AddComponent<FollowCamera>();
         cameraObj.transform.position = new Vector3(0, 11.5f, -7.8f);
         cameraObj.transform.rotation = Quaternion.Euler(49f, 0f, 0f);
+
+        // Stylized atmospheric depth fog
+        RenderSettings.fog = true;
+        RenderSettings.fogColor = new Color(0.16f, 0.11f, 0.28f);
+        RenderSettings.fogMode = FogMode.Linear;
+        RenderSettings.fogStartDistance = 22f;
+        RenderSettings.fogEndDistance = 55f;
 
         // 3. Setup Grid Generator & Pre-Bake 3-Floor Hexagon Arena into the Scene!
         GameObject gridObj = new GameObject("Arena_GridGenerator");
