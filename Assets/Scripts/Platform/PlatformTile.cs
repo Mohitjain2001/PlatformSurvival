@@ -212,14 +212,17 @@ public class PlatformTile : MonoBehaviour
             }
         }
 
+        // Fast crisp fall & disappear (0.45s duration so tiles don't clutter lower floors)
         float fallTimer = 0f;
+        float fallDuration = 0.45f;
         Vector3 startScale = (initialScale != Vector3.zero) ? initialScale : transform.localScale;
 
-        while (fallTimer < 2.0f)
+        while (fallTimer < fallDuration)
         {
             fallTimer += Time.deltaTime;
-            transform.position += Vector3.down * (fallSpeed * Time.deltaTime);
-            transform.localScale = Vector3.Lerp(startScale, Vector3.zero, fallTimer / 2.0f);
+            float progress = fallTimer / fallDuration;
+            transform.position += Vector3.down * (12.0f * Time.deltaTime);
+            transform.localScale = Vector3.Lerp(startScale, Vector3.zero, progress);
             yield return null;
         }
 
