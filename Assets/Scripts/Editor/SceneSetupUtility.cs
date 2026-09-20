@@ -256,16 +256,33 @@ public class SceneSetupUtility
         cameraObj.transform.position = new Vector3(0, 5.0f, -8.0f);
         cameraObj.transform.rotation = Quaternion.Euler(30f, 0f, 0f);
 
-        // 2. Decorative 3D Platform Preview
-        GameObject platformObj = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-        platformObj.name = "PreviewPlatform";
-        platformObj.transform.position = new Vector3(0, 0, 0);
-        platformObj.transform.localScale = new Vector3(4.5f, 0.3f, 4.5f);
-        platformObj.GetComponent<MeshRenderer>().material.color = new Color(0.20f, 0.75f, 0.95f);
+        // 2. Decorative 3D Platform Preview (Kenney Hexagon Tile)
+        GameObject kenneyGrass = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/KenneyTile_Grass.prefab");
+        GameObject platformObj;
+        if (kenneyGrass != null)
+        {
+            platformObj = (GameObject)PrefabUtility.InstantiatePrefab(kenneyGrass);
+            platformObj.name = "PreviewPlatform";
+            platformObj.transform.position = Vector3.zero;
+            platformObj.transform.localScale = new Vector3(5.5f, 3.5f, 5.5f);
+        }
+        else
+        {
+            Mesh hexMesh = AssetDatabase.LoadAssetAtPath<Mesh>("Assets/Models/HexagonTileMesh.asset");
+            if (hexMesh == null) hexMesh = PlatformGridGenerator.CreateHexagonMesh(1.2f, 0.4f);
+            platformObj = new GameObject("PreviewPlatform");
+            platformObj.transform.position = Vector3.zero;
+            platformObj.transform.localScale = new Vector3(4.0f, 2.0f, 4.0f);
+            MeshFilter mf = platformObj.AddComponent<MeshFilter>();
+            mf.sharedMesh = hexMesh;
+            MeshRenderer mr = platformObj.AddComponent<MeshRenderer>();
+            Material mat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Tile_Layer1_Coral.mat");
+            mr.sharedMaterial = mat != null ? mat : new Material(Shader.Find("Standard")) { color = new Color(0.20f, 0.75f, 0.95f) };
+        }
 
-        // Decorative 3D Runner Character
+        // Decorative 3D Runner Character standing on top of Hexagon Tile
         GameObject bean = CharacterModelBuilder.BuildRunnerCharacter("PreviewBean", new Color(0.12f, 0.65f, 1.0f));
-        bean.transform.position = new Vector3(0, 0.15f, 0);
+        bean.transform.position = new Vector3(0, 0.70f, 0);
         Object.DestroyImmediate(bean.GetComponent<Rigidbody>());
 
         // 3. UI Canvas
