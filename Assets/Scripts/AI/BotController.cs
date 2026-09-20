@@ -6,18 +6,19 @@ using UnityEngine;
 public class BotController : MonoBehaviour
 {
     [Header("Bot Settings")]
-    [SerializeField] private float moveSpeed = 4.6f;
-    [SerializeField] private float acceleration = 12.0f;
-    [SerializeField] private float deceleration = 14.0f;
-    [SerializeField] private float rotationSpeed = 14.0f;
-    [SerializeField] private float jumpForce = 6.4f;
-    [SerializeField] private float forwardJumpBoost = 1.2f;
-    [SerializeField] private float gapCheckDistance = 1.25f;
+    [SerializeField] private float moveSpeed = 3.6f; // Slower than player (5.2f) so player easily outruns them!
+    [SerializeField] private float acceleration = 9.0f;
+    [SerializeField] private float deceleration = 10.0f;
+    [SerializeField] private float rotationSpeed = 10.0f;
+    [SerializeField] private float jumpForce = 5.8f;
+    [SerializeField] private float forwardJumpBoost = 1.0f;
+    [SerializeField] private float gapCheckDistance = 1.10f;
     [SerializeField] private float groundCheckDistance = 0.35f;
-    [SerializeField] private float jumpCooldown = 0.45f;
-    [SerializeField] private float minGroundedDuration = 0.22f;
-    [SerializeField] private float reactionDelayMin = 0.1f;
-    [SerializeField] private float reactionDelayMax = 0.35f;
+    [SerializeField] private float jumpCooldown = 0.60f;
+    [SerializeField] private float minGroundedDuration = 0.30f;
+    [SerializeField] private float reactionDelayMin = 0.35f; // Human reaction delay (350ms - 750ms)
+    [SerializeField] private float reactionDelayMax = 0.75f;
+    [SerializeField] private float mistakeChance = 0.25f; // 25% chance of hesitation/mistake
 
     [Header("Dependencies")]
     [SerializeField] private CharacterSquashAndStretch squashAndStretch;
@@ -161,12 +162,17 @@ public class BotController : MonoBehaviour
     private void EvaluateAndPickTargetTile()
     {
         PlatformTile currentTile = GetTileUnderfoot();
+        bool makeMistake = Random.value < mistakeChance;
 
-        if (currentTile != null && currentTile.IsAvailable && !currentTile.IsShaking)
+        // If standing on a valid tile, stay on it unless shaking (or if making a mistake, delay leaving)
+        if (currentTile != null && currentTile.IsAvailable && (!currentTile.IsShaking || makeMistake))
         {
-            currentMoveTarget = currentTile.Position + new Vector3(Random.Range(-0.3f, 0.3f), 0, Random.Range(-0.3f, 0.3f));
-            targetTile = currentTile;
-            return;
+            if (!makeMistake)
+            {
+                currentMoveTarget = currentTile.Position + new Vector3(Random.Range(-0.4f, 0.4f), 0, Random.Range(-0.4f, 0.4f));
+                targetTile = currentTile;
+                return;
+            }
         }
 
         PlatformTile bestTile = FindBestAvailableTileOnSameLevel();
