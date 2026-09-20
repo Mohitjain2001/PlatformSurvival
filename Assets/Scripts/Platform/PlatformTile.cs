@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlatformTile : MonoBehaviour
@@ -14,11 +15,12 @@ public class PlatformTile : MonoBehaviour
     [SerializeField] private Color warningColor = new Color(1.0f, 0.6f, 0.0f); // Orange
     [SerializeField] private Color dangerColor = new Color(0.95f, 0.15f, 0.15f); // Red
 
-    private MeshRenderer meshRenderer;
-    private Collider tileCollider;
-    private Material tileMaterial;
+    private MeshRenderer[] meshRenderers;
+    private Collider[] tileColliders;
+    private Material[] tileMaterials;
 
     private Vector3 initialPosition;
+    private Vector3 initialScale = Vector3.zero;
     private bool isSteppedOn = false;
     private bool isFalling = false;
     private bool isAvailable = true;
@@ -30,38 +32,65 @@ public class PlatformTile : MonoBehaviour
 
     private void Awake()
     {
-        meshRenderer = GetComponent<MeshRenderer>();
-        tileCollider = GetComponent<Collider>();
-        
-        if (meshRenderer != null)
+        if (initialScale == Vector3.zero)
         {
-            tileMaterial = meshRenderer.material;
+            initialScale = transform.localScale;
+        }
+
+        meshRenderers = GetComponentsInChildren<MeshRenderer>(true);
+        tileColliders = GetComponentsInChildren<Collider>(true);
+        
+        if (meshRenderers != null && meshRenderers.Length > 0)
+        {
+            List<Material> mats = new List<Material>();
+            foreach (var mr in meshRenderers)
+            {
+                if (mr != null)
+                {
+                    mats.AddRange(mr.materials);
+                }
+            }
+            tileMaterials = mats.ToArray();
             SetTileColor(normalColor);
         }
     }
 
     public void SetTileColor(Color color)
     {
-        if (tileMaterial == null && meshRenderer != null)
+        if (tileMaterials != null)
         {
-            tileMaterial = meshRenderer.material;
-        }
-        if (tileMaterial != null)
-        {
-            if (tileMaterial.HasProperty("_Color")) tileMaterial.SetColor("_Color", color);
-            if (tileMaterial.HasProperty("_BaseColor")) tileMaterial.SetColor("_BaseColor", color);
-            tileMaterial.color = color;
+            foreach (var mat in tileMaterials)
+            {
+                if (mat == null) continue;
+                if (mat.HasProperty("_Color")) mat.SetColor("_Color", color);
+                if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", color);
+                mat.color = color;
+            }
         }
     }
 
     private void Start()
     {
         initialPosition = transform.position;
+        if (initialScale == Vector3.zero)
+        {
+            initialScale = transform.localScale;
+        }
     }
 
     public void SetInitialPosition(Vector3 pos)
     {
         initialPosition = pos;
+        if (initialScale == Vector3.zero)
+        {
+            initialScale = transform.localScale;
+        }
+    }
+
+    public void SetInitialScale(Vector3 scale)
+    {
+        initialScale = scale;
+        transform.localScale = scale;
     }
 
     public void ResetTile()
@@ -79,10 +108,22 @@ public class PlatformTile : MonoBehaviour
         {
             initialPosition = transform.position;
         }
-        transform.localScale = Vector3.one;
-        if (tileCollider != null)
+
+        if (initialScale != Vector3.zero)
         {
-            tileCollider.enabled = true;
+            transform.localScale = initialScale;
+        }
+        else if (transform.localScale != Vector3.zero)
+        {
+            initialScale = transform.localScale;
+        }
+
+        if (tileColliders != null)
+        {
+            foreach (var col in tileColliders)
+            {
+                if (col != null) col.enabled = true;
+            }
         }
         SetTileColor(normalColor);
     }
@@ -163,13 +204,16 @@ public class PlatformTile : MonoBehaviour
         isFalling = true;
         isAvailable = false;
         
-        if (tileCollider != null)
+        if (tileColliders != null)
         {
-            tileCollider.enabled = false;
+            foreach (var col in tileColliders)
+            {
+                if (col != null) col.enabled = false;
+            }
         }
 
         float fallTimer = 0f;
-        Vector3 startScale = transform.localScale;
+        Vector3 startScale = (initialScale != Vector3.zero) ? initialScale : transform.localScale;
 
         while (fallTimer < 2.0f)
         {

@@ -28,11 +28,24 @@ public class SceneSetupUtility
     [MenuItem("Tools/Bake Arena In GameplayScene")]
     public static void BakeArenaInGameplayScene()
     {
+        AssetDatabase.Refresh();
         EnsureAssetsAndPrefabsExist();
         SetupGameplayScene();
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
         Debug.Log("Arena successfully baked in GameplayScene!");
+    }
+
+    [MenuItem("Tools/Bake Arena With Kenney Hexagon Kit")]
+    public static void BakeArenaWithKenneyHexagonKit()
+    {
+        AssetDatabase.Refresh();
+        EnsureAssetsAndPrefabsExist();
+        EnsureKenneyPrefabsExist(true);
+        SetupGameplayScene();
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        Debug.Log("Arena successfully baked with Kenney Hexagon Kit in GameplayScene!");
     }
 
     public static void EnsureAssetsAndPrefabsExist()
@@ -108,6 +121,89 @@ public class SceneSetupUtility
         }
 
         AssetDatabase.SaveAssets();
+    }
+
+    public static GameObject[] EnsureKenneyPrefabsExist(bool forceRecreate = false)
+    {
+        string grassFbx = "Assets/KenneyHexagonKit/FBX format/grass.fbx";
+        string sandFbx = "Assets/KenneyHexagonKit/FBX format/sand.fbx";
+        string stoneFbx = "Assets/KenneyHexagonKit/FBX format/stone.fbx";
+        string colormapPath = "Assets/KenneyHexagonKit/FBX format/Textures/colormap.png";
+
+        if (!File.Exists(grassFbx)) return null;
+
+        Texture2D colormap = AssetDatabase.LoadAssetAtPath<Texture2D>(colormapPath);
+
+        GameObject grassPrefab = CreateOrUpdateKenneyPrefab(grassFbx, "Assets/Prefabs/KenneyTile_Grass.prefab", "KenneyTile_Grass", colormap, forceRecreate);
+        GameObject sandPrefab = CreateOrUpdateKenneyPrefab(sandFbx, "Assets/Prefabs/KenneyTile_Sand.prefab", "KenneyTile_Sand", colormap, forceRecreate);
+        GameObject stonePrefab = CreateOrUpdateKenneyPrefab(stoneFbx, "Assets/Prefabs/KenneyTile_Stone.prefab", "KenneyTile_Stone", colormap, forceRecreate);
+
+        if (grassPrefab != null && sandPrefab != null && stonePrefab != null)
+        {
+            return new GameObject[] { grassPrefab, sandPrefab, stonePrefab };
+        }
+        return null;
+    }
+
+    private static GameObject CreateOrUpdateKenneyPrefab(string fbxPath, string prefabPath, string prefabName, Texture2D colormap, bool forceRecreate)
+    {
+        if (!forceRecreate)
+        {
+            GameObject existing = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+            if (existing != null) return existing;
+        }
+
+        GameObject fbxAsset = AssetDatabase.LoadAssetAtPath<GameObject>(fbxPath);
+        if (fbxAsset == null) return null;
+
+        GameObject instance = Object.Instantiate(fbxAsset);
+        instance.name = prefabName;
+        // Scale Kenney hexagon (width 1.0) by 2.0 to match effectiveRadius 1.2f grid with ~0.08m clean gap
+        instance.transform.localScale = new Vector3(2.0f, 2.0f, 2.0f);
+        instance.transform.position = Vector3.zero;
+        instance.transform.rotation = Quaternion.identity;
+
+        // Ensure convex MeshCollider on all child mesh filters
+        MeshFilter[] mfs = instance.GetComponentsInChildren<MeshFilter>(true);
+        foreach (var mf in mfs)
+        {
+            if (mf.sharedMesh != null && mf.gameObject.GetComponent<Collider>() == null)
+            {
+                MeshCollider mc = mf.gameObject.AddComponent<MeshCollider>();
+                mc.sharedMesh = mf.sharedMesh;
+                mc.convex = true;
+            }
+        }
+
+        // Apply material with colormap palette texture
+        if (colormap != null)
+        {
+            Material kenneyMat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Kenney_Colormap.mat");
+            if (kenneyMat == null)
+            {
+                Shader s = Shader.Find("Standard") ?? Shader.Find("Mobile/Diffuse");
+                kenneyMat = new Material(s)
+                {
+                    mainTexture = colormap,
+                    color = Color.white
+                };
+                AssetDatabase.CreateAsset(kenneyMat, "Assets/Materials/Kenney_Colormap.mat");
+            }
+            MeshRenderer[] mrs = instance.GetComponentsInChildren<MeshRenderer>(true);
+            foreach (var mr in mrs)
+            {
+                mr.sharedMaterial = kenneyMat;
+            }
+        }
+
+        // Add PlatformTile logic
+        PlatformTile pt = instance.GetComponent<PlatformTile>();
+        if (pt == null) pt = instance.AddComponent<PlatformTile>();
+        pt.SetColors(Color.white, new Color(1.0f, 0.45f, 0.0f), new Color(0.95f, 0.15f, 0.15f));
+
+        GameObject savedPrefab = PrefabUtility.SaveAsPrefabAsset(instance, prefabPath);
+        Object.DestroyImmediate(instance);
+        return savedPrefab;
     }
 
     [MenuItem("Tools/Setup All Project Scenes")]
@@ -261,6 +357,9 @@ public class SceneSetupUtility
         GameObject gridObj = new GameObject("Arena_GridGenerator");
         PlatformGridGenerator gridGenerator = gridObj.AddComponent<PlatformGridGenerator>();
 
+        GameObject[] kenneyPrefabs = EnsureKenneyPrefabsExist();
+        bool useKenney = (kenneyPrefabs != null && kenneyPrefabs.Length >= 3);
+
         GameObject tilePrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/PlatformTile.prefab");
         Material matCoral = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Tile_Layer1_Coral.mat");
         Material matCyan = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Tile_Layer2_Cyan.mat");
@@ -290,6 +389,7 @@ public class SceneSetupUtility
 
             Material layerMat = layerMats[layer % layerMats.Length];
             Color baseColor = layerColors[layer % layerColors.Length];
+            GameObject layerPrefab = useKenney ? kenneyPrefabs[layer] : tilePrefab;
 
             for (int q = -gridRadius; q <= gridRadius; q++)
             {
@@ -303,9 +403,9 @@ public class SceneSetupUtility
                     Vector3 pos = new Vector3(x, layerY, z);
 
                     GameObject tileObj;
-                    if (tilePrefab != null)
+                    if (layerPrefab != null)
                     {
-                        tileObj = (GameObject)PrefabUtility.InstantiatePrefab(tilePrefab, layerParent.transform);
+                        tileObj = (GameObject)PrefabUtility.InstantiatePrefab(layerPrefab, layerParent.transform);
                         tileObj.transform.position = pos;
                         tileObj.name = $"HexTile_{layer + 1}_{q}_{r}";
                     }
@@ -316,7 +416,7 @@ public class SceneSetupUtility
                         tileObj.transform.position = pos;
                     }
 
-                    if (layerMat != null)
+                    if (!useKenney && layerMat != null)
                     {
                         MeshRenderer mr = tileObj.GetComponent<MeshRenderer>();
                         if (mr != null) mr.sharedMaterial = layerMat;
@@ -324,13 +424,25 @@ public class SceneSetupUtility
 
                     PlatformTile tile = tileObj.GetComponent<PlatformTile>();
                     if (tile == null) tile = tileObj.AddComponent<PlatformTile>();
-                    tile.SetColors(baseColor, tileWarning, tileDanger);
+                    Color normalCol = useKenney ? Color.white : baseColor;
+                    tile.SetColors(normalCol, tileWarning, tileDanger);
                     tile.SetInitialPosition(pos);
+                    tile.SetInitialScale(tileObj.transform.localScale);
                 }
             }
         }
 
         SerializedObject soGrid = new SerializedObject(gridGenerator);
+        if (useKenney)
+        {
+            SerializedProperty propLayers = soGrid.FindProperty("layerTilePrefabs");
+            propLayers.arraySize = 3;
+            for (int i = 0; i < 3; i++)
+            {
+                propLayers.GetArrayElementAtIndex(i).objectReferenceValue = kenneyPrefabs[i];
+            }
+            soGrid.FindProperty("useNaturalModelColors").boolValue = true;
+        }
         soGrid.FindProperty("tilePrefab").objectReferenceValue = tilePrefab;
         soGrid.ApplyModifiedProperties();
 

@@ -25,8 +25,10 @@ public class PlatformGridGenerator : MonoBehaviour
     [SerializeField] private Color tileWarningColor = new Color(1.0f, 0.45f, 0.0f); // Warning Orange
     [SerializeField] private Color tileDangerColor = new Color(0.95f, 0.15f, 0.15f); // Red
 
-    [Header("Tile Prefab")]
-    [SerializeField] private GameObject tilePrefab;
+    [Header("Tile Prefab Configuration")]
+    [SerializeField] private GameObject[] layerTilePrefabs; // e.g. [0]=Grass, [1]=Sand, [2]=Stone
+    [SerializeField] private GameObject tilePrefab; // Fallback single tile prefab
+    [SerializeField] private bool useNaturalModelColors = true; // True for Kenney textures, false for solid layer colors
 
     private List<PlatformTile> generatedTiles = new List<PlatformTile>();
     private Mesh hexMesh;
@@ -139,10 +141,13 @@ public class PlatformGridGenerator : MonoBehaviour
                     float z = zSpacing * r;
 
                     Vector3 pos = new Vector3(x, layerY, z);
-                    GameObject tileObj = CreateTileObject(pos, layerParent.transform);
+                    GameObject tileObj = CreateTileObject(pos, layerParent.transform, layer);
                     PlatformTile tile = tileObj.GetComponent<PlatformTile>();
                     if (tile == null) tile = tileObj.AddComponent<PlatformTile>();
-                    tile.SetColors(baseColor, tileWarningColor, tileDangerColor);
+                    Color normalCol = useNaturalModelColors ? Color.white : baseColor;
+                    tile.SetColors(normalCol, tileWarningColor, tileDangerColor);
+                    tile.SetInitialPosition(pos);
+                    tile.SetInitialScale(tileObj.transform.localScale);
 
                     generatedTiles.Add(tile);
 
@@ -220,11 +225,13 @@ public class PlatformGridGenerator : MonoBehaviour
                     float z = zSpacing * r;
 
                     Vector3 pos = new Vector3(x, layerY, z);
-                    GameObject tileObj = CreateTileObject(pos, layerParent.transform);
+                    GameObject tileObj = CreateTileObject(pos, layerParent.transform, layer);
                     PlatformTile tile = tileObj.GetComponent<PlatformTile>();
                     if (tile == null) tile = tileObj.AddComponent<PlatformTile>();
-                    tile.SetColors(baseColor, tileWarningColor, tileDangerColor);
+                    Color normalCol = useNaturalModelColors ? Color.white : baseColor;
+                    tile.SetColors(normalCol, tileWarningColor, tileDangerColor);
                     tile.SetInitialPosition(pos);
+                    tile.SetInitialScale(tileObj.transform.localScale);
                 }
             }
         }
@@ -253,32 +260,41 @@ public class PlatformGridGenerator : MonoBehaviour
         generatedTiles.Clear();
     }
 
-    private GameObject CreateTileObject(Vector3 position, Transform parent)
+    private GameObject CreateTileObject(Vector3 position, Transform parent, int layerIndex)
     {
-        GameObject tileObj;
-        if (tilePrefab != null)
+        GameObject prefabToUse = null;
+        if (layerTilePrefabs != null && layerIndex < layerTilePrefabs.Length && layerTilePrefabs[layerIndex] != null)
         {
-            tileObj = Instantiate(tilePrefab, position, Quaternion.identity, parent);
-            tileObj.name = "HexTile";
+            prefabToUse = layerTilePrefabs[layerIndex];
+        }
+        else if (tilePrefab != null)
+        {
+            prefabToUse = tilePrefab;
+        }
+
+        if (prefabToUse != null)
+        {
+            GameObject tileObj = Instantiate(prefabToUse, position, Quaternion.identity, parent);
+            tileObj.name = $"HexTile_L{layerIndex + 1}";
             return tileObj;
         }
 
-        tileObj = new GameObject("HexTile");
-        tileObj.transform.SetParent(parent);
-        tileObj.transform.position = position;
+        GameObject fallbackObj = new GameObject($"HexTile_L{layerIndex + 1}");
+        fallbackObj.transform.SetParent(parent);
+        fallbackObj.transform.position = position;
 
-        MeshFilter mf = tileObj.AddComponent<MeshFilter>();
+        MeshFilter mf = fallbackObj.AddComponent<MeshFilter>();
         mf.sharedMesh = hexMesh;
 
-        MeshRenderer mr = tileObj.AddComponent<MeshRenderer>();
+        MeshRenderer mr = fallbackObj.AddComponent<MeshRenderer>();
         mr.sharedMaterial = new Material(Shader.Find("Standard"));
 
-        MeshCollider mc = tileObj.AddComponent<MeshCollider>();
+        MeshCollider mc = fallbackObj.AddComponent<MeshCollider>();
         mc.sharedMesh = hexMesh;
         mc.convex = true;
 
-        tileObj.layer = LayerMask.NameToLayer("Default");
-        return tileObj;
+        fallbackObj.layer = LayerMask.NameToLayer("Default");
+        return fallbackObj;
     }
 
     public static Mesh CreateHexagonMesh(float radius, float height)
