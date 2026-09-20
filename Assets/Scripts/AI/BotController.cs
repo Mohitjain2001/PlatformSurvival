@@ -74,6 +74,11 @@ public class BotController : MonoBehaviour
                 rend.material = mat;
             }
         }
+
+        // Add white floating 3D name tag above bot's head
+        CharacterNameTag nameTag = GetComponent<CharacterNameTag>();
+        if (nameTag == null) nameTag = gameObject.AddComponent<CharacterNameTag>();
+        nameTag.Setup(botName, Color.white, 1.85f);
     }
 
     private void Update()

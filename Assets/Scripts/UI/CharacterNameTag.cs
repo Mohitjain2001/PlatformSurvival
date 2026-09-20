@@ -72,7 +72,7 @@ public class CharacterNameTag : MonoBehaviour
             if (font != null) textComponent.font = font;
         }
         textComponent.text = displayName;
-        textComponent.fontSize = 58;
+        textComponent.fontSize = 44;
         textComponent.fontStyle = FontStyles.Bold;
         textComponent.alignment = TextAlignmentOptions.Center;
         textComponent.color = textColor;

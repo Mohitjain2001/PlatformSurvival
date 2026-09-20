@@ -20,7 +20,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private FollowCamera followCamera;
     [SerializeField] private UIManager uiManager;
 
-    [Header("Bot Colors")]
+    [Header("Bot Colors & Names")]
     [SerializeField] private Color[] botColors = new Color[]
     {
         new Color(0.95f, 0.25f, 0.20f), // Vibrant Red
@@ -28,6 +28,14 @@ public class GameManager : MonoBehaviour
         new Color(1.00f, 0.55f, 0.00f), // Neon Orange
         new Color(0.98f, 0.85f, 0.10f), // Sunny Yellow
         new Color(0.20f, 0.80f, 0.35f)  // Emerald Green
+    };
+
+    [SerializeField] private string[] randomBotNames = new string[]
+    {
+        "Shadow", "Speedy", "Blaze", "Thunder", "Ninja",
+        "Viper", "Turbo", "Cosmo", "Titan", "Phantom",
+        "Ace", "Pixel", "Maverick", "Rex", "Flash",
+        "Volt", "Zane", "Nova", "Apex", "Kratos"
     };
 
     private GameState currentState = GameState.Waiting;
@@ -96,11 +104,21 @@ public class GameManager : MonoBehaviour
             followCamera.SetTarget(playerInstance.transform);
         }
 
+        List<string> namePool = new List<string>(randomBotNames);
+        for (int i = 0; i < namePool.Count; i++)
+        {
+            int rnd = Random.Range(i, namePool.Count);
+            string temp = namePool[i];
+            namePool[i] = namePool[rnd];
+            namePool[rnd] = temp;
+        }
+
         // 3. Spawn Bots
         for (int i = 0; i < botSpawns.Count; i++)
         {
             GameObject botObj;
             Color botColor = botColors[i % botColors.Length];
+            string botName = (i < namePool.Count) ? namePool[i] : $"Bot {i + 1}";
 
             if (botPrefab != null)
             {
@@ -108,12 +126,14 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                botObj = CreateCharacterBean(botSpawns[i], "Bot_" + (i + 1), botColor);
+                botObj = CreateCharacterBean(botSpawns[i], botName, botColor);
             }
+
+            botObj.name = botName;
 
             BotController bc = botObj.GetComponent<BotController>();
             if (bc == null) bc = botObj.AddComponent<BotController>();
-            bc.Initialize("Bot " + (i + 1), botColor, bottomEliminationY);
+            bc.Initialize(botName, botColor, bottomEliminationY);
 
             aliveParticipants.Add(botObj);
         }
