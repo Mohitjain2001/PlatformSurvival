@@ -158,6 +158,7 @@ public class GameManager : MonoBehaviour
         if (uiManager != null)
         {
             uiManager.UpdateAliveCount(aliveParticipants.Count, totalParticipants);
+            uiManager.ShowEliminationToast(botObj != null ? botObj.name : "Bot");
         }
 
         // Check Victory condition: only player remains!

@@ -506,6 +506,23 @@ public class SceneSetupUtility
         aliveTmp.alignment = TextAlignmentOptions.Center;
         aliveTmp.color = Color.white;
 
+        // 5b-2. Elimination Toast Text
+        GameObject toastTextObj = CreateUIElement("ToastText", canvasObj.transform);
+        RectTransform toastRect = toastTextObj.GetComponent<RectTransform>();
+        toastRect.anchorMin = new Vector2(0.5f, 1f);
+        toastRect.anchorMax = new Vector2(0.5f, 1f);
+        toastRect.pivot = new Vector2(0.5f, 1f);
+        toastRect.anchoredPosition = new Vector2(0, -160f);
+        toastRect.sizeDelta = new Vector2(800f, 80f);
+
+        TextMeshProUGUI toastTmp = toastTextObj.AddComponent<TextMeshProUGUI>();
+        toastTmp.text = "";
+        toastTmp.fontSize = 42;
+        toastTmp.fontStyle = FontStyles.Bold;
+        toastTmp.alignment = TextAlignmentOptions.Center;
+        toastTmp.color = new Color(1.0f, 0.45f, 0.20f, 1.0f);
+        toastTextObj.SetActive(false);
+
         // 5c. Game Over Panel (Hidden by default in edit mode)
         GameObject gameOverObj = CreatePanel("GameOverPanel", canvasObj.transform, new Color(0.12f, 0.05f, 0.05f, 0.90f));
         TextMeshProUGUI gameOverTitle = CreateTMPText("Title", gameOverObj.transform, "GAME OVER", 64, new Vector2(0, 200f));
@@ -524,6 +541,7 @@ public class SceneSetupUtility
         // Link UIManager
         SerializedObject soUI = new SerializedObject(uiManager);
         soUI.FindProperty("aliveCountText").objectReferenceValue = aliveTmp;
+        soUI.FindProperty("toastText").objectReferenceValue = toastTmp;
         soUI.FindProperty("gameOverPanel").objectReferenceValue = gameOverObj;
         soUI.FindProperty("gameOverTitleText").objectReferenceValue = gameOverTitle;
         soUI.FindProperty("rankText").objectReferenceValue = gameOverRank;

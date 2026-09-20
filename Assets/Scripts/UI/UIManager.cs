@@ -21,6 +21,12 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button retryVictoryButton;
     [SerializeField] private Button menuVictoryButton;
 
+    [Header("Celebration & Toast")]
+    [SerializeField] private UIConfettiEffect confettiEffect;
+    [SerializeField] private TextMeshProUGUI toastText;
+
+    private Coroutine toastCoroutine;
+
     private void Awake()
     {
         HideGameOver();
@@ -58,6 +64,35 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void ShowEliminationToast(string runnerName)
+    {
+        if (toastText == null) return;
+        if (toastCoroutine != null) StopCoroutine(toastCoroutine);
+        toastCoroutine = StartCoroutine(ToastRoutine(runnerName));
+    }
+
+    private System.Collections.IEnumerator ToastRoutine(string runnerName)
+    {
+        toastText.text = $"{runnerName} ELIMINATED!";
+        toastText.gameObject.SetActive(true);
+        Color startCol = new Color(1.0f, 0.45f, 0.20f, 1.0f);
+        toastText.color = startCol;
+
+        float timer = 0f;
+        while (timer < 1.8f)
+        {
+            timer += Time.deltaTime;
+            if (timer > 1.0f)
+            {
+                float alpha = Mathf.Lerp(1.0f, 0.0f, (timer - 1.0f) / 0.8f);
+                toastText.color = new Color(startCol.r, startCol.g, startCol.b, alpha);
+            }
+            yield return null;
+        }
+
+        toastText.gameObject.SetActive(false);
+    }
+
     public void ShowGameOver(int rank, int total)
     {
         if (gameOverPanel != null)
@@ -90,6 +125,15 @@ public class UIManager : MonoBehaviour
         {
             victoryTitleText.text = "VICTORY!\nLAST PLAYER STANDING!";
         }
+
+        if (confettiEffect == null)
+        {
+            confettiEffect = gameObject.GetComponent<UIConfettiEffect>();
+            if (confettiEffect == null) confettiEffect = gameObject.AddComponent<UIConfettiEffect>();
+        }
+
+        Transform parentTransform = (victoryPanel != null) ? victoryPanel.transform : transform;
+        confettiEffect.PlayConfetti(parentTransform);
     }
 
     public void HideVictory()
