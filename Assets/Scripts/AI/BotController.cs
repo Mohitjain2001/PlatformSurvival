@@ -6,19 +6,19 @@ using UnityEngine;
 public class BotController : MonoBehaviour
 {
     [Header("Bot Settings")]
-    [SerializeField] private float moveSpeed = 3.6f; // Slower than player (5.2f) so player easily outruns them!
-    [SerializeField] private float acceleration = 9.0f;
-    [SerializeField] private float deceleration = 10.0f;
-    [SerializeField] private float rotationSpeed = 10.0f;
-    [SerializeField] private float jumpForce = 5.8f;
-    [SerializeField] private float forwardJumpBoost = 1.0f;
-    [SerializeField] private float gapCheckDistance = 1.10f;
+    [SerializeField] private float moveSpeed = 2.8f; // Slow speed (Player is 5.2f) so player easily outruns them!
+    [SerializeField] private float acceleration = 7.0f;
+    [SerializeField] private float deceleration = 8.0f;
+    [SerializeField] private float rotationSpeed = 8.0f;
+    [SerializeField] private float jumpForce = 5.2f; // Weak jump so bots often fall into gaps
+    [SerializeField] private float forwardJumpBoost = 0.8f;
+    [SerializeField] private float gapCheckDistance = 0.90f;
     [SerializeField] private float groundCheckDistance = 0.35f;
-    [SerializeField] private float jumpCooldown = 0.60f;
-    [SerializeField] private float minGroundedDuration = 0.30f;
-    [SerializeField] private float reactionDelayMin = 0.35f; // Human reaction delay (350ms - 750ms)
-    [SerializeField] private float reactionDelayMax = 0.75f;
-    [SerializeField] private float mistakeChance = 0.25f; // 25% chance of hesitation/mistake
+    [SerializeField] private float jumpCooldown = 0.75f;
+    [SerializeField] private float minGroundedDuration = 0.35f;
+    [SerializeField] private float reactionDelayMin = 0.50f; // Slow reaction (500ms - 1100ms)
+    [SerializeField] private float reactionDelayMax = 1.10f;
+    [SerializeField] private float mistakeChance = 0.50f; // 50% chance of clumsy mistake
 
     [Header("Dependencies")]
     [SerializeField] private CharacterSquashAndStretch squashAndStretch;
@@ -221,36 +221,19 @@ public class BotController : MonoBehaviour
         for (int i = 0; i < allTiles.Count; i++)
         {
             PlatformTile tile = allTiles[i];
-            if (tile == null || !tile.IsAvailable || tile.IsShaking) continue;
+            if (tile == null || !tile.IsAvailable) continue;
+            
+            // 50% chance of clumsy mistake: bot ignores shaking warning!
+            if (tile.IsShaking && Random.value > mistakeChance) continue;
 
-            // Prefer tiles on current level (similar Y position)
+            // Only look at immediate nearby tiles (radius 3.2m instead of full map radar)
             if (Mathf.Abs(tile.Position.y - botY) < 2.5f)
             {
                 float dist = Vector3.Distance(transform.position, tile.Position);
-                if (dist < minDistance && dist < 7.5f)
+                if (dist < minDistance && dist < 3.2f)
                 {
                     minDistance = dist;
                     closest = tile;
-                }
-            }
-        }
-
-        // Fallback: any available tile near bot position
-        if (closest == null)
-        {
-            for (int i = 0; i < allTiles.Count; i++)
-            {
-                PlatformTile tile = allTiles[i];
-                if (tile == null || !tile.IsAvailable) continue;
-
-                if (tile.Position.y <= botY + 1.0f)
-                {
-                    float dist = Vector3.Distance(transform.position, tile.Position);
-                    if (dist < minDistance)
-                    {
-                        minDistance = dist;
-                        closest = tile;
-                    }
                 }
             }
         }
@@ -262,6 +245,9 @@ public class BotController : MonoBehaviour
     {
         if (!isGrounded || groundedDuration < minGroundedDuration || Time.time - lastJumpTime < jumpCooldown) 
             return;
+
+        // 25% chance of stumbling / missing jump timing!
+        if (Random.value < 0.25f) return;
 
         Vector3 probeOrigin = transform.position + Vector3.up * 0.35f + moveDir * gapCheckDistance;
         RaycastHit[] aheadHits = Physics.SphereCastAll(probeOrigin, 0.3f, Vector3.down, 1.8f);
