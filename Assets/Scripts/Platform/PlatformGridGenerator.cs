@@ -93,6 +93,7 @@ public class PlatformGridGenerator : MonoBehaviour
         int effectiveLayerCount = config != null ? config.floorCount : layerCount;
         int effectiveRadiusCount = config != null ? config.gridRadius : gridRadius;
         int botCount = config != null ? config.botCount : 4;
+        layerCount = effectiveLayerCount;
 
         // 1. Check if scene ALREADY has pre-baked tiles in hierarchy (only use static pre-baked in edit mode preview)
         PlatformTile[] existingTiles = GetComponentsInChildren<PlatformTile>(true);
@@ -311,11 +312,16 @@ public class PlatformGridGenerator : MonoBehaviour
     private GameObject CreateTileObject(Vector3 position, Transform parent, int layerIndex)
     {
         GameObject prefabToUse = null;
-        if (layerTilePrefabs != null && layerIndex < layerTilePrefabs.Length && layerTilePrefabs[layerIndex] != null)
+        if (layerTilePrefabs != null && layerTilePrefabs.Length > 0)
         {
-            prefabToUse = layerTilePrefabs[layerIndex];
+            int pIdx = Mathf.Abs(layerIndex) % layerTilePrefabs.Length;
+            if (layerTilePrefabs[pIdx] != null)
+            {
+                prefabToUse = layerTilePrefabs[pIdx];
+            }
         }
-        else if (tilePrefab != null)
+
+        if (prefabToUse == null && tilePrefab != null)
         {
             prefabToUse = tilePrefab;
         }

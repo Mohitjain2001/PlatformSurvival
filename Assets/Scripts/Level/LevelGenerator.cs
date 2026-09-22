@@ -14,11 +14,10 @@ public class LevelGenerator : MonoBehaviour
     {
         LevelConfig config = new LevelConfig();
         config.levelNumber = levelNumber;
+        config.floorCount = 3; // Keep clean 3-floor arena for perfect camera, lighting, and Kenney tiles
 
-        // Level scaling formula
         if (levelNumber <= 2)
         {
-            config.floorCount = 3;
             config.botCount = 4;
             config.tileDropDelay = 0.8f;
             config.botSpeed = 4.8f;
@@ -32,7 +31,6 @@ public class LevelGenerator : MonoBehaviour
         }
         else if (levelNumber <= 5)
         {
-            config.floorCount = 3;
             config.botCount = 5;
             config.tileDropDelay = 0.7f;
             config.botSpeed = 5.2f;
@@ -46,7 +44,6 @@ public class LevelGenerator : MonoBehaviour
         }
         else if (levelNumber <= 10)
         {
-            config.floorCount = 4;
             config.botCount = 6;
             config.tileDropDelay = 0.6f;
             config.botSpeed = 5.6f;
@@ -54,17 +51,15 @@ public class LevelGenerator : MonoBehaviour
             config.floorPatterns = new FloorPattern[]
             {
                 FloorPattern.SwissCheese,
-                FloorPattern.DonutRing,
                 FloorPattern.TwoIslands,
                 FloorPattern.Solid
             };
         }
         else
         {
-            // Procedural scaling for Level 11+
-            config.floorCount = Mathf.Min(5, 4 + (levelNumber - 10) / 5);
+            // Procedural pattern scaling for Level 11+
             config.botCount = Mathf.Min(8, 6 + (levelNumber - 10) / 3);
-            config.tileDropDelay = Mathf.Max(0.4f, 0.6f - (levelNumber - 10) * 0.02f);
+            config.tileDropDelay = Mathf.Max(0.35f, 0.6f - (levelNumber - 10) * 0.02f);
             config.botSpeed = Mathf.Min(7.0f, 5.6f + (levelNumber - 10) * 0.1f);
             config.gridRadius = 6;
 
@@ -74,18 +69,13 @@ public class LevelGenerator : MonoBehaviour
                 FloorPattern.CrossPaths,
                 FloorPattern.SwissCheese,
                 FloorPattern.TwoIslands,
-                FloorPattern.OuterRingOnly,
-                FloorPattern.Solid
+                FloorPattern.OuterRingOnly
             };
 
-            config.floorPatterns = new FloorPattern[config.floorCount];
-            // Always make bottom floor solid or near-solid so game doesn't instantly end
-            for (int i = 0; i < config.floorCount - 1; i++)
-            {
-                int pIdx = (levelNumber + i * 3) % (pool.Length - 1);
-                config.floorPatterns[i] = pool[pIdx];
-            }
-            config.floorPatterns[config.floorCount - 1] = FloorPattern.Solid;
+            config.floorPatterns = new FloorPattern[3];
+            config.floorPatterns[0] = pool[(levelNumber * 3) % pool.Length];
+            config.floorPatterns[1] = pool[(levelNumber * 5 + 1) % pool.Length];
+            config.floorPatterns[2] = FloorPattern.Solid; // Always keep solid bottom floor
         }
 
         return config;
