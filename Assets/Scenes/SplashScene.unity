@@ -681,6 +681,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SplashManager
   playButton: {fileID: 1029684642}
+  settingsButton: {fileID: 0}
+  settingsPanel: {fileID: 0}
+  closeSettingsButton: {fileID: 0}
 --- !u!114 &196873348
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -761,8 +764,8 @@ RectTransform:
   - {fileID: 1632277926}
   - {fileID: 565745287}
   - {fileID: 1029684645}
-  - {fileID: 451363647}
   - {fileID: 548579699}
+  - {fileID: 451363647}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}

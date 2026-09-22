@@ -331,8 +331,29 @@ public class SceneSetupUtility
         Button playBtn = CreateButton("PlayButton", canvasObj.transform, "PLAY GAME", new Vector2(0, -380f), new Color(0.15f, 0.80f, 0.35f));
         playBtn.GetComponent<RectTransform>().sizeDelta = new Vector2(500f, 130f);
 
+        Transform tSettingsBtn = canvasObj.transform.Find("Settings Button");
+        Transform tSettingsPanel = canvasObj.transform.Find("Settings panel");
+        Button settingsBtn = tSettingsBtn != null ? tSettingsBtn.GetComponent<Button>() : null;
+        GameObject settingsPan = tSettingsPanel != null ? tSettingsPanel.gameObject : null;
+        Button closeBtn = null;
+        if (settingsPan != null)
+        {
+            Button[] btns = settingsPan.GetComponentsInChildren<Button>(true);
+            foreach (var b in btns)
+            {
+                if (b.name.Equals("Close", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    closeBtn = b;
+                    break;
+                }
+            }
+        }
+
         SerializedObject soSplash = new SerializedObject(splashMgr);
         soSplash.FindProperty("playButton").objectReferenceValue = playBtn;
+        if (settingsBtn != null) soSplash.FindProperty("settingsButton").objectReferenceValue = settingsBtn;
+        if (settingsPan != null) soSplash.FindProperty("settingsPanel").objectReferenceValue = settingsPan;
+        if (closeBtn != null) soSplash.FindProperty("closeSettingsButton").objectReferenceValue = closeBtn;
         soSplash.ApplyModifiedProperties();
 
         EditorSceneManager.SaveScene(scene, "Assets/Scenes/SplashScene.unity");
