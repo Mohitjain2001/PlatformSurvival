@@ -393,9 +393,6 @@ public class SceneSetupUtility
         Color tileDanger = new Color(0.95f, 0.15f, 0.15f);
 
         int gridRadius = 6;
-        float effectiveRadius = 1.2f;
-        float xSpacing = Mathf.Sqrt(3) * effectiveRadius;
-        float zSpacing = 1.5f * effectiveRadius;
         float layerSpacing = 12.0f;
 
         for (int layer = 0; layer < 3; layer++)
@@ -407,6 +404,11 @@ public class SceneSetupUtility
             Material layerMat = layerMats[layer % layerMats.Length];
             Color baseColor = layerColors[layer % layerColors.Length];
             GameObject layerPrefab = useKenney ? kenneyPrefabs[layer] : tilePrefab;
+
+            float scaleX = (layerPrefab != null) ? layerPrefab.transform.localScale.x : 2.0f;
+            float effectiveRadius = scaleX * (1.0f / Mathf.Sqrt(3)) * 1.04f;
+            float xSpacing = Mathf.Sqrt(3) * effectiveRadius;
+            float zSpacing = 1.5f * effectiveRadius;
 
             for (int q = -gridRadius; q <= gridRadius; q++)
             {

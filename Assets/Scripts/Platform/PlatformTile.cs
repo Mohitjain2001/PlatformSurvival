@@ -5,13 +5,15 @@ using UnityEngine;
 public class PlatformTile : MonoBehaviour
 {
     [Header("Tile Settings")]
-    [SerializeField] private float delayBeforeFall = 1.15f;
-    [SerializeField] private float shakeIntensity = 0.05f;
-    [SerializeField] private float fallSpeed = 10.0f;
+    [SerializeField] private float whiteHoldDuration = 0.28f;
+    [SerializeField] private float fadeBeforeFallDuration = 0.18f;
+    [SerializeField] private float fallDuration = 0.30f;
+    [SerializeField] private float fallDistance = 2.4f;
 
     [Header("Visual Feedback Colors")]
     [SerializeField] private Color normalColor = new Color(0.90f, 0.38f, 0.48f); // Coral/Pink
     [SerializeField] private Color steppedColor = Color.white; // Pure white when stepped on!
+    [SerializeField] private Color fadeColor = new Color(0.86f, 0.66f, 1.0f); // Soft lavender like the reference trail
     [SerializeField] private Color warningColor = new Color(1.0f, 0.6f, 0.0f); // Orange
     [SerializeField] private Color dangerColor = new Color(0.95f, 0.15f, 0.15f); // Red
 
@@ -166,44 +168,34 @@ public class PlatformTile : MonoBehaviour
     private IEnumerator FallRoutine()
     {
         isSteppedOn = true;
-        // Instantly turn solid white when stepped on, matching the reference image!
+
+        // Reference behavior: touched tiles become a crisp white trail immediately.
         SetTileColor(steppedColor);
 
         float elapsed = 0f;
+        Vector3 lockedPosition = transform.position;
 
-        while (elapsed < delayBeforeFall)
+        while (elapsed < whiteHoldDuration)
         {
             elapsed += Time.deltaTime;
-            float progress = elapsed / delayBeforeFall;
-
-            // Shake offset
-            Vector3 shakeOffset = new Vector3(
-                Random.Range(-shakeIntensity, shakeIntensity),
-                0f,
-                Random.Range(-shakeIntensity, shakeIntensity)
-            ) * (progress * 1.5f);
-
-            transform.position = initialPosition + shakeOffset;
-
-            // Stay solid white for the majority of the shake duration
-            if (progress < 0.70f)
-            {
-                SetTileColor(steppedColor);
-            }
-            else
-            {
-                // Quick red warning flash just before dropping
-                float flash = (progress - 0.70f) / 0.30f;
-                SetTileColor(Color.Lerp(steppedColor, dangerColor, flash));
-            }
-
+            transform.position = lockedPosition;
+            SetTileColor(steppedColor);
             yield return null;
         }
 
-        // Start falling
+        elapsed = 0f;
+        while (elapsed < fadeBeforeFallDuration)
+        {
+            elapsed += Time.deltaTime;
+            float progress = Mathf.Clamp01(elapsed / fadeBeforeFallDuration);
+            transform.position = lockedPosition;
+            SetTileColor(Color.Lerp(steppedColor, fadeColor, progress));
+            yield return null;
+        }
+
         isFalling = true;
         isAvailable = false;
-        
+
         if (tileColliders != null)
         {
             foreach (var col in tileColliders)
@@ -212,16 +204,16 @@ public class PlatformTile : MonoBehaviour
             }
         }
 
-        // Fast crisp fall & disappear (0.45s duration so tiles don't clutter lower floors)
         float fallTimer = 0f;
-        float fallDuration = 0.45f;
         Vector3 startScale = (initialScale != Vector3.zero) ? initialScale : transform.localScale;
+        Vector3 fallStartPosition = transform.position;
+        Vector3 fallEndPosition = fallStartPosition + Vector3.down * fallDistance;
 
         while (fallTimer < fallDuration)
         {
             fallTimer += Time.deltaTime;
-            float progress = fallTimer / fallDuration;
-            transform.position += Vector3.down * (12.0f * Time.deltaTime);
+            float progress = Mathf.Clamp01(fallTimer / fallDuration);
+            transform.position = Vector3.Lerp(fallStartPosition, fallEndPosition, progress);
             transform.localScale = Vector3.Lerp(startScale, Vector3.zero, progress);
             yield return null;
         }

@@ -56,6 +56,27 @@ public class PlatformGridGenerator : MonoBehaviour
         }
     }
 
+    public float CalculateEffectiveRadius(int layerIndex = 0)
+    {
+        GameObject prefabToUse = null;
+        if (layerTilePrefabs != null && layerIndex < layerTilePrefabs.Length && layerTilePrefabs[layerIndex] != null)
+        {
+            prefabToUse = layerTilePrefabs[layerIndex];
+        }
+        else if (tilePrefab != null)
+        {
+            prefabToUse = tilePrefab;
+        }
+
+        if (prefabToUse != null)
+        {
+            float scaleX = prefabToUse.transform.localScale.x;
+            return scaleX * (1.0f / Mathf.Sqrt(3)) * 1.04f;
+        }
+
+        return tileOuterRadius;
+    }
+
     public void GenerateGrid(out Vector3 playerSpawn, out List<Vector3> botSpawns, int botCount)
     {
         // 1. Check if scene ALREADY has pre-baked tiles in the hierarchy!
@@ -116,14 +137,14 @@ public class PlatformGridGenerator : MonoBehaviour
         ClearGrid();
         generatedTiles.Clear();
 
-        float effectiveRadius = tileOuterRadius;
-        float xSpacing = Mathf.Sqrt(3) * effectiveRadius;
-        float zSpacing = 1.5f * effectiveRadius;
-
         List<Vector3> topLayerSpawnPoints = new List<Vector3>();
 
         for (int layer = 0; layer < layerCount; layer++)
         {
+            float effectiveRadius = CalculateEffectiveRadius(layer);
+            float xSpacing = Mathf.Sqrt(3) * effectiveRadius;
+            float zSpacing = 1.5f * effectiveRadius;
+
             float layerY = -layer * layerSpacing;
             GameObject layerParent = new GameObject($"Layer_{layer + 1}");
             layerParent.transform.SetParent(transform);
@@ -202,12 +223,12 @@ public class PlatformGridGenerator : MonoBehaviour
             hexMesh = CreateHexagonMesh(tileOuterRadius - tileSpacing, tileHeight);
         }
 
-        float effectiveRadius = tileOuterRadius;
-        float xSpacing = Mathf.Sqrt(3) * effectiveRadius;
-        float zSpacing = 1.5f * effectiveRadius;
-
         for (int layer = 0; layer < layerCount; layer++)
         {
+            float effectiveRadius = CalculateEffectiveRadius(layer);
+            float xSpacing = Mathf.Sqrt(3) * effectiveRadius;
+            float zSpacing = 1.5f * effectiveRadius;
+
             float layerY = -layer * layerSpacing;
             GameObject layerParent = new GameObject($"Layer_{layer + 1}");
             layerParent.transform.SetParent(transform);
