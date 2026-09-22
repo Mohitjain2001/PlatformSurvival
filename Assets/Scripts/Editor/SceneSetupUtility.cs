@@ -509,18 +509,33 @@ public class SceneSetupUtility
 
         VirtualJoystick joystickScript = joystickObj.AddComponent<VirtualJoystick>();
 
-        // 5b. Alive Count Text
+        // 5b. Level Title & Alive Count Text
+        GameObject levelTextObj = CreateUIElement("LevelTitleText", canvasObj.transform);
+        RectTransform levelRect = levelTextObj.GetComponent<RectTransform>();
+        levelRect.anchorMin = new Vector2(0.5f, 1f);
+        levelRect.anchorMax = new Vector2(0.5f, 1f);
+        levelRect.pivot = new Vector2(0.5f, 1f);
+        levelRect.anchoredPosition = new Vector2(0, -40f);
+        levelRect.sizeDelta = new Vector2(600f, 70f);
+
+        TextMeshProUGUI levelTmp = levelTextObj.AddComponent<TextMeshProUGUI>();
+        levelTmp.text = "LEVEL 1";
+        levelTmp.fontSize = 46;
+        levelTmp.fontStyle = FontStyles.Bold;
+        levelTmp.alignment = TextAlignmentOptions.Center;
+        levelTmp.color = new Color(1.0f, 0.88f, 0.20f); // Golden Yellow Level Header
+
         GameObject aliveTextObj = CreateUIElement("AliveCountText", canvasObj.transform);
         RectTransform aliveRect = aliveTextObj.GetComponent<RectTransform>();
         aliveRect.anchorMin = new Vector2(0.5f, 1f);
         aliveRect.anchorMax = new Vector2(0.5f, 1f);
         aliveRect.pivot = new Vector2(0.5f, 1f);
-        aliveRect.anchoredPosition = new Vector2(0, -70f);
-        aliveRect.sizeDelta = new Vector2(600f, 100f);
+        aliveRect.anchoredPosition = new Vector2(0, -110f);
+        aliveRect.sizeDelta = new Vector2(600f, 70f);
 
         TextMeshProUGUI aliveTmp = aliveTextObj.AddComponent<TextMeshProUGUI>();
         aliveTmp.text = "ALIVE: 5 / 5";
-        aliveTmp.fontSize = 54;
+        aliveTmp.fontSize = 44;
         aliveTmp.fontStyle = FontStyles.Bold;
         aliveTmp.alignment = TextAlignmentOptions.Center;
         aliveTmp.color = Color.white;
@@ -531,7 +546,7 @@ public class SceneSetupUtility
         toastRect.anchorMin = new Vector2(0.5f, 1f);
         toastRect.anchorMax = new Vector2(0.5f, 1f);
         toastRect.pivot = new Vector2(0.5f, 1f);
-        toastRect.anchoredPosition = new Vector2(0, -160f);
+        toastRect.anchoredPosition = new Vector2(0, -180f);
         toastRect.sizeDelta = new Vector2(800f, 80f);
 
         TextMeshProUGUI toastTmp = toastTextObj.AddComponent<TextMeshProUGUI>();
@@ -559,6 +574,7 @@ public class SceneSetupUtility
 
         // Link UIManager
         SerializedObject soUI = new SerializedObject(uiManager);
+        soUI.FindProperty("levelTitleText").objectReferenceValue = levelTmp;
         soUI.FindProperty("aliveCountText").objectReferenceValue = aliveTmp;
         soUI.FindProperty("toastText").objectReferenceValue = toastTmp;
         soUI.FindProperty("gameOverPanel").objectReferenceValue = gameOverObj;
@@ -572,7 +588,10 @@ public class SceneSetupUtility
         soUI.FindProperty("menuVictoryButton").objectReferenceValue = victoryMenuBtn;
         soUI.ApplyModifiedProperties();
 
-        // 6. Setup GameManager
+        // 6. Setup LevelManager & GameManager
+        GameObject levelMgrObj = new GameObject("LevelManager");
+        levelMgrObj.AddComponent<LevelManager>();
+
         GameObject gmObj = new GameObject("GameManager");
         GameManager gm = gmObj.AddComponent<GameManager>();
 

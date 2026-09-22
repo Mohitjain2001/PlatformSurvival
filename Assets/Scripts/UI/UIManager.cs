@@ -7,6 +7,7 @@ public class UIManager : MonoBehaviour
 {
     [Header("HUD Elements")]
     [SerializeField] private TextMeshProUGUI aliveCountText;
+    [SerializeField] private TextMeshProUGUI levelTitleText;
 
     [Header("Game Over Panel")]
     [SerializeField] private GameObject gameOverPanel;
@@ -61,6 +62,14 @@ public class UIManager : MonoBehaviour
         if (aliveCountText != null)
         {
             aliveCountText.text = $"ALIVE: {currentAlive} / {total}";
+        }
+    }
+
+    public void SetLevelTitle(int levelNumber)
+    {
+        if (levelTitleText != null)
+        {
+            levelTitleText.text = $"LEVEL {levelNumber}";
         }
     }
 

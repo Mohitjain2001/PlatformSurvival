@@ -20,9 +20,12 @@ public class WinSceneManager : MonoBehaviour
 
     private void Start()
     {
+        int completedLevel = LevelManager.Instance != null ? LevelManager.Instance.CurrentLevel - 1 : 1;
+        if (completedLevel < 1) completedLevel = 1;
+
         if (titleText != null)
         {
-            titleText.text = "VICTORY!";
+            titleText.text = $"LEVEL {completedLevel} CLEARED!";
         }
 
         if (subtitleText != null)
@@ -33,6 +36,11 @@ public class WinSceneManager : MonoBehaviour
         if (playAgainButton != null)
         {
             playAgainButton.onClick.AddListener(OnPlayAgainClicked);
+            TextMeshProUGUI btnText = playAgainButton.GetComponentInChildren<TextMeshProUGUI>();
+            if (btnText != null)
+            {
+                btnText.text = "NEXT LEVEL";
+            }
         }
 
         if (mainMenuButton != null)

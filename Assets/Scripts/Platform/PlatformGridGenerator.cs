@@ -79,9 +79,24 @@ public class PlatformGridGenerator : MonoBehaviour
 
     public void GenerateGrid(out Vector3 playerSpawn, out List<Vector3> botSpawns, int botCount)
     {
-        // 1. Check if scene ALREADY has pre-baked tiles in the hierarchy!
+        LevelConfig defaultConfig = new LevelConfig
+        {
+            botCount = botCount,
+            floorCount = layerCount,
+            gridRadius = gridRadius
+        };
+        GenerateGridForLevel(defaultConfig, out playerSpawn, out botSpawns);
+    }
+
+    public void GenerateGridForLevel(LevelConfig config, out Vector3 playerSpawn, out List<Vector3> botSpawns)
+    {
+        int effectiveLayerCount = config != null ? config.floorCount : layerCount;
+        int effectiveRadiusCount = config != null ? config.gridRadius : gridRadius;
+        int botCount = config != null ? config.botCount : 4;
+
+        // 1. Check if scene ALREADY has pre-baked tiles in hierarchy (only use static pre-baked in edit mode preview)
         PlatformTile[] existingTiles = GetComponentsInChildren<PlatformTile>(true);
-        if (existingTiles.Length > 0)
+        if (!Application.isPlaying && existingTiles.Length > 0)
         {
             generatedTiles.Clear();
             List<Vector3> topSpawnPoints = new List<Vector3>();
@@ -133,13 +148,13 @@ public class PlatformGridGenerator : MonoBehaviour
             return;
         }
 
-        // 2. Fallback: Procedural generation at runtime if no baked tiles exist
+        // 2. Procedural generation at runtime with floor patterns & gaps
         ClearGrid();
         generatedTiles.Clear();
 
         List<Vector3> topLayerSpawnPoints = new List<Vector3>();
 
-        for (int layer = 0; layer < layerCount; layer++)
+        for (int layer = 0; layer < effectiveLayerCount; layer++)
         {
             float effectiveRadius = CalculateEffectiveRadius(layer);
             float xSpacing = Mathf.Sqrt(3) * effectiveRadius;
@@ -151,13 +166,25 @@ public class PlatformGridGenerator : MonoBehaviour
 
             Color baseColor = layerNormalColors[layer % layerNormalColors.Length];
 
-            for (int q = -gridRadius; q <= gridRadius; q++)
+            FloorPattern pattern = FloorPattern.Solid;
+            if (config != null && config.floorPatterns != null && config.floorPatterns.Length > 0)
             {
-                int r1 = Mathf.Max(-gridRadius, -q - gridRadius);
-                int r2 = Mathf.Min(gridRadius, -q + gridRadius);
+                pattern = config.floorPatterns[layer % config.floorPatterns.Length];
+            }
+
+            for (int q = -effectiveRadiusCount; q <= effectiveRadiusCount; q++)
+            {
+                int r1 = Mathf.Max(-effectiveRadiusCount, -q - effectiveRadiusCount);
+                int r2 = Mathf.Min(effectiveRadiusCount, -q + effectiveRadiusCount);
 
                 for (int r = r1; r <= r2; r++)
                 {
+                    // Check if tile should be spawned or left as a gap ("gali")!
+                    if (!LevelGenerator.ShouldSpawnTile(q, r, effectiveRadiusCount, pattern))
+                    {
+                        continue; // SKIP TILE -> CREATES GAP IN PLATFORM!
+                    }
+
                     float x = xSpacing * (q + r / 2.0f);
                     float z = zSpacing * r;
 

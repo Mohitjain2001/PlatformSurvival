@@ -75,8 +75,11 @@ public class GameManager : MonoBehaviour
             gridGenerator = FindObjectOfType<PlatformGridGenerator>();
         }
 
-        // 1. Generate Multi-Layer Platform Arena
-        gridGenerator.GenerateGrid(out playerSpawn, out botSpawns, botCount);
+        LevelConfig levelConfig = LevelManager.Instance != null ? LevelManager.Instance.GetCurrentLevelConfig() : LevelGenerator.GetConfigForLevel(1);
+        botCount = levelConfig.botCount;
+
+        // 1. Generate Multi-Layer Platform Arena with LevelConfig & Gaps
+        gridGenerator.GenerateGridForLevel(levelConfig, out playerSpawn, out botSpawns);
 
         float bottomEliminationY = gridGenerator.BottomLayerY;
 
@@ -142,6 +145,7 @@ public class GameManager : MonoBehaviour
 
         if (uiManager != null)
         {
+            uiManager.SetLevelTitle(levelConfig.levelNumber);
             uiManager.UpdateAliveCount(aliveParticipants.Count, totalParticipants);
             uiManager.HideGameOver();
             uiManager.HideVictory();
@@ -186,6 +190,11 @@ public class GameManager : MonoBehaviour
         {
             currentState = GameState.Victory;
             GameDataManager.RecordMatchResult(1, totalParticipants, true);
+
+            if (LevelManager.Instance != null)
+            {
+                LevelManager.Instance.AdvanceToNextLevel();
+            }
 
             if (uiManager != null)
             {
