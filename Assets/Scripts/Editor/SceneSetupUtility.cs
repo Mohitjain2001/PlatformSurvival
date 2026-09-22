@@ -285,6 +285,10 @@ public class SceneSetupUtility
         bean.transform.position = new Vector3(0, 0.70f, 0);
         Object.DestroyImmediate(bean.GetComponent<Rigidbody>());
 
+        CharacterNameTag beanTag = bean.GetComponent<CharacterNameTag>();
+        if (beanTag == null) beanTag = bean.AddComponent<CharacterNameTag>();
+        beanTag.Setup(PlayerPrefs.GetString("PlayerName", "Player"), new Color(0.33f, 0.92f, 0.22f), 1.70f);
+
         // 3. UI Canvas
         GameObject eventSystemObj = new GameObject("EventSystem");
         eventSystemObj.AddComponent<EventSystem>();
@@ -333,8 +337,12 @@ public class SceneSetupUtility
 
         Transform tSettingsBtn = canvasObj.transform.Find("Settings Button");
         Transform tSettingsPanel = canvasObj.transform.Find("Settings panel");
+        Transform tNameBtn = canvasObj.transform.Find("Name_change");
+
         Button settingsBtn = tSettingsBtn != null ? tSettingsBtn.GetComponent<Button>() : null;
         GameObject settingsPan = tSettingsPanel != null ? tSettingsPanel.gameObject : null;
+        Button nameBtn = tNameBtn != null ? tNameBtn.GetComponent<Button>() : null;
+
         Button closeBtn = null;
         if (settingsPan != null)
         {
@@ -354,6 +362,7 @@ public class SceneSetupUtility
         if (settingsBtn != null) soSplash.FindProperty("settingsButton").objectReferenceValue = settingsBtn;
         if (settingsPan != null) soSplash.FindProperty("settingsPanel").objectReferenceValue = settingsPan;
         if (closeBtn != null) soSplash.FindProperty("closeSettingsButton").objectReferenceValue = closeBtn;
+        if (nameBtn != null) soSplash.FindProperty("nameChangeButton").objectReferenceValue = nameBtn;
         soSplash.ApplyModifiedProperties();
 
         EditorSceneManager.SaveScene(scene, "Assets/Scenes/SplashScene.unity");

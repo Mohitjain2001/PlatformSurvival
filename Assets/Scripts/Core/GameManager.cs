@@ -83,6 +83,8 @@ public class GameManager : MonoBehaviour
 
         float bottomEliminationY = gridGenerator.BottomLayerY;
 
+        string playerName = PlayerPrefs.GetString("PlayerName", "Player");
+
         // 2. Spawn Player
         if (playerInstance != null) Destroy(playerInstance);
 
@@ -92,8 +94,15 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            playerInstance = CreateCharacterBean(playerSpawn, "Player", new Color(0.12f, 0.65f, 1.0f)); // Blue Bean Player
+            playerInstance = CreateCharacterBean(playerSpawn, playerName, new Color(0.12f, 0.65f, 1.0f)); // Blue Bean Player
         }
+
+        playerInstance.name = playerName;
+
+        // Apply saved custom PlayerName to head NameTag
+        CharacterNameTag playerTag = playerInstance.GetComponent<CharacterNameTag>();
+        if (playerTag == null) playerTag = playerInstance.AddComponent<CharacterNameTag>();
+        playerTag.Setup(playerName, new Color(0.33f, 0.92f, 0.22f), 1.80f);
 
         PlayerController pc = playerInstance.GetComponent<PlayerController>();
         if (pc == null) pc = playerInstance.AddComponent<PlayerController>();
