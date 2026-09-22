@@ -95,15 +95,73 @@ public class SplashManager : MonoBehaviour
             nameChangeButton.onClick.AddListener(OpenNameChangeDialog);
         }
 
+        // Auto-bind Save and Cancel buttons inside NameChangePanel
+        BindNamePanelButtons();
+
         // 5. Ensure Panels are hidden initially
-        if (settingsPanel != null)
+        if (Application.isPlaying && settingsPanel != null)
         {
             settingsPanel.SetActive(false);
         }
 
-        if (nameChangePanel != null)
+        if (Application.isPlaying && nameChangePanel != null)
         {
             nameChangePanel.SetActive(false);
+        }
+    }
+
+    private void BindNamePanelButtons()
+    {
+        if (nameChangePanel == null)
+        {
+            Transform tNamePanel = transform.Find("NameChangePanel");
+            if (tNamePanel != null) nameChangePanel = tNamePanel.gameObject;
+        }
+
+        if (nameChangePanel == null) return;
+
+        if (nameInputField == null)
+        {
+            nameInputField = nameChangePanel.GetComponentInChildren<TMP_InputField>(true);
+        }
+
+        Button[] btns = nameChangePanel.GetComponentsInChildren<Button>(true);
+        foreach (var btn in btns)
+        {
+            string bName = btn.name.ToLower();
+            if (saveNameButton == null && (bName.Contains("save") || bName.Contains("ok")))
+            {
+                saveNameButton = btn;
+            }
+            else if (cancelNameButton == null && (bName.Contains("cancel") || bName.Contains("close")))
+            {
+                cancelNameButton = btn;
+            }
+
+            Graphic[] graphics = btn.GetComponentsInChildren<Graphic>(true);
+            foreach (var g in graphics)
+            {
+                if (g.gameObject != btn.gameObject)
+                {
+                    g.raycastTarget = false;
+                }
+                else
+                {
+                    g.raycastTarget = true;
+                }
+            }
+        }
+
+        if (saveNameButton != null)
+        {
+            saveNameButton.onClick.RemoveAllListeners();
+            saveNameButton.onClick.AddListener(SaveName);
+        }
+
+        if (cancelNameButton != null)
+        {
+            cancelNameButton.onClick.RemoveAllListeners();
+            cancelNameButton.onClick.AddListener(CloseNameDialog);
         }
     }
 
@@ -149,6 +207,8 @@ public class SplashManager : MonoBehaviour
         {
             CreateDynamicNameChangePanel();
         }
+
+        BindNamePanelButtons();
 
         if (nameChangePanel != null)
         {

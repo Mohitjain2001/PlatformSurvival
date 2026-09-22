@@ -335,6 +335,9 @@ public class SceneSetupUtility
         Button playBtn = CreateButton("PlayButton", canvasObj.transform, "PLAY GAME", new Vector2(0, -380f), new Color(0.15f, 0.80f, 0.35f));
         playBtn.GetComponent<RectTransform>().sizeDelta = new Vector2(500f, 130f);
 
+        // Name Change Panel (visible in edit mode so user can inspect and customize layout)
+        GameObject namePanelObj = EnsureNameChangePanelExists(canvasObj.transform);
+
         Transform tSettingsBtn = canvasObj.transform.Find("Settings Button");
         Transform tSettingsPanel = canvasObj.transform.Find("Settings panel");
         Transform tNameBtn = canvasObj.transform.Find("Name_change");
@@ -363,9 +366,212 @@ public class SceneSetupUtility
         if (settingsPan != null) soSplash.FindProperty("settingsPanel").objectReferenceValue = settingsPan;
         if (closeBtn != null) soSplash.FindProperty("closeSettingsButton").objectReferenceValue = closeBtn;
         if (nameBtn != null) soSplash.FindProperty("nameChangeButton").objectReferenceValue = nameBtn;
+        if (namePanelObj != null) soSplash.FindProperty("nameChangePanel").objectReferenceValue = namePanelObj;
+
+        if (namePanelObj != null)
+        {
+            TMP_InputField inf = namePanelObj.GetComponentInChildren<TMP_InputField>(true);
+            if (inf != null) soSplash.FindProperty("nameInputField").objectReferenceValue = inf;
+
+            Button[] nBtns = namePanelObj.GetComponentsInChildren<Button>(true);
+            foreach (var nb in nBtns)
+            {
+                if (nb.name.Equals("SaveButton", System.StringComparison.OrdinalIgnoreCase))
+                    soSplash.FindProperty("saveNameButton").objectReferenceValue = nb;
+                else if (nb.name.Equals("CancelButton", System.StringComparison.OrdinalIgnoreCase))
+                    soSplash.FindProperty("cancelNameButton").objectReferenceValue = nb;
+            }
+        }
+
         soSplash.ApplyModifiedProperties();
 
         EditorSceneManager.SaveScene(scene, "Assets/Scenes/SplashScene.unity");
+    }
+
+    [MenuItem("Tools/Bake NameChangePanel In Active Scene")]
+    public static void BakeNameChangePanelInActiveScene()
+    {
+        Canvas canvas = Object.FindObjectOfType<Canvas>();
+        if (canvas != null)
+        {
+            EnsureNameChangePanelExists(canvas.transform);
+            EditorSceneManager.MarkSceneDirty(canvas.gameObject.scene);
+            Debug.Log("NameChangePanel successfully baked into Canvas! It is now visible in the Hierarchy for editing.");
+        }
+    }
+
+    public static GameObject EnsureNameChangePanelExists(Transform canvasTransform)
+    {
+        if (canvasTransform == null) return null;
+
+        Transform existing = canvasTransform.Find("NameChangePanel");
+        if (existing != null)
+        {
+            existing.gameObject.SetActive(true);
+            return existing.gameObject;
+        }
+
+        // 1. Overlay Panel Background
+        GameObject nameChangePanel = new GameObject("NameChangePanel");
+        nameChangePanel.transform.SetParent(canvasTransform, false);
+
+        RectTransform panelRt = nameChangePanel.AddComponent<RectTransform>();
+        panelRt.anchorMin = Vector2.zero;
+        panelRt.anchorMax = Vector2.one;
+        panelRt.sizeDelta = Vector2.zero;
+
+        Image panelBg = nameChangePanel.AddComponent<Image>();
+        panelBg.color = new Color(0.05f, 0.08f, 0.14f, 0.85f); // Soft dark modal dimming
+
+        // 2. Card Dialog Container
+        GameObject cardObj = new GameObject("Card");
+        cardObj.transform.SetParent(nameChangePanel.transform, false);
+
+        RectTransform cardRt = cardObj.AddComponent<RectTransform>();
+        cardRt.anchorMin = new Vector2(0.5f, 0.5f);
+        cardRt.anchorMax = new Vector2(0.5f, 0.5f);
+        cardRt.pivot = new Vector2(0.5f, 0.5f);
+        cardRt.sizeDelta = new Vector2(750f, 420f);
+        cardRt.anchoredPosition = Vector2.zero;
+
+        Image cardImg = cardObj.AddComponent<Image>();
+        cardImg.color = new Color(0.12f, 0.18f, 0.28f, 0.98f); // Dark Slate Card
+
+        // 3. Header Title Text
+        GameObject titleObj = new GameObject("TitleText");
+        titleObj.transform.SetParent(cardObj.transform, false);
+
+        RectTransform titleRt = titleObj.AddComponent<RectTransform>();
+        titleRt.anchorMin = new Vector2(0.5f, 1f);
+        titleRt.anchorMax = new Vector2(0.5f, 1f);
+        titleRt.pivot = new Vector2(0.5f, 1f);
+        titleRt.sizeDelta = new Vector2(700f, 80f);
+        titleRt.anchoredPosition = new Vector2(0, -30f);
+
+        TextMeshProUGUI titleText = titleObj.AddComponent<TextMeshProUGUI>();
+        titleText.text = "ENTER PLAYER NAME";
+        titleText.fontSize = 42;
+        titleText.fontStyle = FontStyles.Bold;
+        titleText.alignment = TextAlignmentOptions.Center;
+        titleText.color = new Color(1.0f, 0.88f, 0.20f);
+
+        // 4. Input Field Container
+        GameObject inputObj = new GameObject("NameInputField");
+        inputObj.transform.SetParent(cardObj.transform, false);
+
+        RectTransform inputRt = inputObj.AddComponent<RectTransform>();
+        inputRt.anchorMin = new Vector2(0.5f, 0.5f);
+        inputRt.anchorMax = new Vector2(0.5f, 0.5f);
+        inputRt.pivot = new Vector2(0.5f, 0.5f);
+        inputRt.sizeDelta = new Vector2(600f, 90f);
+        inputRt.anchoredPosition = new Vector2(0, 15f);
+
+        Image inputBg = inputObj.AddComponent<Image>();
+        inputBg.color = new Color(0.06f, 0.09f, 0.15f, 1.0f);
+
+        // Input Field Text Child
+        GameObject inputTextObj = new GameObject("Text");
+        inputTextObj.transform.SetParent(inputObj.transform, false);
+
+        RectTransform inputTextRt = inputTextObj.AddComponent<RectTransform>();
+        inputTextRt.anchorMin = Vector2.zero;
+        inputTextRt.anchorMax = Vector2.one;
+        inputTextRt.sizeDelta = new Vector2(-40f, 0);
+        inputTextRt.anchoredPosition = Vector2.zero;
+
+        TextMeshProUGUI inputText = inputTextObj.AddComponent<TextMeshProUGUI>();
+        inputText.fontSize = 38;
+        inputText.fontStyle = FontStyles.Bold;
+        inputText.alignment = TextAlignmentOptions.Center;
+        inputText.color = Color.white;
+
+        // Input Field Placeholder Child
+        GameObject placeholderObj = new GameObject("Placeholder");
+        placeholderObj.transform.SetParent(inputObj.transform, false);
+
+        RectTransform placeholderRt = placeholderObj.AddComponent<RectTransform>();
+        placeholderRt.anchorMin = Vector2.zero;
+        placeholderRt.anchorMax = Vector2.one;
+        placeholderRt.sizeDelta = new Vector2(-40f, 0);
+        placeholderRt.anchoredPosition = Vector2.zero;
+
+        TextMeshProUGUI placeholderText = placeholderObj.AddComponent<TextMeshProUGUI>();
+        placeholderText.text = "Enter Name...";
+        placeholderText.fontSize = 38;
+        placeholderText.fontStyle = FontStyles.Italic;
+        placeholderText.alignment = TextAlignmentOptions.Center;
+        placeholderText.color = new Color(0.6f, 0.6f, 0.6f, 0.7f);
+
+        TMP_InputField nameInputField = inputObj.AddComponent<TMP_InputField>();
+        nameInputField.textComponent = inputText;
+        nameInputField.placeholder = placeholderText;
+        nameInputField.characterLimit = 12;
+
+        // 5. Save Button (Green)
+        GameObject saveBtnObj = new GameObject("SaveButton");
+        saveBtnObj.transform.SetParent(cardObj.transform, false);
+
+        RectTransform saveRt = saveBtnObj.AddComponent<RectTransform>();
+        saveRt.anchorMin = new Vector2(0.5f, 0f);
+        saveRt.anchorMax = new Vector2(0.5f, 0f);
+        saveRt.pivot = new Vector2(0.5f, 0f);
+        saveRt.sizeDelta = new Vector2(240f, 85f);
+        saveRt.anchoredPosition = new Vector2(-140f, 35f);
+
+        Image saveImg = saveBtnObj.AddComponent<Image>();
+        saveImg.color = new Color(0.15f, 0.80f, 0.35f);
+
+        saveBtnObj.AddComponent<Button>();
+
+        GameObject saveTextObj = new GameObject("Text");
+        saveTextObj.transform.SetParent(saveBtnObj.transform, false);
+        RectTransform saveTextRt = saveTextObj.AddComponent<RectTransform>();
+        saveTextRt.anchorMin = Vector2.zero;
+        saveTextRt.anchorMax = Vector2.one;
+        saveTextRt.sizeDelta = Vector2.zero;
+
+        TextMeshProUGUI saveTmp = saveTextObj.AddComponent<TextMeshProUGUI>();
+        saveTmp.text = "SAVE";
+        saveTmp.fontSize = 34;
+        saveTmp.fontStyle = FontStyles.Bold;
+        saveTmp.alignment = TextAlignmentOptions.Center;
+        saveTmp.color = Color.white;
+        saveTmp.raycastTarget = false;
+
+        // 6. Cancel Button (Red)
+        GameObject cancelBtnObj = new GameObject("CancelButton");
+        cancelBtnObj.transform.SetParent(cardObj.transform, false);
+
+        RectTransform cancelRt = cancelBtnObj.AddComponent<RectTransform>();
+        cancelRt.anchorMin = new Vector2(0.5f, 0f);
+        cancelRt.anchorMax = new Vector2(0.5f, 0f);
+        cancelRt.pivot = new Vector2(0.5f, 0f);
+        cancelRt.sizeDelta = new Vector2(240f, 85f);
+        cancelRt.anchoredPosition = new Vector2(140f, 35f);
+
+        Image cancelImg = cancelBtnObj.AddComponent<Image>();
+        cancelImg.color = new Color(0.85f, 0.25f, 0.25f);
+        cancelImg.raycastTarget = true;
+
+        cancelBtnObj.AddComponent<Button>();
+
+        GameObject cancelTextObj = new GameObject("Text");
+        cancelTextObj.transform.SetParent(cancelBtnObj.transform, false);
+        RectTransform cancelTextRt = cancelTextObj.AddComponent<RectTransform>();
+        cancelTextRt.anchorMin = Vector2.zero;
+        cancelTextRt.anchorMax = Vector2.one;
+        cancelTextRt.sizeDelta = Vector2.zero;
+
+        TextMeshProUGUI cancelTmp = cancelTextObj.AddComponent<TextMeshProUGUI>();
+        cancelTmp.text = "CANCEL";
+        cancelTmp.fontSize = 34;
+        cancelTmp.fontStyle = FontStyles.Bold;
+        cancelTmp.alignment = TextAlignmentOptions.Center;
+        cancelTmp.color = Color.white;
+        cancelTmp.raycastTarget = false;
+
+        nameChangePanel.SetActive(true);
+        return nameChangePanel;
     }
 
     public static void SetupGameplayScene()
