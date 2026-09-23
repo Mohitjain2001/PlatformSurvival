@@ -1508,7 +1508,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -1952,7 +1952,7 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
   m_UseReflectionProbes: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -11774,7 +11774,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4281590015
   m_fontColor: {r: 1, g: 0.88, b: 0.2, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -11787,7 +11787,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -14690,6 +14690,61 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 553763750066872744, guid: 779adbb994bc24940ba1b2aeb1404df5, type: 3}
   m_PrefabInstance: {fileID: 1133568458}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1135722571
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1135722573}
+  - component: {fileID: 1135722572}
+  m_Layer: 0
+  m_Name: Audio Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1135722572
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1135722571}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bb56fa993cc44132b36ab3d1ab7a174, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioManager
+  musicSource: {fileID: 0}
+  sfxSource: {fileID: 0}
+  buttonClickClip: {fileID: 0}
+  jumpClip: {fileID: 8300000, guid: 76629050fd7574376b5d9a49fd02abe4, type: 3}
+  tileStepClip: {fileID: 8300000, guid: 3ddb5633378814c7a963ad09883f8e27, type: 3}
+  tileDropClip: {fileID: 8300000, guid: 3ddb5633378814c7a963ad09883f8e27, type: 3}
+  fallClip: {fileID: 8300000, guid: 88c8d0cb3446e4ab084695501d6e3a03, type: 3}
+  eliminationClip: {fileID: 0}
+  victoryClip: {fileID: 0}
+  gameOverClip: {fileID: 0}
+  bgmClip: {fileID: 0}
+--- !u!4 &1135722573
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1135722571}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.08, y: -23.7, z: -1.80133}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1140973597
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -27003,3 +27058,4 @@ SceneRoots:
   - {fileID: 158866443}
   - {fileID: 2069233362}
   - {fileID: 620851129}
+  - {fileID: 1135722573}

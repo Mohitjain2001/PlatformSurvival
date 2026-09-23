@@ -152,22 +152,29 @@ public class PlatformTile : MonoBehaviour
     {
         if (isSteppedOn || isFalling) return;
 
-        // Check if collision is coming from player or bot
-        if (target.GetComponent<PlayerController>() != null || target.GetComponent<BotController>() != null)
+        bool isPlayer = target.GetComponent<PlayerController>() != null;
+        bool isBot = target.GetComponent<BotController>() != null;
+
+        if (isPlayer || isBot)
         {
-            TriggerFallSequence();
+            TriggerFallSequence(isPlayer);
         }
     }
 
-    public void TriggerFallSequence()
+    public void TriggerFallSequence(bool isPlayer = false)
     {
         if (isSteppedOn || isFalling) return;
-        StartCoroutine(FallRoutine());
+        StartCoroutine(FallRoutine(isPlayer));
     }
 
-    private IEnumerator FallRoutine()
+    private IEnumerator FallRoutine(bool isPlayer = false)
     {
         isSteppedOn = true;
+
+        if (isPlayer && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayTileStep();
+        }
 
         // Reference behavior: touched tiles become a crisp white trail immediately.
         SetTileColor(steppedColor);
@@ -195,6 +202,11 @@ public class PlatformTile : MonoBehaviour
 
         isFalling = true;
         isAvailable = false;
+
+        if (isPlayer && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayTileDrop();
+        }
 
         if (tileColliders != null)
         {

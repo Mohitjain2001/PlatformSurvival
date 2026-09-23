@@ -58,11 +58,26 @@ public class PlayerController : MonoBehaviour
         rb.angularVelocity = Vector3.zero;
     }
 
+    private bool hasPlayedFallSound = false;
+
     private void Update()
     {
         if (isEliminated) return;
 
         CheckGrounded();
+
+        if (isGrounded)
+        {
+            hasPlayedFallSound = false;
+        }
+        else if (!hasPlayedFallSound && !isGrounded && (rb != null && rb.linearVelocity.y < -0.4f || transform.position.y < eliminationYThreshold + 6.0f))
+        {
+            hasPlayedFallSound = true;
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayFall();
+            }
+        }
         
         Vector3 moveInput = GetMoveInput();
         if (moveInput.sqrMagnitude > 0.02f)
@@ -222,11 +237,22 @@ public class PlayerController : MonoBehaviour
         {
             squashAndStretch.TriggerJumpSquash();
         }
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayJump();
+        }
     }
 
     private void Eliminate()
     {
         isEliminated = true;
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayFall();
+        }
+
         if (characterAnimator != null)
         {
             characterAnimator.SetEliminated(true);

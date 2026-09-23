@@ -826,6 +826,8 @@ MonoBehaviour:
   nameInputField: {fileID: 0}
   saveNameButton: {fileID: 0}
   cancelNameButton: {fileID: 0}
+  soundButton: {fileID: 0}
+  vibrationButton: {fileID: 0}
 --- !u!114 &196873348
 MonoBehaviour:
   m_ObjectHideFlags: 0

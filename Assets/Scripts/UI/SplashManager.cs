@@ -18,6 +18,10 @@ public class SplashManager : MonoBehaviour
     [SerializeField] private Button saveNameButton;
     [SerializeField] private Button cancelNameButton;
 
+    [Header("Settings UI")]
+    [SerializeField] private Button soundButton;
+    [SerializeField] private Button vibrationButton;
+
     private CharacterNameTag previewNameTag;
 
     private void Start()
@@ -44,17 +48,43 @@ public class SplashManager : MonoBehaviour
             if (tPan != null) settingsPanel = tPan.gameObject;
         }
 
-        if (settingsPanel != null && closeSettingsButton == null)
+        if (settingsPanel != null)
         {
             Button[] btns = settingsPanel.GetComponentsInChildren<Button>(true);
             foreach (var btn in btns)
             {
-                if (btn.name.Equals("Close", System.StringComparison.OrdinalIgnoreCase))
+                string bName = btn.name.ToLower();
+                if (closeSettingsButton == null && bName.Equals("close"))
                 {
                     closeSettingsButton = btn;
-                    break;
+                }
+                else if (soundButton == null && bName.Contains("sound"))
+                {
+                    soundButton = btn;
+                }
+                else if (vibrationButton == null && bName.Contains("vibration"))
+                {
+                    vibrationButton = btn;
                 }
             }
+        }
+
+        if (soundButton != null)
+        {
+            soundButton.onClick.RemoveAllListeners();
+            soundButton.onClick.AddListener(() =>
+            {
+                if (AudioManager.Instance != null) AudioManager.Instance.ToggleSound();
+            });
+        }
+
+        if (vibrationButton != null)
+        {
+            vibrationButton.onClick.RemoveAllListeners();
+            vibrationButton.onClick.AddListener(() =>
+            {
+                if (AudioManager.Instance != null) AudioManager.Instance.ToggleVibration();
+            });
         }
 
         // 3. Auto-find Name_change button & panel

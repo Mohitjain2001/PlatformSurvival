@@ -239,6 +239,18 @@ public class SceneSetupUtility
     {
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
+        // 0. Setup AudioManager
+        GameObject audioPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/AudioManager.prefab");
+        if (audioPrefab != null)
+        {
+            PrefabUtility.InstantiatePrefab(audioPrefab);
+        }
+        else
+        {
+            GameObject audioMgrObj = new GameObject("AudioManager");
+            audioMgrObj.AddComponent<AudioManager>();
+        }
+
         // 1. Lighting & Camera
         GameObject lightObj = new GameObject("Directional Light");
         Light lightComp = lightObj.AddComponent<Light>();
@@ -386,6 +398,20 @@ public class SceneSetupUtility
         soSplash.ApplyModifiedProperties();
 
         EditorSceneManager.SaveScene(scene, "Assets/Scenes/SplashScene.unity");
+    }
+
+    [MenuItem("Tools/Save AudioManager Prefab")]
+    public static void SaveAudioManagerPrefab()
+    {
+        AudioManager audioMgr = Object.FindObjectOfType<AudioManager>();
+        if (audioMgr != null)
+        {
+            if (!Directory.Exists("Assets/Prefabs")) Directory.CreateDirectory("Assets/Prefabs");
+            PrefabUtility.SaveAsPrefabAsset(audioMgr.gameObject, "Assets/Prefabs/AudioManager.prefab");
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log("[SceneSetupUtility] Successfully saved AudioManager prefab with assigned clips to Assets/Prefabs/AudioManager.prefab!");
+        }
     }
 
     [MenuItem("Tools/Bake NameChangePanel In Active Scene")]
@@ -577,6 +603,18 @@ public class SceneSetupUtility
     public static void SetupGameplayScene()
     {
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+
+        // 0. Setup AudioManager
+        GameObject audioPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/AudioManager.prefab");
+        if (audioPrefab != null)
+        {
+            PrefabUtility.InstantiatePrefab(audioPrefab);
+        }
+        else
+        {
+            GameObject audioMgrObj = new GameObject("AudioManager");
+            audioMgrObj.AddComponent<AudioManager>();
+        }
 
         // 1. Setup Directional Light
         GameObject lightObj = new GameObject("Directional Light");

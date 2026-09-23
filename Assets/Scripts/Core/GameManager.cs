@@ -173,6 +173,11 @@ public class GameManager : MonoBehaviour
         currentState = GameState.GameOver;
         GameDataManager.RecordMatchResult(rank, totalParticipants, false);
 
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayGameOver();
+        }
+
         if (uiManager != null)
         {
             uiManager.UpdateAliveCount(aliveParticipants.Count, totalParticipants);
@@ -188,6 +193,11 @@ public class GameManager : MonoBehaviour
 
         aliveParticipants.Remove(botObj);
 
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayElimination();
+        }
+
         if (uiManager != null)
         {
             uiManager.UpdateAliveCount(aliveParticipants.Count, totalParticipants);
@@ -199,6 +209,11 @@ public class GameManager : MonoBehaviour
         {
             currentState = GameState.Victory;
             GameDataManager.RecordMatchResult(1, totalParticipants, true);
+
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayVictory();
+            }
 
             if (LevelManager.Instance != null)
             {
