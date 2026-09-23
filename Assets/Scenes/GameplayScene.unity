@@ -14723,8 +14723,8 @@ MonoBehaviour:
   sfxSource: {fileID: 0}
   buttonClickClip: {fileID: 0}
   jumpClip: {fileID: 8300000, guid: 76629050fd7574376b5d9a49fd02abe4, type: 3}
-  tileStepClip: {fileID: 8300000, guid: 3ddb5633378814c7a963ad09883f8e27, type: 3}
-  tileDropClip: {fileID: 8300000, guid: 3ddb5633378814c7a963ad09883f8e27, type: 3}
+  tileStepClip: {fileID: 8300000, guid: 68b1bcade18424b819593154471e6f47, type: 3}
+  tileDropClip: {fileID: 0}
   fallClip: {fileID: 8300000, guid: 88c8d0cb3446e4ab084695501d6e3a03, type: 3}
   eliminationClip: {fileID: 0}
   victoryClip: {fileID: 0}
