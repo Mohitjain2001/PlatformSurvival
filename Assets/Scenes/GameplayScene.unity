@@ -14728,7 +14728,7 @@ MonoBehaviour:
   fallClip: {fileID: 8300000, guid: 88c8d0cb3446e4ab084695501d6e3a03, type: 3}
   eliminationClip: {fileID: 0}
   victoryClip: {fileID: 8300000, guid: e698ff7433fa14939b4702120e179857, type: 3}
-  gameOverClip: {fileID: 0}
+  gameOverClip: {fileID: 8300000, guid: 6f837936ffc5a46d899431a438a1e044, type: 3}
   bgmClip: {fileID: 0}
 --- !u!4 &1135722573
 Transform:
