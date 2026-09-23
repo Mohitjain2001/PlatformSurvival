@@ -257,11 +257,6 @@ public class PlayerController : MonoBehaviour
     {
         isEliminated = true;
 
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.PlayFall();
-        }
-
         if (characterAnimator != null)
         {
             characterAnimator.SetEliminated(true);

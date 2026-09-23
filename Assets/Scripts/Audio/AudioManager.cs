@@ -158,14 +158,24 @@ public class AudioManager : MonoBehaviour
 
     public void PlayVictory()
     {
+        StopSFX();
         PlaySFX(victoryClip, 1.0f, 1.0f);
         TriggerVibration();
     }
 
     public void PlayGameOver()
     {
+        StopSFX();
         PlaySFX(gameOverClip, 1.0f, 0.8f);
         TriggerVibration();
+    }
+
+    public void StopSFX()
+    {
+        if (sfxSource != null && sfxSource.isPlaying)
+        {
+            sfxSource.Stop();
+        }
     }
 
     public void PlayBGM(AudioClip clip = null)
