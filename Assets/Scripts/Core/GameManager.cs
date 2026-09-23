@@ -193,11 +193,6 @@ public class GameManager : MonoBehaviour
 
         aliveParticipants.Remove(botObj);
 
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.PlayElimination();
-        }
-
         if (uiManager != null)
         {
             uiManager.UpdateAliveCount(aliveParticipants.Count, totalParticipants);
