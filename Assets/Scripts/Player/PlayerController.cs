@@ -59,6 +59,7 @@ public class PlayerController : MonoBehaviour
     }
 
     private bool hasPlayedFallSound = false;
+    private float lastGroundedY = 0f;
 
     private void Update()
     {
@@ -69,13 +70,21 @@ public class PlayerController : MonoBehaviour
         if (isGrounded)
         {
             hasPlayedFallSound = false;
+            lastGroundedY = transform.position.y;
         }
-        else if (!hasPlayedFallSound && !isGrounded && (rb != null && rb.linearVelocity.y < -0.4f || transform.position.y < eliminationYThreshold + 6.0f))
+        else if (!hasPlayedFallSound && !isGrounded)
         {
-            hasPlayedFallSound = true;
-            if (AudioManager.Instance != null)
+            // Fall SFX only plays when plunging into a lower floor gap / void (falling > 2.2m below last ground)
+            bool isPlungingDown = transform.position.y < (lastGroundedY - 2.2f) && (rb != null && rb.linearVelocity.y < -1.5f);
+            bool isNearElimination = transform.position.y < (eliminationYThreshold + 6.0f);
+
+            if (isPlungingDown || isNearElimination)
             {
-                AudioManager.Instance.PlayFall();
+                hasPlayedFallSound = true;
+                if (AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.PlayFall();
+                }
             }
         }
         
