@@ -130,7 +130,6 @@ public class AudioManager : MonoBehaviour
     public void PlayJump()
     {
         PlaySFX(jumpClip, 0.8f, 1.1f);
-        TriggerVibration();
     }
 
     public void PlayTileStep()
