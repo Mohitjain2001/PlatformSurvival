@@ -55,6 +55,10 @@ public class GameManager : MonoBehaviour
             return;
         }
         Instance = this;
+
+        // Mobile performance: Target 60 FPS and prevent screen sleep
+        Application.targetFrameRate = 60;
+        Screen.sleepTimeout = SleepTimeout.NeverSleep;
     }
 
     private void Start()

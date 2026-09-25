@@ -134,16 +134,19 @@ public class BotController : MonoBehaviour
         }
     }
 
+    private readonly RaycastHit[] groundHitBuffer = new RaycastHit[12];
+    private readonly RaycastHit[] aheadHitBuffer = new RaycastHit[12];
+
     private void CheckGrounded()
     {
         Vector3 checkOrigin = transform.position + Vector3.up * 0.25f;
         float radius = 0.25f;
-        RaycastHit[] hits = Physics.SphereCastAll(checkOrigin, radius, Vector3.down, groundCheckDistance);
+        int hitCount = Physics.SphereCastNonAlloc(checkOrigin, radius, Vector3.down, groundHitBuffer, groundCheckDistance);
 
         bool foundGround = false;
-        for (int i = 0; i < hits.Length; i++)
+        for (int i = 0; i < hitCount; i++)
         {
-            Collider col = hits[i].collider;
+            Collider col = groundHitBuffer[i].collider;
             if (col != null && !col.isTrigger && col.transform != transform && !col.transform.IsChildOf(transform))
             {
                 foundGround = true;
@@ -250,14 +253,14 @@ public class BotController : MonoBehaviour
         if (Random.value < 0.25f) return;
 
         Vector3 probeOrigin = transform.position + Vector3.up * 0.35f + moveDir * gapCheckDistance;
-        RaycastHit[] aheadHits = Physics.SphereCastAll(probeOrigin, 0.3f, Vector3.down, 1.8f);
+        int hitCount = Physics.SphereCastNonAlloc(probeOrigin, 0.3f, Vector3.down, aheadHitBuffer, 1.8f);
 
         bool hasGroundAhead = false;
         bool isGroundFalling = false;
 
-        for (int i = 0; i < aheadHits.Length; i++)
+        for (int i = 0; i < hitCount; i++)
         {
-            Collider col = aheadHits[i].collider;
+            Collider col = aheadHitBuffer[i].collider;
             if (col != null && !col.isTrigger && col.transform != transform && !col.transform.IsChildOf(transform))
             {
                 hasGroundAhead = true;

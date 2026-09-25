@@ -49,7 +49,14 @@ public class PlatformTile : MonoBehaviour
             {
                 if (mr != null)
                 {
-                    mats.AddRange(mr.materials);
+                    foreach (var mat in mr.materials)
+                    {
+                        if (mat != null)
+                        {
+                            mat.enableInstancing = true;
+                            mats.Add(mat);
+                        }
+                    }
                 }
             }
             tileMaterials = mats.ToArray();

@@ -24,6 +24,12 @@ public class SplashManager : MonoBehaviour
 
     private CharacterNameTag previewNameTag;
 
+    private void Awake()
+    {
+        Application.targetFrameRate = 60;
+        Screen.sleepTimeout = SleepTimeout.NeverSleep;
+    }
+
     private void Start()
     {
         // 1. Setup Head NameTag on PreviewBean in SplashScene
