@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -22,183 +23,399 @@ public class SplashManager : MonoBehaviour
     [SerializeField] private Button soundButton;
     [SerializeField] private Button vibrationButton;
 
+    [Header("Toggle Sprites — Drag from Project")]
+    [SerializeField] private Sprite soundOnSprite;        // green toggle image
+    [SerializeField] private Sprite soundOffSprite;       // blue/gray toggle image
+    [SerializeField] private Sprite vibrationOnSprite;    // green toggle image
+    [SerializeField] private Sprite vibrationOffSprite;   // blue/gray toggle image
+
+    // Discovered at runtime — the Toggle child inside Sound/Vibration rows
+    private Toggle soundToggle;
+    private Toggle vibrationToggle;
+
     private CharacterNameTag previewNameTag;
+    private bool wasSettingsPanelActive = false;
 
     private void Awake()
     {
         Application.targetFrameRate = 60;
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
+
+        // Force initialize AudioManager right here on first launch in SplashScene
+        if (AudioManager.Instance != null) { /* ensures instance is ready immediately */ }
+    }
+
+    private void Update()
+    {
+        // Whenever settings panel becomes active (even if opened by custom Animator or Unity Inspector OnClick)
+        if (settingsPanel != null)
+        {
+            bool isActive = settingsPanel.activeInHierarchy;
+            if (isActive && !wasSettingsPanelActive)
+            {
+                BindToggles();
+                RefreshSoundVisuals();
+                RefreshVibrationVisuals();
+            }
+            wasSettingsPanelActive = isActive;
+        }
     }
 
     private void Start()
     {
-        // 1. Setup Head NameTag on PreviewBean in SplashScene
+        // 1. Setup Head NameTag on PreviewBean
         SetupPreviewBeanNameTag();
 
-        // 2. Auto-find Settings references if not assigned in Inspector
-        if (playButton == null)
-        {
-            Transform tPlay = transform.Find("PlayButton");
-            if (tPlay != null) playButton = tPlay.GetComponent<Button>();
-        }
-
-        if (settingsButton == null)
-        {
-            Transform tSet = transform.Find("Settings Button");
-            if (tSet != null) settingsButton = tSet.GetComponent<Button>();
-        }
-
+        // 2. Auto-find Settings panel if not assigned in Inspector
         if (settingsPanel == null)
         {
-            Transform tPan = transform.Find("Settings panel");
-            if (tPan != null) settingsPanel = tPan.gameObject;
+            // Search all children including inactive
+            foreach (Transform child in GetComponentsInChildren<Transform>(true))
+            {
+                string n = child.name.ToLower().Replace(" ", "").Replace("_", "");
+                if (n == "settingspanel" || n == "settingpanel")
+                {
+                    settingsPanel = child.gameObject;
+                    break;
+                }
+            }
         }
 
+        // 3. Auto-find buttons inside settingsPanel
         if (settingsPanel != null)
         {
             Button[] btns = settingsPanel.GetComponentsInChildren<Button>(true);
             foreach (var btn in btns)
             {
                 string bName = btn.name.ToLower();
-                if (closeSettingsButton == null && bName.Equals("close"))
-                {
+                if (closeSettingsButton == null && (bName.Equals("close") || bName.Contains("cancel") || bName.Equals("x")))
                     closeSettingsButton = btn;
-                }
                 else if (soundButton == null && bName.Contains("sound"))
-                {
                     soundButton = btn;
-                }
-                else if (vibrationButton == null && bName.Contains("vibration"))
-                {
+                else if (vibrationButton == null && bName.Contains("vibrat"))
                     vibrationButton = btn;
-                }
             }
         }
 
-        if (soundButton != null)
+        // 4. Find play / settings buttons if not assigned
+        if (playButton == null)
         {
-            soundButton.onClick.RemoveAllListeners();
-            soundButton.onClick.AddListener(() =>
-            {
-                if (AudioManager.Instance != null) AudioManager.Instance.ToggleSound();
-            });
+            Transform t = transform.Find("PlayButton");
+            if (t != null) playButton = t.GetComponent<Button>();
         }
-
-        if (vibrationButton != null)
+        if (settingsButton == null)
         {
-            vibrationButton.onClick.RemoveAllListeners();
-            vibrationButton.onClick.AddListener(() =>
-            {
-                if (AudioManager.Instance != null) AudioManager.Instance.ToggleVibration();
-            });
+            Transform t = transform.Find("Settings Button");
+            if (t == null) t = transform.Find("SettingsButton");
+            if (t != null) settingsButton = t.GetComponent<Button>();
         }
-
-        // 3. Auto-find Name_change button & panel
         if (nameChangeButton == null)
         {
-            Transform tName = transform.Find("Name_change");
-            if (tName != null) nameChangeButton = tName.GetComponent<Button>();
+            Transform t = transform.Find("Name_change");
+            if (t != null) nameChangeButton = t.GetComponent<Button>();
         }
-
         if (nameChangePanel == null)
         {
-            Transform tNamePanel = transform.Find("NameChangePanel");
-            if (tNamePanel != null) nameChangePanel = tNamePanel.gameObject;
+            Transform t = transform.Find("NameChangePanel");
+            if (t != null) nameChangePanel = t.gameObject;
         }
 
-        // 4. Bind Listeners
+        // 5. Bind button listeners
         if (playButton != null)
         {
             playButton.onClick.RemoveAllListeners();
             playButton.onClick.AddListener(OnPlayClicked);
         }
-
         if (settingsButton != null)
         {
             settingsButton.onClick.RemoveAllListeners();
             settingsButton.onClick.AddListener(OpenSettings);
         }
-
         if (closeSettingsButton != null)
         {
             closeSettingsButton.onClick.RemoveAllListeners();
             closeSettingsButton.onClick.AddListener(CloseSettings);
         }
-
         if (nameChangeButton != null)
         {
             nameChangeButton.onClick.RemoveAllListeners();
             nameChangeButton.onClick.AddListener(OpenNameChangeDialog);
         }
 
-        // Auto-bind Save and Cancel buttons inside NameChangePanel
         BindNamePanelButtons();
 
-        // 5. Ensure Panels are hidden initially
+        // 6. Bind toggle and button controls before hiding
+        BindToggles();
+
+        // Ensure panels are hidden initially
         if (Application.isPlaying && settingsPanel != null)
-        {
             settingsPanel.SetActive(false);
+        if (Application.isPlaying && nameChangePanel != null)
+            nameChangePanel.SetActive(false);
+
+        // Refresh visuals next frame as well (ensures Unity built-in components don't reset state)
+        StartCoroutine(BindTogglesNextFrame());
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  TOGGLE / BUTTON IMAGE SWAP (Sound & Vibration)
+    // ─────────────────────────────────────────────────────────────
+
+    private IEnumerator BindTogglesNextFrame()
+    {
+        yield return null; // wait 1 frame
+        BindToggles();
+        RefreshSoundVisuals();
+        RefreshVibrationVisuals();
+    }
+
+    private void BindToggles()
+    {
+        // 1. SOUND BINDING
+        // soundButton can be the 'toggle' GameObject (with Button component) or the parent Sound row
+        if (soundButton != null)
+        {
+            soundButton.onClick.RemoveAllListeners();
+            soundButton.onClick.AddListener(OnSoundClicked);
+            soundToggle = soundButton.GetComponentInChildren<Toggle>(true);
         }
 
-        if (Application.isPlaying && nameChangePanel != null)
+        // If a Toggle component exists on or under soundButton or settingsPanel
+        if (soundToggle == null && settingsPanel != null)
         {
-            nameChangePanel.SetActive(false);
+            foreach (var t in settingsPanel.GetComponentsInChildren<Toggle>(true))
+            {
+                string tName = t.name.ToLower();
+                Transform p = t.transform.parent;
+                string pName = p != null ? p.name.ToLower() : "";
+                if (tName.Contains("sound") || pName.Contains("sound") || t.name == "toggle")
+                {
+                    soundToggle = t;
+                    break;
+                }
+            }
+        }
+
+        if (soundToggle != null)
+        {
+            soundToggle.transition = Selectable.Transition.None;
+            if (soundToggle.graphic != null) soundToggle.graphic.enabled = false;
+            soundToggle.onValueChanged.RemoveAllListeners();
+            soundToggle.onValueChanged.AddListener((isOn) =>
+            {
+                if (AudioManager.Instance != null) AudioManager.Instance.SetSoundEnabled(isOn);
+                RefreshSoundVisuals();
+            });
+        }
+
+        // 2. VIBRATION BINDING
+        if (vibrationButton != null)
+        {
+            vibrationButton.onClick.RemoveAllListeners();
+            vibrationButton.onClick.AddListener(OnVibrationClicked);
+            vibrationToggle = vibrationButton.GetComponentInChildren<Toggle>(true);
+        }
+
+        if (vibrationToggle == null && settingsPanel != null)
+        {
+            foreach (var t in settingsPanel.GetComponentsInChildren<Toggle>(true))
+            {
+                if (t == soundToggle) continue;
+                string tName = t.name.ToLower();
+                Transform p = t.transform.parent;
+                string pName = p != null ? p.name.ToLower() : "";
+                if (tName.Contains("vibrat") || pName.Contains("vibrat") || t.name.Contains("(1)"))
+                {
+                    vibrationToggle = t;
+                    break;
+                }
+            }
+        }
+
+        if (vibrationToggle != null)
+        {
+            vibrationToggle.transition = Selectable.Transition.None;
+            if (vibrationToggle.graphic != null) vibrationToggle.graphic.enabled = false;
+            vibrationToggle.onValueChanged.RemoveAllListeners();
+            vibrationToggle.onValueChanged.AddListener((isOn) =>
+            {
+                if (AudioManager.Instance != null) AudioManager.Instance.SetVibrationEnabled(isOn);
+                RefreshVibrationVisuals();
+            });
+        }
+
+        // 3. Fallback: also bind any additional button inside Sound / Vibration rows
+        if (settingsPanel != null)
+        {
+            foreach (var btn in settingsPanel.GetComponentsInChildren<Button>(true))
+            {
+                if (btn == closeSettingsButton || btn == soundButton || btn == vibrationButton) continue;
+                string bName = btn.name.ToLower();
+                Transform p = btn.transform.parent;
+                string pName = p != null ? p.name.ToLower() : "";
+
+                if (bName.Contains("sound") || pName.Contains("sound"))
+                {
+                    btn.onClick.RemoveAllListeners();
+                    btn.onClick.AddListener(OnSoundClicked);
+                }
+                else if (bName.Contains("vibrat") || pName.Contains("vibrat"))
+                {
+                    btn.onClick.RemoveAllListeners();
+                    btn.onClick.AddListener(OnVibrationClicked);
+                }
+            }
+        }
+
+        // Apply initial visual state
+        RefreshSoundVisuals();
+        RefreshVibrationVisuals();
+    }
+
+    private bool IsSoundActive => AudioManager.Instance != null 
+        ? AudioManager.Instance.IsSoundEnabled 
+        : (PlayerPrefs.GetInt("SoundEnabled", 1) == 1);
+
+    private bool IsVibrationActive => AudioManager.Instance != null 
+        ? AudioManager.Instance.IsVibrationEnabled 
+        : (PlayerPrefs.GetInt("VibrationEnabled", 1) == 1);
+
+    private void OnSoundClicked()
+    {
+        bool next = !IsSoundActive;
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.SetSoundEnabled(next);
+        else
+        {
+            PlayerPrefs.SetInt("SoundEnabled", next ? 1 : 0);
+            PlayerPrefs.Save();
+        }
+        if (soundToggle != null) soundToggle.SetIsOnWithoutNotify(next);
+        RefreshSoundVisuals();
+    }
+
+    private void OnVibrationClicked()
+    {
+        bool next = !IsVibrationActive;
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.SetVibrationEnabled(next);
+        else
+        {
+            PlayerPrefs.SetInt("VibrationEnabled", next ? 1 : 0);
+            PlayerPrefs.Save();
+        }
+        if (vibrationToggle != null) vibrationToggle.SetIsOnWithoutNotify(next);
+        RefreshVibrationVisuals();
+    }
+
+    public void RefreshSoundVisuals()
+    {
+        bool isOn = IsSoundActive;
+        Sprite target = isOn ? soundOnSprite : soundOffSprite;
+        if (target == null) return;
+
+        if (soundButton != null)
+            ApplySpriteToHierarchy(soundButton.gameObject, target);
+
+        if (soundToggle != null && soundToggle.gameObject != (soundButton != null ? soundButton.gameObject : null))
+            ApplySpriteToHierarchy(soundToggle.gameObject, target);
+
+        // Scan settingsPanel for any image on GameObject named "toggle" under Sound
+        if (settingsPanel != null)
+        {
+            foreach (var img in settingsPanel.GetComponentsInChildren<Image>(true))
+            {
+                string iName = img.gameObject.name.ToLower();
+                Transform p = img.transform.parent;
+                string pName = p != null ? p.name.ToLower() : "";
+                if (iName.Contains("toggle") && pName.Contains("sound"))
+                {
+                    ApplySpriteToImage(img, target);
+                }
+            }
         }
     }
 
-    private void BindNamePanelButtons()
+    public void RefreshVibrationVisuals()
     {
-        if (nameChangePanel == null)
+        bool isOn = IsVibrationActive;
+        Sprite target = isOn ? vibrationOnSprite : vibrationOffSprite;
+        if (target == null) return;
+
+        if (vibrationButton != null)
+            ApplySpriteToHierarchy(vibrationButton.gameObject, target);
+
+        if (vibrationToggle != null && vibrationToggle.gameObject != (vibrationButton != null ? vibrationButton.gameObject : null))
+            ApplySpriteToHierarchy(vibrationToggle.gameObject, target);
+
+        if (settingsPanel != null)
         {
-            Transform tNamePanel = transform.Find("NameChangePanel");
-            if (tNamePanel != null) nameChangePanel = tNamePanel.gameObject;
-        }
-
-        if (nameChangePanel == null) return;
-
-        if (nameInputField == null)
-        {
-            nameInputField = nameChangePanel.GetComponentInChildren<TMP_InputField>(true);
-        }
-
-        Button[] btns = nameChangePanel.GetComponentsInChildren<Button>(true);
-        foreach (var btn in btns)
-        {
-            string bName = btn.name.ToLower();
-            if (saveNameButton == null && (bName.Contains("save") || bName.Contains("ok")))
+            foreach (var img in settingsPanel.GetComponentsInChildren<Image>(true))
             {
-                saveNameButton = btn;
-            }
-            else if (cancelNameButton == null && (bName.Contains("cancel") || bName.Contains("close")))
-            {
-                cancelNameButton = btn;
-            }
-
-            Graphic[] graphics = btn.GetComponentsInChildren<Graphic>(true);
-            foreach (var g in graphics)
-            {
-                if (g.gameObject != btn.gameObject)
+                string iName = img.gameObject.name.ToLower();
+                Transform p = img.transform.parent;
+                string pName = p != null ? p.name.ToLower() : "";
+                if (iName.Contains("toggle") && pName.Contains("vibrat"))
                 {
-                    g.raycastTarget = false;
-                }
-                else
-                {
-                    g.raycastTarget = true;
+                    ApplySpriteToImage(img, target);
                 }
             }
         }
+    }
 
-        if (saveNameButton != null)
-        {
-            saveNameButton.onClick.RemoveAllListeners();
-            saveNameButton.onClick.AddListener(SaveName);
-        }
+    private void ApplySpriteToHierarchy(GameObject root, Sprite sprite)
+    {
+        if (root == null || sprite == null) return;
 
-        if (cancelNameButton != null)
+        Selectable sel = root.GetComponent<Selectable>();
+        if (sel != null) sel.transition = Selectable.Transition.None;
+
+        Toggle tog = root.GetComponent<Toggle>();
+        if (tog != null && tog.graphic != null) tog.graphic.enabled = false;
+
+        Image[] imgs = root.GetComponentsInChildren<Image>(true);
+        foreach (var img in imgs)
         {
-            cancelNameButton.onClick.RemoveAllListeners();
-            cancelNameButton.onClick.AddListener(CloseNameDialog);
+            ApplySpriteToImage(img, sprite);
         }
+    }
+
+    private void ApplySpriteToImage(Image img, Sprite sprite)
+    {
+        if (img == null || sprite == null) return;
+        img.sprite = sprite;
+        img.overrideSprite = sprite;
+        img.color = Color.white;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  SETTINGS PANEL
+    // ─────────────────────────────────────────────────────────────
+
+    public void OpenSettings()
+    {
+        if (settingsPanel != null)
+        {
+            settingsPanel.SetActive(true);
+            BindToggles();
+            RefreshSoundVisuals();
+            RefreshVibrationVisuals();
+        }
+    }
+
+    public void CloseSettings()
+    {
+        if (settingsPanel != null)
+            settingsPanel.SetActive(false);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  MISC
+    // ─────────────────────────────────────────────────────────────
+
+    public void OnPlayClicked()
+    {
+        SceneManager.LoadScene("GameplayScene");
     }
 
     private void SetupPreviewBeanNameTag()
@@ -208,41 +425,20 @@ public class SplashManager : MonoBehaviour
         {
             previewNameTag = previewBean.GetComponent<CharacterNameTag>();
             if (previewNameTag == null)
-            {
                 previewNameTag = previewBean.AddComponent<CharacterNameTag>();
-            }
             string savedName = PlayerPrefs.GetString("PlayerName", "Player");
             previewNameTag.Setup(savedName, new Color(0.33f, 0.92f, 0.22f), 1.70f);
         }
     }
 
-    public void OnPlayClicked()
-    {
-        SceneManager.LoadScene("GameplayScene");
-    }
-
-    public void OpenSettings()
-    {
-        if (settingsPanel != null)
-        {
-            settingsPanel.SetActive(true);
-        }
-    }
-
-    public void CloseSettings()
-    {
-        if (settingsPanel != null)
-        {
-            settingsPanel.SetActive(false);
-        }
-    }
+    // ─────────────────────────────────────────────────────────────
+    //  NAME CHANGE
+    // ─────────────────────────────────────────────────────────────
 
     public void OpenNameChangeDialog()
     {
         if (nameChangePanel == null)
-        {
             CreateDynamicNameChangePanel();
-        }
 
         BindNamePanelButtons();
 
@@ -262,42 +458,61 @@ public class SplashManager : MonoBehaviour
     {
         string newName = "Player";
         if (nameInputField != null && !string.IsNullOrWhiteSpace(nameInputField.text))
-        {
             newName = nameInputField.text.Trim();
-        }
-
-        // Limit name length to 12 chars
-        if (newName.Length > 12)
-        {
-            newName = newName.Substring(0, 12);
-        }
+        if (newName.Length > 12) newName = newName.Substring(0, 12);
 
         PlayerPrefs.SetString("PlayerName", newName);
         PlayerPrefs.Save();
 
-        // Update preview character head text
         if (previewNameTag != null)
-        {
             previewNameTag.Setup(newName, new Color(0.33f, 0.92f, 0.22f), 1.70f);
-        }
 
         if (nameChangePanel != null)
-        {
             nameChangePanel.SetActive(false);
-        }
     }
 
     public void CloseNameDialog()
     {
         if (nameChangePanel != null)
-        {
             nameChangePanel.SetActive(false);
+    }
+
+    private void BindNamePanelButtons()
+    {
+        if (nameChangePanel == null)
+        {
+            Transform t = transform.Find("NameChangePanel");
+            if (t != null) nameChangePanel = t.gameObject;
+        }
+        if (nameChangePanel == null) return;
+
+        if (nameInputField == null)
+            nameInputField = nameChangePanel.GetComponentInChildren<TMP_InputField>(true);
+
+        Button[] btns = nameChangePanel.GetComponentsInChildren<Button>(true);
+        foreach (var btn in btns)
+        {
+            string bName = btn.name.ToLower();
+            if (saveNameButton == null && (bName.Contains("save") || bName.Contains("ok")))
+                saveNameButton = btn;
+            else if (cancelNameButton == null && (bName.Contains("cancel") || bName.Contains("close")))
+                cancelNameButton = btn;
+        }
+
+        if (saveNameButton != null)
+        {
+            saveNameButton.onClick.RemoveAllListeners();
+            saveNameButton.onClick.AddListener(SaveName);
+        }
+        if (cancelNameButton != null)
+        {
+            cancelNameButton.onClick.RemoveAllListeners();
+            cancelNameButton.onClick.AddListener(CloseNameDialog);
         }
     }
 
     private void CreateDynamicNameChangePanel()
     {
-        // 1. Overlay Panel Background
         nameChangePanel = new GameObject("NameChangePanel");
         nameChangePanel.transform.SetParent(transform, false);
 
@@ -307,9 +522,8 @@ public class SplashManager : MonoBehaviour
         panelRt.sizeDelta = Vector2.zero;
 
         Image panelBg = nameChangePanel.AddComponent<Image>();
-        panelBg.color = new Color(0.05f, 0.08f, 0.14f, 0.85f); // Soft dark modal dimming
+        panelBg.color = new Color(0.05f, 0.08f, 0.14f, 0.85f);
 
-        // 2. Card Dialog Container
         GameObject cardObj = new GameObject("Card");
         cardObj.transform.SetParent(nameChangePanel.transform, false);
 
@@ -321,19 +535,17 @@ public class SplashManager : MonoBehaviour
         cardRt.anchoredPosition = Vector2.zero;
 
         Image cardImg = cardObj.AddComponent<Image>();
-        cardImg.color = new Color(0.12f, 0.18f, 0.28f, 0.98f); // Dark Slate Card
+        cardImg.color = new Color(0.12f, 0.18f, 0.28f, 0.98f);
 
-        // 3. Header Title Text
+        // Title
         GameObject titleObj = new GameObject("TitleText");
         titleObj.transform.SetParent(cardObj.transform, false);
-
         RectTransform titleRt = titleObj.AddComponent<RectTransform>();
         titleRt.anchorMin = new Vector2(0.5f, 1f);
         titleRt.anchorMax = new Vector2(0.5f, 1f);
         titleRt.pivot = new Vector2(0.5f, 1f);
         titleRt.sizeDelta = new Vector2(700f, 80f);
         titleRt.anchoredPosition = new Vector2(0, -30f);
-
         TextMeshProUGUI titleText = titleObj.AddComponent<TextMeshProUGUI>();
         titleText.text = "ENTER PLAYER NAME";
         titleText.fontSize = 42;
@@ -341,46 +553,37 @@ public class SplashManager : MonoBehaviour
         titleText.alignment = TextAlignmentOptions.Center;
         titleText.color = new Color(1.0f, 0.88f, 0.20f);
 
-        // 4. Input Field Container
+        // Input Field
         GameObject inputObj = new GameObject("NameInputField");
         inputObj.transform.SetParent(cardObj.transform, false);
-
         RectTransform inputRt = inputObj.AddComponent<RectTransform>();
         inputRt.anchorMin = new Vector2(0.5f, 0.5f);
         inputRt.anchorMax = new Vector2(0.5f, 0.5f);
         inputRt.pivot = new Vector2(0.5f, 0.5f);
         inputRt.sizeDelta = new Vector2(600f, 90f);
         inputRt.anchoredPosition = new Vector2(0, 15f);
+        inputObj.AddComponent<Image>().color = new Color(0.06f, 0.09f, 0.15f, 1.0f);
 
-        Image inputBg = inputObj.AddComponent<Image>();
-        inputBg.color = new Color(0.06f, 0.09f, 0.15f, 1.0f);
-
-        // Input Field Text Child
         GameObject inputTextObj = new GameObject("Text");
         inputTextObj.transform.SetParent(inputObj.transform, false);
-
         RectTransform inputTextRt = inputTextObj.AddComponent<RectTransform>();
         inputTextRt.anchorMin = Vector2.zero;
         inputTextRt.anchorMax = Vector2.one;
         inputTextRt.sizeDelta = new Vector2(-40f, 0);
         inputTextRt.anchoredPosition = Vector2.zero;
-
         TextMeshProUGUI inputText = inputTextObj.AddComponent<TextMeshProUGUI>();
         inputText.fontSize = 38;
         inputText.fontStyle = FontStyles.Bold;
         inputText.alignment = TextAlignmentOptions.Center;
         inputText.color = Color.white;
 
-        // Input Field Placeholder Child
         GameObject placeholderObj = new GameObject("Placeholder");
         placeholderObj.transform.SetParent(inputObj.transform, false);
-
         RectTransform placeholderRt = placeholderObj.AddComponent<RectTransform>();
         placeholderRt.anchorMin = Vector2.zero;
         placeholderRt.anchorMax = Vector2.one;
         placeholderRt.sizeDelta = new Vector2(-40f, 0);
         placeholderRt.anchoredPosition = Vector2.zero;
-
         TextMeshProUGUI placeholderText = placeholderObj.AddComponent<TextMeshProUGUI>();
         placeholderText.text = "Enter Name...";
         placeholderText.fontSize = 38;
@@ -393,30 +596,24 @@ public class SplashManager : MonoBehaviour
         nameInputField.placeholder = placeholderText;
         nameInputField.characterLimit = 12;
 
-        // 5. Save Button (Green)
+        // Save Button
         GameObject saveBtnObj = new GameObject("SaveButton");
         saveBtnObj.transform.SetParent(cardObj.transform, false);
-
         RectTransform saveRt = saveBtnObj.AddComponent<RectTransform>();
         saveRt.anchorMin = new Vector2(0.5f, 0f);
         saveRt.anchorMax = new Vector2(0.5f, 0f);
         saveRt.pivot = new Vector2(0.5f, 0f);
         saveRt.sizeDelta = new Vector2(240f, 85f);
         saveRt.anchoredPosition = new Vector2(-140f, 35f);
-
-        Image saveImg = saveBtnObj.AddComponent<Image>();
-        saveImg.color = new Color(0.15f, 0.80f, 0.35f);
-
+        saveBtnObj.AddComponent<Image>().color = new Color(0.15f, 0.80f, 0.35f);
         saveNameButton = saveBtnObj.AddComponent<Button>();
         saveNameButton.onClick.AddListener(SaveName);
-
         GameObject saveTextObj = new GameObject("Text");
         saveTextObj.transform.SetParent(saveBtnObj.transform, false);
         RectTransform saveTextRt = saveTextObj.AddComponent<RectTransform>();
         saveTextRt.anchorMin = Vector2.zero;
         saveTextRt.anchorMax = Vector2.one;
         saveTextRt.sizeDelta = Vector2.zero;
-
         TextMeshProUGUI saveTmp = saveTextObj.AddComponent<TextMeshProUGUI>();
         saveTmp.text = "SAVE";
         saveTmp.fontSize = 34;
@@ -424,30 +621,24 @@ public class SplashManager : MonoBehaviour
         saveTmp.alignment = TextAlignmentOptions.Center;
         saveTmp.color = Color.white;
 
-        // 6. Cancel Button (Gray/Red)
+        // Cancel Button
         GameObject cancelBtnObj = new GameObject("CancelButton");
         cancelBtnObj.transform.SetParent(cardObj.transform, false);
-
         RectTransform cancelRt = cancelBtnObj.AddComponent<RectTransform>();
         cancelRt.anchorMin = new Vector2(0.5f, 0f);
         cancelRt.anchorMax = new Vector2(0.5f, 0f);
         cancelRt.pivot = new Vector2(0.5f, 0f);
         cancelRt.sizeDelta = new Vector2(240f, 85f);
         cancelRt.anchoredPosition = new Vector2(140f, 35f);
-
-        Image cancelImg = cancelBtnObj.AddComponent<Image>();
-        cancelImg.color = new Color(0.85f, 0.25f, 0.25f);
-
+        cancelBtnObj.AddComponent<Image>().color = new Color(0.85f, 0.25f, 0.25f);
         cancelNameButton = cancelBtnObj.AddComponent<Button>();
         cancelNameButton.onClick.AddListener(CloseNameDialog);
-
         GameObject cancelTextObj = new GameObject("Text");
         cancelTextObj.transform.SetParent(cancelBtnObj.transform, false);
         RectTransform cancelTextRt = cancelTextObj.AddComponent<RectTransform>();
         cancelTextRt.anchorMin = Vector2.zero;
         cancelTextRt.anchorMax = Vector2.one;
         cancelTextRt.sizeDelta = Vector2.zero;
-
         TextMeshProUGUI cancelTmp = cancelTextObj.AddComponent<TextMeshProUGUI>();
         cancelTmp.text = "CANCEL";
         cancelTmp.fontSize = 34;

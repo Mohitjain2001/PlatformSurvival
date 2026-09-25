@@ -5,7 +5,24 @@ public class AudioManager : MonoBehaviour
     private const string SOUND_PREF_KEY = "SoundEnabled";
     private const string VIBE_PREF_KEY = "VibrationEnabled";
 
-    public static AudioManager Instance { get; private set; }
+    private static AudioManager instance;
+    public static AudioManager Instance
+    {
+        get
+        {
+            if (instance == null)
+            {
+                instance = FindObjectOfType<AudioManager>();
+                if (instance == null)
+                {
+                    GameObject audioObj = new GameObject("AudioManager");
+                    instance = audioObj.AddComponent<AudioManager>();
+                }
+            }
+            return instance;
+        }
+        private set => instance = value;
+    }
 
     [Header("Audio Sources")]
     [SerializeField] private AudioSource musicSource;
