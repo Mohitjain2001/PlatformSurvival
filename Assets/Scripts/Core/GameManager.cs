@@ -187,7 +187,7 @@ public class GameManager : MonoBehaviour
             uiManager.UpdateAliveCount(aliveParticipants.Count, totalParticipants);
         }
 
-        SceneManager.LoadScene("GameOverScene");
+        StartCoroutine(TransitionToSceneRoutine("GameOverScene", 0.1f));
     }
 
     public void OnBotEliminated(GameObject botObj)
