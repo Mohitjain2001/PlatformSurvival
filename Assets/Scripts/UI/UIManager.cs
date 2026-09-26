@@ -30,6 +30,24 @@ public class UIManager : MonoBehaviour
 
     private void Awake()
     {
+        if (aliveCountText == null)
+        {
+            Transform t = transform.Find("player Number/AliveCountText");
+            if (t == null) t = transform.Find("AliveCountText");
+            if (t != null) aliveCountText = t.GetComponent<TextMeshProUGUI>();
+            else
+            {
+                foreach (var tmp in GetComponentsInChildren<TextMeshProUGUI>(true))
+                {
+                    if (tmp.name.ToLower().Contains("alive"))
+                    {
+                        aliveCountText = tmp;
+                        break;
+                    }
+                }
+            }
+        }
+
         HideGameOver();
         HideVictory();
     }
@@ -61,7 +79,7 @@ public class UIManager : MonoBehaviour
     {
         if (aliveCountText != null)
         {
-            aliveCountText.text = $"ALIVE: {currentAlive} / {total}";
+            aliveCountText.text = currentAlive.ToString();
         }
     }
 
