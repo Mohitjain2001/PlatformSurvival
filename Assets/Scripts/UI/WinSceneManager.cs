@@ -19,8 +19,9 @@ public class WinSceneManager : MonoBehaviour
     [Header("Celebration Podium")]
     [SerializeField] private Transform winnerBeanTransform;
 
-    [Header("Background")]
+    [Header("Background & Frame")]
     [SerializeField] private Sprite backgroundSprite;
+    [SerializeField] private Sprite victoryCardSprite;
 
     private void Start()
     {
@@ -29,14 +30,16 @@ public class WinSceneManager : MonoBehaviour
         int completedLevel = LevelManager.Instance != null ? LevelManager.Instance.CurrentLevel - 1 : 1;
         if (completedLevel < 1) completedLevel = 1;
 
-        if (titleText != null)
-        {
-            titleText.text = $"LEVEL {completedLevel} CLEARED!";
-        }
-
+        // win.png already has "LEVEL CLEARED" and "CONGRATULATIONS!" built into the artwork
         if (subtitleText != null)
         {
-            subtitleText.text = $"CONGRATULATIONS!\nYou survived against {GameDataManager.TotalParticipants - 1} opponents!";
+            subtitleText.gameObject.SetActive(false);
+        }
+
+        if (titleText != null)
+        {
+            // Only update the level number, keep exact RectTransform position from Inspector
+            titleText.text = completedLevel.ToString();
         }
 
         if (playAgainButton != null)
@@ -62,6 +65,13 @@ public class WinSceneManager : MonoBehaviour
         {
             winnerBeanTransform.Rotate(Vector3.up, 45f * Time.deltaTime, Space.World);
         }
+
+#if UNITY_EDITOR
+        if (!Application.isPlaying)
+        {
+            SetupBackground();
+        }
+#endif
     }
 
     public void OnPlayAgainClicked()
@@ -79,7 +89,7 @@ public class WinSceneManager : MonoBehaviour
         Camera cam = Camera.main;
         if (cam == null) return;
 
-        // Auto-load Win background Panel sprite if unassigned
+        // 1. OUTER BACKGROUND (Floating Islands & Sky: Win background Panel.png)
         if (backgroundSprite == null)
         {
 #if UNITY_EDITOR
@@ -87,33 +97,67 @@ public class WinSceneManager : MonoBehaviour
 #endif
         }
 
-        if (backgroundSprite == null) return;
-
-        // Attach background plane to camera behind the character
-        Transform existing = cam.transform.Find("CameraBackgroundPlane");
-        GameObject bgObj = existing != null ? existing.gameObject : new GameObject("CameraBackgroundPlane");
-        bgObj.transform.SetParent(cam.transform, false);
-
-        // Position 16 units in front of camera (behind podium & character at distance ~6.7)
-        float distance = 16f;
-        bgObj.transform.localPosition = new Vector3(0, 0, distance);
-        bgObj.transform.localRotation = Quaternion.identity;
-
-        SpriteRenderer sr = bgObj.GetComponent<SpriteRenderer>();
-        if (sr == null) sr = bgObj.AddComponent<SpriteRenderer>();
-        sr.sprite = backgroundSprite;
-        sr.sortingOrder = -100;
-
-        // Scale to cleanly fill camera viewport
-        float fovRad = cam.fieldOfView * 0.5f * Mathf.Deg2Rad;
-        float height = 2f * distance * Mathf.Tan(fovRad);
-        float width = height * cam.aspect;
-
-        Vector2 spriteSize = backgroundSprite.bounds.size;
-        if (spriteSize.x > 0 && spriteSize.y > 0)
+        if (backgroundSprite != null)
         {
-            float scaleFactor = Mathf.Max(width / spriteSize.x, height / spriteSize.y);
-            bgObj.transform.localScale = new Vector3(scaleFactor, scaleFactor, 1f);
+            Transform existingBg = cam.transform.Find("CameraBackgroundPlane");
+            GameObject bgObj = existingBg != null ? existingBg.gameObject : new GameObject("CameraBackgroundPlane");
+            bgObj.transform.SetParent(cam.transform, false);
+
+            float bgDistance = 18f;
+            bgObj.transform.localPosition = new Vector3(0, 0, bgDistance);
+            bgObj.transform.localRotation = Quaternion.identity;
+
+            SpriteRenderer bgSr = bgObj.GetComponent<SpriteRenderer>();
+            if (bgSr == null) bgSr = bgObj.AddComponent<SpriteRenderer>();
+            bgSr.sprite = backgroundSprite;
+            bgSr.sortingOrder = -200;
+
+            float fovRad = cam.fieldOfView * 0.5f * Mathf.Deg2Rad;
+            float bgHeight = 2f * bgDistance * Mathf.Tan(fovRad);
+            float bgWidth = bgHeight * cam.aspect;
+
+            Vector2 spriteSize = backgroundSprite.bounds.size;
+            if (spriteSize.x > 0 && spriteSize.y > 0)
+            {
+                float scaleFactor = Mathf.Max(bgWidth / spriteSize.x, bgHeight / spriteSize.y);
+                bgObj.transform.localScale = new Vector3(scaleFactor, scaleFactor, 1f);
+            }
+        }
+
+        // 2. INNER VICTORY CARD (Celebration Frame: win.png)
+        // Positioned at distance 11f — directly behind character (~6.95f) and in front of outer bg (18f)
+        if (victoryCardSprite == null)
+        {
+#if UNITY_EDITOR
+            victoryCardSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/UI/Background/win.png");
+#endif
+        }
+
+        if (victoryCardSprite != null)
+        {
+            Transform existingCard = cam.transform.Find("VictoryCardPlane");
+            GameObject cardObj = existingCard != null ? existingCard.gameObject : new GameObject("VictoryCardPlane");
+            cardObj.transform.SetParent(cam.transform, false);
+
+            float cardDistance = 11f;
+            cardObj.transform.localPosition = new Vector3(0, 0, cardDistance);
+            cardObj.transform.localRotation = Quaternion.identity;
+
+            SpriteRenderer cardSr = cardObj.GetComponent<SpriteRenderer>();
+            if (cardSr == null) cardSr = cardObj.AddComponent<SpriteRenderer>();
+            cardSr.sprite = victoryCardSprite;
+            cardSr.sortingOrder = -100;
+
+            float cardFovRad = cam.fieldOfView * 0.5f * Mathf.Deg2Rad;
+            float cardViewHeight = 2f * cardDistance * Mathf.Tan(cardFovRad);
+
+            Vector2 cardSize = victoryCardSprite.bounds.size;
+            if (cardSize.x > 0 && cardSize.y > 0)
+            {
+                // Fit card height to ~95% of screen height so outer islands frame the sides nicely
+                float cardScale = (cardViewHeight * 0.95f) / cardSize.y;
+                cardObj.transform.localScale = new Vector3(cardScale, cardScale, 1f);
+            }
         }
     }
 }
