@@ -102,9 +102,21 @@ public class BotController : MonoBehaviour
         }
 
         // Multi-layer bottom elimination check
-        if (transform.position.y < eliminationYThreshold && !isEliminated)
+        if (!isEliminated)
         {
-            Eliminate();
+            if (transform.position.y < eliminationYThreshold)
+            {
+                Eliminate();
+            }
+            // Fast void check: If falling and no platform exists below, eliminate immediately
+            else if (!isGrounded && rb != null && rb.linearVelocity.y < -2.0f)
+            {
+                bool hasFloorBelow = Physics.Raycast(transform.position, Vector3.down, 40f);
+                if (!hasFloorBelow)
+                {
+                    Eliminate();
+                }
+            }
         }
     }
 
