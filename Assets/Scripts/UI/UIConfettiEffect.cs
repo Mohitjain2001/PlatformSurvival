@@ -28,11 +28,11 @@ public class UIConfettiEffect : MonoBehaviour
         new Color(0.90f, 0.30f, 0.90f)  // Purple
     };
 
-    public void PlayConfetti(Transform parentCanvasTransform)
+    public void PlayConfetti(Transform parentCanvasTransform, bool loop = false)
     {
         StopAllCoroutines();
         ClearParticles();
-        StartCoroutine(ConfettiRoutine(parentCanvasTransform));
+        StartCoroutine(ConfettiRoutine(parentCanvasTransform, loop));
     }
 
     public void ClearParticles()
@@ -48,7 +48,7 @@ public class UIConfettiEffect : MonoBehaviour
         particles.Clear();
     }
 
-    private IEnumerator ConfettiRoutine(Transform parent)
+    private IEnumerator ConfettiRoutine(Transform parent, bool loop)
     {
         isEmitting = true;
 
@@ -89,7 +89,7 @@ public class UIConfettiEffect : MonoBehaviour
         }
 
         float elapsed = 0f;
-        while (elapsed < 5.5f && isEmitting)
+        while (isEmitting && (loop || elapsed < 6.0f))
         {
             elapsed += Time.deltaTime;
 
@@ -101,14 +101,23 @@ public class UIConfettiEffect : MonoBehaviour
                 Vector2 pos = p.rt.anchoredPosition;
                 pos.y += p.velocity.y * Time.deltaTime;
                 pos.x += Mathf.Sin((elapsed + p.timeOffset) * p.swayFrequency) * p.swayAmplitude * Time.deltaTime;
-                p.rt.anchoredPosition = pos;
 
+                if (pos.y < -1200f)
+                {
+                    if (loop)
+                    {
+                        pos.y = Random.Range(20f, 400f);
+                        pos.x = Random.Range(-480f, 480f);
+                    }
+                }
+
+                p.rt.anchoredPosition = pos;
                 p.rt.Rotate(0, 0, p.rotationSpeed * Time.deltaTime);
 
-                if (elapsed > 4.0f)
+                if (!loop && elapsed > 4.5f)
                 {
                     Color col = p.img.color;
-                    col.a = Mathf.Lerp(1.0f, 0f, (elapsed - 4.0f) / 1.5f);
+                    col.a = Mathf.Lerp(1.0f, 0f, (elapsed - 4.5f) / 1.5f);
                     p.img.color = col;
                 }
             }

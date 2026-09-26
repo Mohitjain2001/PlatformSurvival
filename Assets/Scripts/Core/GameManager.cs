@@ -218,12 +218,8 @@ public class GameManager : MonoBehaviour
                 LevelManager.Instance.AdvanceToNextLevel();
             }
 
-            if (uiManager != null)
-            {
-                uiManager.ShowVictory();
-            }
-
-            StartCoroutine(TransitionToSceneRoutine("WinScene", 1.5f));
+            // Immediately transition to dedicated WinScene without showing in-game VictoryPanel
+            StartCoroutine(TransitionToSceneRoutine("WinScene", 0.2f));
         }
     }
 

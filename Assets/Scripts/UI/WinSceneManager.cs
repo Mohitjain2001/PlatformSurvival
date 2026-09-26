@@ -23,9 +23,24 @@ public class WinSceneManager : MonoBehaviour
     [SerializeField] private Sprite backgroundSprite;
     [SerializeField] private Sprite victoryCardSprite;
 
+    [Header("Celebration Effects")]
+    [SerializeField] private UIConfettiEffect confettiEffect;
+
     private void Start()
     {
         SetupBackground();
+
+        // Start celebration confetti effect in WinScene
+        if (Application.isPlaying)
+        {
+            if (confettiEffect == null)
+            {
+                confettiEffect = GetComponent<UIConfettiEffect>();
+                if (confettiEffect == null)
+                    confettiEffect = gameObject.AddComponent<UIConfettiEffect>();
+            }
+            confettiEffect.PlayConfetti(transform, true);
+        }
 
         int completedLevel = LevelManager.Instance != null ? LevelManager.Instance.CurrentLevel - 1 : 1;
         if (completedLevel < 1) completedLevel = 1;
