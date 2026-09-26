@@ -26,8 +26,7 @@ public class GameOverSceneManager : MonoBehaviour
         if (rankText != null)
         {
             int rank = GameDataManager.LastPlacementRank;
-            int total = GameDataManager.TotalParticipants;
-            rankText.text = $"You Placed #{rank}\n(out of {total} players)";
+            rankText.text = rank.ToString();
         }
 
         if (tipText != null)
