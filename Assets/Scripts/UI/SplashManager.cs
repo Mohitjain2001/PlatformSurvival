@@ -29,6 +29,10 @@ public class SplashManager : MonoBehaviour
     [SerializeField] private Sprite vibrationOnSprite;    // green toggle image
     [SerializeField] private Sprite vibrationOffSprite;   // blue/gray toggle image
 
+    [Header("Character Selection UI")]
+    [SerializeField] private Button characterButton;
+    [SerializeField] private CharacterSelectUI characterSelectUI;
+
     // Discovered at runtime — the Toggle child inside Sound/Vibration rows
     private Toggle soundToggle;
     private Toggle vibrationToggle;
@@ -63,8 +67,35 @@ public class SplashManager : MonoBehaviour
 
     private void Start()
     {
-        // 1. Setup Head NameTag on PreviewBean
+        // 0. Ensure UI Canvas is Screen Space - Camera so 3D PreviewBean is visible in front of background plane
+        Canvas canvas = GetComponent<Canvas>();
+        if (canvas == null) canvas = GetComponentInParent<Canvas>();
+        if (canvas != null && Camera.main != null)
+        {
+            canvas.renderMode = RenderMode.ScreenSpaceCamera;
+            canvas.worldCamera = Camera.main;
+            canvas.planeDistance = 15f;
+        }
+
+        // 1. Setup Character Selection Controls
+        SetupCharacterControls();
+
+        // 2. Setup Head NameTag on PreviewBean
         SetupPreviewBeanNameTag();
+
+        // 3. Close shop and hide 3D preview bean by default on Main Menu startup
+        if (characterSelectUI != null)
+        {
+            characterSelectUI.CloseShop();
+        }
+        else
+        {
+            GameObject previewBean = GameObject.Find("PreviewBean");
+            if (previewBean != null) previewBean.SetActive(false);
+            Transform howToPlay = transform.Find("How To play");
+            if (howToPlay == null) howToPlay = transform.Find("HowToPlay");
+            if (howToPlay != null) howToPlay.gameObject.SetActive(true);
+        }
 
         // 2. Auto-find Settings panel if not assigned in Inspector
         if (settingsPanel == null)
@@ -144,7 +175,10 @@ public class SplashManager : MonoBehaviour
 
         BindNamePanelButtons();
 
-        // 6. Bind toggle and button controls before hiding
+        // 6. Setup Character Selection Controls
+        SetupCharacterControls();
+
+        // 7. Bind toggle and button controls before hiding
         BindToggles();
 
         // Ensure panels are hidden initially
@@ -428,7 +462,107 @@ public class SplashManager : MonoBehaviour
                 previewNameTag = previewBean.AddComponent<CharacterNameTag>();
             string savedName = PlayerPrefs.GetString("PlayerName", "Player");
             previewNameTag.Setup(savedName, new Color(0.33f, 0.92f, 0.22f), 1.70f);
+
+            // Apply player's chosen character (Police / Bean) to PreviewBean
+            string selectedId = CharacterDatabase.GetSelectedCharacterId();
+            if (characterSelectUI != null)
+                characterSelectUI.ApplyCharacterToPreview(selectedId);
+            else
+            {
+                Animator a;
+                CharacterDatabase.SpawnVisual(selectedId, previewBean.transform, out a);
+            }
         }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  CHARACTER SELECTION
+    // ─────────────────────────────────────────────────────────────
+
+    public void OpenCharacterSelect()
+    {
+        if (characterSelectUI != null)
+        {
+            characterSelectUI.OpenSelectScreen();
+        }
+    }
+
+    private void SetupCharacterControls()
+    {
+        if (characterSelectUI == null)
+        {
+            characterSelectUI = GetComponentInChildren<CharacterSelectUI>(true);
+            if (characterSelectUI == null)
+            {
+                characterSelectUI = gameObject.AddComponent<CharacterSelectUI>();
+            }
+        }
+
+        if (characterButton == null)
+        {
+            Transform t = transform.Find("CharacterButton");
+            if (t == null) t = transform.Find("ShopButton");
+            if (t == null) t = transform.Find("Shop Button");
+            if (t != null) characterButton = t.GetComponent<Button>();
+        }
+
+        if (characterButton == null)
+        {
+            CreateDynamicCharacterButton();
+        }
+
+        if (characterButton != null)
+        {
+            Image img = characterButton.GetComponent<Image>();
+            if (img != null)
+            {
+                Sprite shopSprite = Resources.Load<Sprite>("Shop");
+#if UNITY_EDITOR
+                if (shopSprite == null)
+                {
+                    shopSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/UI/Background/Shop.png");
+                }
+#endif
+                if (shopSprite != null)
+                {
+                    img.sprite = shopSprite;
+                    img.color = Color.white;
+                }
+            }
+
+            characterButton.onClick.RemoveAllListeners();
+            characterButton.onClick.AddListener(OpenCharacterSelect);
+        }
+    }
+
+    private void CreateDynamicCharacterButton()
+    {
+        GameObject btnObj = new GameObject("CharacterButton");
+        btnObj.transform.SetParent(transform, false);
+
+        RectTransform rt = btnObj.AddComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0f, 1f);
+        rt.anchorMax = new Vector2(0f, 1f);
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = new Vector2(90f, -88f);
+        rt.sizeDelta = new Vector2(105f, 105f);
+
+        Image img = btnObj.AddComponent<Image>();
+        img.color = Color.white;
+
+        Sprite shopSprite = Resources.Load<Sprite>("Shop");
+#if UNITY_EDITOR
+        if (shopSprite == null)
+        {
+            shopSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/UI/Background/Shop.png");
+        }
+#endif
+        if (shopSprite != null)
+        {
+            img.sprite = shopSprite;
+        }
+
+        characterButton = btnObj.AddComponent<Button>();
     }
 
     // ─────────────────────────────────────────────────────────────

@@ -53,6 +53,13 @@ public class SceneSetupUtility
         if (!Directory.Exists("Assets/Models")) Directory.CreateDirectory("Assets/Models");
         if (!Directory.Exists("Assets/Materials")) Directory.CreateDirectory("Assets/Materials");
         if (!Directory.Exists("Assets/Prefabs")) Directory.CreateDirectory("Assets/Prefabs");
+        if (!Directory.Exists("Assets/Resources")) Directory.CreateDirectory("Assets/Resources");
+
+        // Ensure Police Character Prefab exists
+        CharacterSetupHelper.EnsurePolicePrefab();
+
+        // Ensure Shop UI Hierarchy exists in SplashScene
+        ShopHierarchyBaker.EnsureShopHierarchyInScene();
 
         // 1. Hexagon Tile Mesh Asset
         Mesh hexMesh = AssetDatabase.LoadAssetAtPath<Mesh>("Assets/Models/HexagonTileMesh.asset");

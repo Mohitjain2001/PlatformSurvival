@@ -37,3 +37,8 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Large Files (>100MB)
+Assets/Models/character_police.fbx
+Assets/Models/character_police.fbx.meta
+

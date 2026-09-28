@@ -27,6 +27,39 @@ public static class CharacterModelBuilder
         return characterPrefabCache;
     }
 
+    public static void BuildCharacterModel(GameObject target, string characterId)
+    {
+        if (target == null) return;
+
+        // Clear existing 3D visual models under target so old characters don't stack
+        for (int i = target.transform.childCount - 1; i >= 0; i--)
+        {
+            Transform child = target.transform.GetChild(i);
+            if (!child.name.Contains("Canvas") && !child.name.Contains("Text") && !child.name.Contains("Tag"))
+            {
+                child.gameObject.SetActive(false);
+                if (Application.isPlaying)
+                    UnityEngine.Object.Destroy(child.gameObject);
+                else
+                    UnityEngine.Object.DestroyImmediate(child.gameObject);
+            }
+        }
+
+        Animator anim;
+        GameObject visual = CharacterDatabase.SpawnVisual(characterId, target.transform, out anim);
+        if (visual != null)
+        {
+            visual.transform.localPosition = Vector3.zero;
+            visual.transform.localRotation = Quaternion.identity;
+        }
+
+        Character3DAnimator animBridge = target.GetComponent<Character3DAnimator>();
+        if (animBridge != null)
+        {
+            animBridge.SetupAnimator(anim, target.GetComponent<Rigidbody>());
+        }
+    }
+
     public static GameObject BuildRunnerCharacter(string name, Color bodyColor, bool isPlayer = false)
     {
         // Root Container
@@ -48,29 +81,36 @@ public static class CharacterModelBuilder
         col.height = 1.44f;
         col.direction = 1; // Y-axis
 
-        GameObject prefab = GetCharacterPrefab();
         GameObject visualModel = null;
         Animator animator = null;
 
-        if (prefab != null)
+        if (isPlayer)
         {
-            visualModel = Object.Instantiate(prefab, root.transform);
-            visualModel.name = "Character3DVisual";
-            visualModel.transform.localPosition = Vector3.zero;
-            visualModel.transform.localRotation = Quaternion.identity;
-            visualModel.transform.localScale = Vector3.one;
-
-            // Remove ragdoll/customizer child colliders so root capsule handles clean platform physics
-            Collider[] childColliders = visualModel.GetComponentsInChildren<Collider>(true);
-            for (int i = 0; i < childColliders.Length; i++)
+            // Spawn player's chosen 3D character (Police / Bean / etc.)
+            string selectedCharId = CharacterDatabase.GetSelectedCharacterId();
+            visualModel = CharacterDatabase.SpawnVisual(selectedCharId, root.transform, out animator);
+        }
+        else
+        {
+            // Bots use default bean with distinct team colors
+            GameObject prefab = GetCharacterPrefab();
+            if (prefab != null)
             {
-                Object.DestroyImmediate(childColliders[i]);
+                visualModel = Object.Instantiate(prefab, root.transform);
+                visualModel.name = "Character3DVisual";
+                visualModel.transform.localPosition = Vector3.zero;
+                visualModel.transform.localRotation = Quaternion.identity;
+                visualModel.transform.localScale = Vector3.one;
+
+                Collider[] childColliders = visualModel.GetComponentsInChildren<Collider>(true);
+                for (int i = 0; i < childColliders.Length; i++)
+                {
+                    Object.DestroyImmediate(childColliders[i]);
+                }
+
+                animator = visualModel.GetComponent<Animator>();
+                ApplyCharacterTheme(visualModel, bodyColor, false);
             }
-
-            animator = visualModel.GetComponent<Animator>();
-
-            // Distinctive clothing colors for Player vs Bots
-            ApplyCharacterTheme(visualModel, bodyColor, isPlayer);
         }
 
         // Add animator bridge

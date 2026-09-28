@@ -42,6 +42,36 @@ public class WinSceneManager : MonoBehaviour
             confettiEffect.PlayConfetti(transform, true);
         }
 
+        if (Application.isPlaying)
+        {
+            if (winnerBeanTransform == null)
+            {
+                GameObject bean = GameObject.Find("WinnerBean");
+                if (bean != null) winnerBeanTransform = bean.transform;
+            }
+
+            if (winnerBeanTransform != null)
+            {
+                string selectedCharId = CharacterDatabase.GetSelectedCharacterId();
+                if (selectedCharId != "bean")
+                {
+                    for (int i = winnerBeanTransform.childCount - 1; i >= 0; i--)
+                    {
+                        Transform child = winnerBeanTransform.GetChild(i);
+                        if (child.name.StartsWith("Character3DVisual") || child.name.Contains("Bean") || 
+                            child.name.Contains("Police") || child.name.Contains("Clone") || child.name.Contains("CH_"))
+                        {
+                            child.gameObject.SetActive(false);
+                            child.name = "DestroyedOldVisual";
+                            Destroy(child.gameObject);
+                        }
+                    }
+                    Animator newAnim;
+                    CharacterDatabase.SpawnVisual(selectedCharId, winnerBeanTransform, out newAnim);
+                }
+            }
+        }
+
         int completedLevel = LevelManager.Instance != null ? LevelManager.Instance.CurrentLevel - 1 : 1;
         if (completedLevel < 1) completedLevel = 1;
 

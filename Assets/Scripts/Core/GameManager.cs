@@ -95,6 +95,31 @@ public class GameManager : MonoBehaviour
         if (playerPrefab != null)
         {
             playerInstance = Instantiate(playerPrefab, playerSpawn, Quaternion.identity);
+
+            // Apply player's selected character model (e.g. Police Officer, Classic Bean)
+            string selectedCharId = CharacterDatabase.GetSelectedCharacterId();
+            if (selectedCharId != CharacterDatabase.DEFAULT_CHAR_ID)
+            {
+                for (int i = playerInstance.transform.childCount - 1; i >= 0; i--)
+                {
+                    Transform child = playerInstance.transform.GetChild(i);
+                    if (child.name.StartsWith("Character3DVisual") || child.name.Contains("Bean") || 
+                        child.name.Contains("Police") || child.name.Contains("Clone") || child.name.Contains("CH_"))
+                    {
+                        child.gameObject.SetActive(false);
+                        child.name = "DestroyedOldVisual";
+                        Destroy(child.gameObject);
+                    }
+                }
+
+                Animator charAnim;
+                GameObject visual = CharacterDatabase.SpawnVisual(selectedCharId, playerInstance.transform, out charAnim);
+                Character3DAnimator animBridge = playerInstance.GetComponent<Character3DAnimator>();
+                if (animBridge != null && charAnim != null)
+                {
+                    animBridge.SetupAnimator(charAnim, playerInstance.GetComponent<Rigidbody>());
+                }
+            }
         }
         else
         {
