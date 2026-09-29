@@ -25,6 +25,14 @@ public class PlatformGridGenerator : MonoBehaviour
     [SerializeField] private Color tileWarningColor = new Color(1.0f, 0.45f, 0.0f); // Warning Orange
     [SerializeField] private Color tileDangerColor = new Color(0.95f, 0.15f, 0.15f); // Red
 
+    public void SetLayerNormalColors(Color[] colors)
+    {
+        if (colors != null && colors.Length > 0)
+        {
+            layerNormalColors = colors;
+        }
+    }
+
     [Header("Tile Prefab Configuration")]
     [SerializeField] private GameObject[] layerTilePrefabs; // e.g. [0]=Grass, [1]=Sand, [2]=Stone
     [SerializeField] private GameObject tilePrefab; // Fallback single tile prefab

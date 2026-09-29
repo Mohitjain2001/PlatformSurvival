@@ -82,6 +82,9 @@ public class GameManager : MonoBehaviour
         LevelConfig levelConfig = LevelManager.Instance != null ? LevelManager.Instance.GetCurrentLevelConfig() : LevelGenerator.GetConfigForLevel(1);
         botCount = levelConfig.botCount;
 
+        // Setup Level Sky, Floating Islands & Theme Colors
+        SetupLevelEnvironment(levelConfig.levelNumber);
+
         // 1. Generate Multi-Layer Platform Arena with LevelConfig & Gaps
         gridGenerator.GenerateGridForLevel(levelConfig, out playerSpawn, out botSpawns);
 
@@ -264,5 +267,109 @@ public class GameManager : MonoBehaviour
         GameObject character = CharacterModelBuilder.BuildRunnerCharacter(name, bodyColor, name == "Player");
         character.transform.position = spawnPos;
         return character;
+    }
+
+    private void SetupLevelEnvironment(int levelNumber)
+    {
+        Camera cam = Camera.main;
+        if (cam == null) return;
+
+        int themeIdx = (levelNumber - 1) % 5;
+        Color skyColor;
+        Color[] floorColors;
+
+        switch (themeIdx)
+        {
+            case 0: // Level 1: Sunny Azure Sky & Turquoise/Mint Floors
+                skyColor = new Color(0.10f, 0.58f, 0.90f);
+                floorColors = new Color[] {
+                    new Color(0.20f, 0.85f, 0.70f),
+                    new Color(0.15f, 0.65f, 0.95f),
+                    new Color(0.98f, 0.75f, 0.15f)
+                };
+                break;
+
+            case 1: // Level 2: Sunset Sunset Gold & Crimson Horizon
+                skyColor = new Color(0.85f, 0.28f, 0.15f);
+                floorColors = new Color[] {
+                    new Color(0.98f, 0.45f, 0.15f),
+                    new Color(0.95f, 0.20f, 0.35f),
+                    new Color(1.00f, 0.82f, 0.10f)
+                };
+                break;
+
+            case 2: // Level 3: Twilight Royal Violet & Neon Purple
+                skyColor = new Color(0.20f, 0.08f, 0.35f);
+                floorColors = new Color[] {
+                    new Color(0.68f, 0.22f, 0.88f),
+                    new Color(0.25f, 0.45f, 0.95f),
+                    new Color(0.95f, 0.25f, 0.65f)
+                };
+                break;
+
+            case 3: // Level 4: Emerald Forest & Spring Breeze
+                skyColor = new Color(0.05f, 0.50f, 0.35f);
+                floorColors = new Color[] {
+                    new Color(0.15f, 0.82f, 0.45f),
+                    new Color(0.10f, 0.68f, 0.78f),
+                    new Color(0.90f, 0.80f, 0.15f)
+                };
+                break;
+
+            default: // Level 5: Cosmic Midnight & Deep Blue
+                skyColor = new Color(0.05f, 0.08f, 0.18f);
+                floorColors = new Color[] {
+                    new Color(0.25f, 0.35f, 0.85f),
+                    new Color(0.55f, 0.18f, 0.82f),
+                    new Color(0.15f, 0.85f, 0.85f)
+                };
+                break;
+        }
+
+        // Apply Camera Sky Color
+        cam.clearFlags = CameraClearFlags.SolidColor;
+        cam.backgroundColor = skyColor;
+
+        // Apply Dynamic Floor Colors to PlatformGridGenerator
+        if (gridGenerator != null)
+        {
+            gridGenerator.SetLayerNormalColors(floorColors);
+        }
+
+        // Add 3D Floating Islands Camera Background Plane behind Arena
+        Sprite bgSprite = null;
+#if UNITY_EDITOR
+        bgSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/UI/Background/Win background Panel.png");
+        if (bgSprite == null) bgSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/UI/Background/background.png");
+#endif
+        if (bgSprite == null) bgSprite = Resources.Load<Sprite>("Win background Panel");
+
+        if (bgSprite != null)
+        {
+            Transform existingBg = cam.transform.Find("CameraBackgroundPlane");
+            GameObject bgObj = existingBg != null ? existingBg.gameObject : new GameObject("CameraBackgroundPlane");
+            bgObj.transform.SetParent(cam.transform, false);
+
+            float bgDistance = 45f;
+            bgObj.transform.localPosition = new Vector3(0, -2f, bgDistance);
+            bgObj.transform.localRotation = Quaternion.identity;
+
+            SpriteRenderer bgSr = bgObj.GetComponent<SpriteRenderer>();
+            if (bgSr == null) bgSr = bgObj.AddComponent<SpriteRenderer>();
+            bgSr.sprite = bgSprite;
+            bgSr.sortingOrder = -300;
+            bgSr.color = Color.Lerp(Color.white, skyColor, 0.25f);
+
+            float fovRad = cam.fieldOfView * 0.5f * Mathf.Deg2Rad;
+            float bgHeight = 2f * bgDistance * Mathf.Tan(fovRad);
+            float bgWidth = bgHeight * cam.aspect;
+
+            Vector2 spriteSize = bgSprite.bounds.size;
+            if (spriteSize.x > 0 && spriteSize.y > 0)
+            {
+                float scaleFactor = Mathf.Max(bgWidth / spriteSize.x, bgHeight / spriteSize.y) * 1.25f;
+                bgObj.transform.localScale = new Vector3(scaleFactor, scaleFactor, 1f);
+            }
+        }
     }
 }
