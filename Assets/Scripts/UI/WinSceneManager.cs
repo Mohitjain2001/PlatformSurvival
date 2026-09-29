@@ -195,12 +195,15 @@ public class WinSceneManager : MonoBehaviour
 
             float cardFovRad = cam.fieldOfView * 0.5f * Mathf.Deg2Rad;
             float cardViewHeight = 2f * cardDistance * Mathf.Tan(cardFovRad);
+            float cardViewWidth = cardViewHeight * cam.aspect;
 
             Vector2 cardSize = victoryCardSprite.bounds.size;
             if (cardSize.x > 0 && cardSize.y > 0)
             {
-                // Fit card height to ~95% of screen height so outer islands frame the sides nicely
-                float cardScale = (cardViewHeight * 0.95f) / cardSize.y;
+                // Fit card cleanly within screen bounds (both height 88% and width 92%) so it never overflows screen edges
+                float scaleForHeight = (cardViewHeight * 0.88f) / cardSize.y;
+                float scaleForWidth = (cardViewWidth * 0.92f) / cardSize.x;
+                float cardScale = Mathf.Min(scaleForHeight, scaleForWidth);
                 cardObj.transform.localScale = new Vector3(cardScale, cardScale, 1f);
             }
         }
