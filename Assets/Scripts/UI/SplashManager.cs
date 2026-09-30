@@ -52,11 +52,14 @@ public class SplashManager : MonoBehaviour
     private void Update()
     {
         // Whenever settings panel becomes active (even if opened by custom Animator or Unity Inspector OnClick)
+        if (settingsPanel == null) EnsureSettingsPanelBinding();
+
         if (settingsPanel != null)
         {
             bool isActive = settingsPanel.activeInHierarchy;
             if (isActive && !wasSettingsPanelActive)
             {
+                EnsureSettingsPanelBinding();
                 BindToggles();
                 RefreshSoundVisuals();
                 RefreshVibrationVisuals();
@@ -179,6 +182,7 @@ public class SplashManager : MonoBehaviour
         SetupCharacterControls();
 
         // 7. Bind toggle and button controls before hiding
+        EnsureSettingsPanelBinding();
         BindToggles();
 
         // Ensure panels are hidden initially
@@ -426,11 +430,67 @@ public class SplashManager : MonoBehaviour
     //  SETTINGS PANEL
     // ─────────────────────────────────────────────────────────────
 
+    public void EnsureSettingsPanelBinding()
+    {
+        if (settingsPanel == null)
+        {
+            foreach (Transform child in GetComponentsInChildren<Transform>(true))
+            {
+                string n = child.name.ToLower().Replace(" ", "").Replace("_", "");
+                if (n == "settingspanel" || n == "settingpanel" || n == "settings")
+                {
+                    settingsPanel = child.gameObject;
+                    break;
+                }
+            }
+        }
+
+        if (settingsPanel == null) return;
+
+        // Auto-find all close button candidates recursively under settingsPanel
+        Transform[] allChildren = settingsPanel.GetComponentsInChildren<Transform>(true);
+        foreach (Transform child in allChildren)
+        {
+            string nameLower = child.name.ToLower();
+            if (nameLower.Equals("close") || nameLower.Contains("cancel") || nameLower.Equals("x") || nameLower.Contains("redclose") || nameLower.Contains("closebtn") || nameLower.Contains("btnclose"))
+            {
+                Button btn = child.GetComponent<Button>();
+                if (btn == null)
+                {
+                    btn = child.gameObject.AddComponent<Button>();
+                }
+
+                Graphic graphic = child.GetComponent<Graphic>();
+                if (graphic != null)
+                {
+                    graphic.raycastTarget = true;
+                }
+
+                btn.onClick.RemoveAllListeners();
+                btn.onClick.AddListener(CloseSettings);
+
+                if (closeSettingsButton == null)
+                {
+                    closeSettingsButton = btn;
+                }
+                Debug.Log($"[SplashManager] Bound CloseSettings listener to button: '{child.name}'");
+            }
+        }
+
+        if (closeSettingsButton != null)
+        {
+            closeSettingsButton.onClick.RemoveAllListeners();
+            closeSettingsButton.onClick.AddListener(CloseSettings);
+        }
+    }
+
     public void OpenSettings()
     {
+        EnsureSettingsPanelBinding();
         if (settingsPanel != null)
         {
             settingsPanel.SetActive(true);
+            EnsureSettingsPanelBinding();
             BindToggles();
             RefreshSoundVisuals();
             RefreshVibrationVisuals();
@@ -439,8 +499,12 @@ public class SplashManager : MonoBehaviour
 
     public void CloseSettings()
     {
+        EnsureSettingsPanelBinding();
         if (settingsPanel != null)
+        {
             settingsPanel.SetActive(false);
+            Debug.Log("[SplashManager] Settings panel closed successfully!");
+        }
     }
 
     // ─────────────────────────────────────────────────────────────
