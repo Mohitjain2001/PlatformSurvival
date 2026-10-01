@@ -43,6 +43,7 @@ public class BotController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        rb.interpolation = RigidbodyInterpolation.Interpolate; // Jitter-free 60 FPS interpolation
 
         if (squashAndStretch == null)
         {

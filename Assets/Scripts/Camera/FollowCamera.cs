@@ -6,8 +6,8 @@ public class FollowCamera : MonoBehaviour
     [SerializeField] private Transform target;
     [SerializeField] private Vector3 offset = new Vector3(0, 6.5f, -6.2f);
     [SerializeField] private Vector3 lookOffset = new Vector3(0, 0.8f, 0.8f);
-    [SerializeField] private float smoothTimeXZ = 0.18f;
-    [SerializeField] private float smoothTimeY = 0.25f;
+    [SerializeField] private float smoothTimeXZ = 0.08f; // Ultra-responsive camera follow
+    [SerializeField] private float smoothTimeY = 0.12f;
     [SerializeField] private float minCameraY = 2.0f; // Prevent camera from plunging below arena
 
     private Vector3 currentVelocity;
@@ -62,7 +62,7 @@ public class FollowCamera : MonoBehaviour
         // Fast and smooth vertical follow so camera drops cleanly with player between floors
         if (!isPlayerFallingToVoid)
         {
-            targetY = Mathf.Lerp(targetY, targetPos.y, Time.deltaTime * 18.0f);
+            targetY = Mathf.Lerp(targetY, targetPos.y, Time.deltaTime * 22.0f);
         }
 
         float desiredY = Mathf.Max(targetY + offset.y, minCameraY);
@@ -81,7 +81,7 @@ public class FollowCamera : MonoBehaviour
         transform.rotation = Quaternion.Slerp(
             transform.rotation, 
             Quaternion.LookRotation(lookTarget - transform.position), 
-            Time.deltaTime * 10f
+            Time.deltaTime * 18f
         );
     }
 }

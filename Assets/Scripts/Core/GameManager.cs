@@ -56,8 +56,10 @@ public class GameManager : MonoBehaviour
         }
         Instance = this;
 
-        // Mobile performance: Target 60 FPS and prevent screen sleep
+        // Mobile performance: Target 60 FPS, sync physics step, and prevent screen sleep
+        QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = 60;
+        Time.fixedDeltaTime = 0.0166667f; // 60 Hz physics step for jitter-free 60 FPS
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
     }
 
