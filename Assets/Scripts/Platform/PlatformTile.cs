@@ -19,7 +19,7 @@ public class PlatformTile : MonoBehaviour
 
     private MeshRenderer[] meshRenderers;
     private Collider[] tileColliders;
-    private Material[] tileMaterials;
+    private static MaterialPropertyBlock mpb;
 
     private Vector3 initialPosition;
     private Vector3 initialScale = Vector3.zero;
@@ -44,36 +44,29 @@ public class PlatformTile : MonoBehaviour
         
         if (meshRenderers != null && meshRenderers.Length > 0)
         {
-            List<Material> mats = new List<Material>();
             foreach (var mr in meshRenderers)
             {
-                if (mr != null)
+                if (mr != null && mr.sharedMaterial != null)
                 {
-                    foreach (var mat in mr.materials)
-                    {
-                        if (mat != null)
-                        {
-                            mat.enableInstancing = true;
-                            mats.Add(mat);
-                        }
-                    }
+                    mr.sharedMaterial.enableInstancing = true;
                 }
             }
-            tileMaterials = mats.ToArray();
             SetTileColor(normalColor);
         }
     }
 
     public void SetTileColor(Color color)
     {
-        if (tileMaterials != null)
+        if (mpb == null) mpb = new MaterialPropertyBlock();
+        if (meshRenderers != null)
         {
-            foreach (var mat in tileMaterials)
+            foreach (var mr in meshRenderers)
             {
-                if (mat == null) continue;
-                if (mat.HasProperty("_Color")) mat.SetColor("_Color", color);
-                if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", color);
-                mat.color = color;
+                if (mr == null) continue;
+                mr.GetPropertyBlock(mpb);
+                mpb.SetColor("_Color", color);
+                mpb.SetColor("_BaseColor", color);
+                mr.SetPropertyBlock(mpb);
             }
         }
     }
@@ -237,6 +230,6 @@ public class PlatformTile : MonoBehaviour
             yield return null;
         }
 
-        Destroy(gameObject);
+        gameObject.SetActive(false);
     }
 }

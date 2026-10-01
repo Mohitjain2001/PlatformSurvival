@@ -296,29 +296,64 @@ public class PlatformGridGenerator : MonoBehaviour
     }
 
     [ContextMenu("Clear Grid")]
+    private List<GameObject> tilePool = new List<GameObject>();
+    private Material sharedProceduralMaterial;
+
     public void ClearGrid()
     {
-        List<GameObject> children = new List<GameObject>();
-        foreach (Transform child in transform)
+        if (!Application.isPlaying)
         {
-            children.Add(child.gameObject);
-        }
-        for (int i = children.Count - 1; i >= 0; i--)
-        {
-#if UNITY_EDITOR
-            if (!Application.isPlaying)
+            List<GameObject> children = new List<GameObject>();
+            foreach (Transform child in transform)
+            {
+                children.Add(child.gameObject);
+            }
+            for (int i = children.Count - 1; i >= 0; i--)
             {
                 DestroyImmediate(children[i]);
-                continue;
             }
-#endif
-            Destroy(children[i]);
+            generatedTiles.Clear();
+            tilePool.Clear();
+            return;
+        }
+
+        // Fast runtime Pooling reset: disable active pooled tiles instead of destroying them!
+        for (int i = 0; i < tilePool.Count; i++)
+        {
+            if (tilePool[i] != null)
+            {
+                tilePool[i].SetActive(false);
+            }
         }
         generatedTiles.Clear();
     }
 
     private GameObject CreateTileObject(Vector3 position, Transform parent, int layerIndex)
     {
+        // 1. Try reusing an inactive tile from Object Pool
+        GameObject pooledObj = null;
+        for (int i = 0; i < tilePool.Count; i++)
+        {
+            if (tilePool[i] != null && !tilePool[i].activeSelf)
+            {
+                pooledObj = tilePool[i];
+                break;
+            }
+        }
+
+        if (pooledObj != null)
+        {
+            pooledObj.transform.SetParent(parent);
+            pooledObj.transform.position = position;
+            pooledObj.transform.rotation = Quaternion.identity;
+            pooledObj.name = $"HexTile_L{layerIndex + 1}";
+            PlatformTile pt = pooledObj.GetComponent<PlatformTile>();
+            if (pt != null) pt.ResetTile();
+            pooledObj.SetActive(true);
+            return pooledObj;
+        }
+
+        // 2. Instantiate new tile if pool has no free object
         GameObject prefabToUse = null;
         if (layerTilePrefabs != null && layerTilePrefabs.Length > 0)
         {
@@ -334,29 +369,42 @@ public class PlatformGridGenerator : MonoBehaviour
             prefabToUse = tilePrefab;
         }
 
+        GameObject tileObj = null;
         if (prefabToUse != null)
         {
-            GameObject tileObj = Instantiate(prefabToUse, position, Quaternion.identity, parent);
+            tileObj = Instantiate(prefabToUse, position, Quaternion.identity, parent);
             tileObj.name = $"HexTile_L{layerIndex + 1}";
-            return tileObj;
+        }
+        else
+        {
+            tileObj = new GameObject($"HexTile_L{layerIndex + 1}");
+            tileObj.transform.SetParent(parent);
+            tileObj.transform.position = position;
+
+            MeshFilter mf = tileObj.AddComponent<MeshFilter>();
+            mf.sharedMesh = hexMesh;
+
+            MeshRenderer mr = tileObj.AddComponent<MeshRenderer>();
+            if (sharedProceduralMaterial == null)
+            {
+                sharedProceduralMaterial = new Material(Shader.Find("Standard"));
+                sharedProceduralMaterial.enableInstancing = true;
+            }
+            mr.sharedMaterial = sharedProceduralMaterial;
+
+            MeshCollider mc = tileObj.AddComponent<MeshCollider>();
+            mc.sharedMesh = hexMesh;
+            mc.convex = true;
+
+            tileObj.layer = LayerMask.NameToLayer("Default");
         }
 
-        GameObject fallbackObj = new GameObject($"HexTile_L{layerIndex + 1}");
-        fallbackObj.transform.SetParent(parent);
-        fallbackObj.transform.position = position;
+        if (tileObj != null && Application.isPlaying)
+        {
+            tilePool.Add(tileObj);
+        }
 
-        MeshFilter mf = fallbackObj.AddComponent<MeshFilter>();
-        mf.sharedMesh = hexMesh;
-
-        MeshRenderer mr = fallbackObj.AddComponent<MeshRenderer>();
-        mr.sharedMaterial = new Material(Shader.Find("Standard"));
-
-        MeshCollider mc = fallbackObj.AddComponent<MeshCollider>();
-        mc.sharedMesh = hexMesh;
-        mc.convex = true;
-
-        fallbackObj.layer = LayerMask.NameToLayer("Default");
-        return fallbackObj;
+        return tileObj;
     }
 
     public static Mesh CreateHexagonMesh(float radius, float height)

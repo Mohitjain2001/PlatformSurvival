@@ -79,7 +79,7 @@ public class UIManager : MonoBehaviour
     {
         if (aliveCountText != null)
         {
-            aliveCountText.text = currentAlive.ToString();
+            aliveCountText.SetText("{0}", currentAlive);
         }
     }
 
