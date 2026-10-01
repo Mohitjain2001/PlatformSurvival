@@ -295,10 +295,10 @@ public class PlatformGridGenerator : MonoBehaviour
         Debug.Log($"Successfully baked {layerCount} floors of Hexagonal Grid into the scene!");
     }
 
-    [ContextMenu("Clear Grid")]
     private List<GameObject> tilePool = new List<GameObject>();
     private Material sharedProceduralMaterial;
 
+    [ContextMenu("Clear Grid")]
     public void ClearGrid()
     {
         if (!Application.isPlaying)
