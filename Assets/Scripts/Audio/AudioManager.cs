@@ -27,6 +27,7 @@ public class AudioManager : MonoBehaviour
     [Header("Audio Sources")]
     [SerializeField] private AudioSource musicSource;
     [SerializeField] private AudioSource sfxSource;
+    [SerializeField] private AudioSource fallSource;
 
     [Header("Audio Clips (Optional - Procedural synth fallbacks built-in)")]
     [SerializeField] private AudioClip buttonClickClip;
@@ -100,6 +101,15 @@ public class AudioManager : MonoBehaviour
             sfxSource.spatialBlend = 0.0f; // 2D audio
         }
 
+        if (fallSource == null)
+        {
+            fallSource = gameObject.AddComponent<AudioSource>();
+            fallSource.loop = false;
+            fallSource.playOnAwake = false;
+            fallSource.volume = 0.90f;
+            fallSource.spatialBlend = 0.0f; // 2D audio
+        }
+
         UpdateVolumes();
     }
 
@@ -107,6 +117,7 @@ public class AudioManager : MonoBehaviour
     {
         if (musicSource != null) musicSource.mute = !soundEnabled;
         if (sfxSource != null) sfxSource.mute = !soundEnabled;
+        if (fallSource != null) fallSource.mute = !soundEnabled;
     }
 
     public void SetSoundEnabled(bool enabled)
@@ -161,9 +172,25 @@ public class AudioManager : MonoBehaviour
 
     public void PlayFall()
     {
+        if (!soundEnabled) return;
+
         AudioClip clipToPlay = fallClip != null ? fallClip : (eliminationClip != null ? eliminationClip : tileDropClip);
-        PlaySFX(clipToPlay, 1.0f, 1.0f);
+        if (clipToPlay != null && fallSource != null)
+        {
+            fallSource.clip = clipToPlay;
+            fallSource.time = 0f;
+            fallSource.pitch = 1.0f;
+            fallSource.Play();
+        }
         TriggerVibration();
+    }
+
+    public void StopFall()
+    {
+        if (fallSource != null && fallSource.isPlaying)
+        {
+            fallSource.Stop();
+        }
     }
 
     public void PlayElimination()
@@ -191,6 +218,10 @@ public class AudioManager : MonoBehaviour
         if (sfxSource != null && sfxSource.isPlaying)
         {
             sfxSource.Stop();
+        }
+        if (fallSource != null && fallSource.isPlaying)
+        {
+            fallSource.Stop();
         }
     }
 

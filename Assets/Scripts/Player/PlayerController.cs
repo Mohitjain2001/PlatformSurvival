@@ -69,7 +69,14 @@ public class PlayerController : MonoBehaviour
 
         if (isGrounded)
         {
-            hasPlayedFallSound = false;
+            if (hasPlayedFallSound)
+            {
+                hasPlayedFallSound = false;
+                if (AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.StopFall();
+                }
+            }
             lastGroundedY = transform.position.y;
         }
         else if (!hasPlayedFallSound && !isGrounded)
