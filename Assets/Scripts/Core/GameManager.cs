@@ -272,29 +272,41 @@ public class GameManager : MonoBehaviour
     private Sprite GetLevelBackgroundSprite(int levelNumber)
     {
         int themeIdx = (levelNumber - 1) % 6;
-        string[] editorAssetPaths = new string[]
-        {
-            "Assets/UI/Background/Background/ChatGPT Image Sep 30, 2026, 04_55_23 PM.png",
-            "Assets/UI/Background/Background/ChatGPT Image Sep 30, 2026, 04_56_02 PM.png",
-            "Assets/UI/Background/Background/ChatGPT Image Sep 30, 2026, 04_58_57 PM.png",
-            "Assets/UI/Background/Background/ChatGPT Image Sep 30, 2026, 05_25_58 PM.png",
-            "Assets/UI/Background/Background/ChatGPT Image Sep 30, 2026, 05_27_54 PM.png",
-            "Assets/UI/Background/Background/ChatGPT Image Sep 30, 2026, 05_30_02 PM.png"
-        };
+        string resPath = $"Backgrounds/Bg_Level_{themeIdx + 1}";
 
-        Sprite bgSprite = null;
+        // 1. Primary: Load Sprite from Resources (works on Mobile & Standalone build)
+        Sprite bgSprite = Resources.Load<Sprite>(resPath);
 
-#if UNITY_EDITOR
-        if (themeIdx >= 0 && themeIdx < editorAssetPaths.Length)
-        {
-            bgSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(editorAssetPaths[themeIdx]);
-        }
-#endif
-
+        // 2. Secondary: If texture imported as Default Texture, load Texture2D & convert to Sprite
         if (bgSprite == null)
         {
-            bgSprite = Resources.Load<Sprite>($"Backgrounds/Bg_Level_{themeIdx + 1}");
+            Texture2D tex = Resources.Load<Texture2D>(resPath);
+            if (tex != null)
+            {
+                bgSprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
+            }
         }
+
+#if UNITY_EDITOR
+        // 3. Editor fallback
+        if (bgSprite == null)
+        {
+            string[] editorAssetPaths = new string[]
+            {
+                "Assets/UI/Background/Background/ChatGPT Image Sep 30, 2026, 04_55_23 PM.png",
+                "Assets/UI/Background/Background/ChatGPT Image Sep 30, 2026, 04_56_02 PM.png",
+                "Assets/UI/Background/Background/ChatGPT Image Sep 30, 2026, 04_58_57 PM.png",
+                "Assets/UI/Background/Background/ChatGPT Image Sep 30, 2026, 05_25_58 PM.png",
+                "Assets/UI/Background/Background/ChatGPT Image Sep 30, 2026, 05_27_54 PM.png",
+                "Assets/UI/Background/Background/ChatGPT Image Sep 30, 2026, 05_30_02 PM.png"
+            };
+
+            if (themeIdx >= 0 && themeIdx < editorAssetPaths.Length)
+            {
+                bgSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(editorAssetPaths[themeIdx]);
+            }
+        }
+#endif
 
         return bgSprite;
     }
