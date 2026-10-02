@@ -176,7 +176,7 @@ public class SplashManager : MonoBehaviour
             nameChangeButton.onClick.AddListener(OpenNameChangeDialog);
         }
 
-        BindNamePanelButtons();
+        EnsureNameChangeBinding();
 
         // 6. Setup Character Selection Controls
         SetupCharacterControls();
@@ -633,19 +633,135 @@ public class SplashManager : MonoBehaviour
     //  NAME CHANGE
     // ─────────────────────────────────────────────────────────────
 
+    private string lastTypedName = "";
+
+    public void EnsureNameChangeBinding()
+    {
+        // 1. Auto-find Name_change button on main UI Canvas
+        if (nameChangeButton == null)
+        {
+            foreach (Transform child in GetComponentsInChildren<Transform>(true))
+            {
+                string n = child.name.ToLower().Replace(" ", "").Replace("_", "");
+                if (n == "namechange" || n == "name" || n == "changename" || n.Contains("namechange"))
+                {
+                    Button b = child.GetComponent<Button>();
+                    if (b == null) b = child.gameObject.AddComponent<Button>();
+                    nameChangeButton = b;
+                    break;
+                }
+            }
+        }
+
+        if (nameChangeButton != null)
+        {
+            Graphic g = nameChangeButton.GetComponent<Graphic>();
+            if (g != null) g.raycastTarget = true;
+
+            nameChangeButton.onClick.RemoveAllListeners();
+            nameChangeButton.onClick.AddListener(OpenNameChangeDialog);
+        }
+
+        // 2. Auto-find NameChangePanel
+        if (nameChangePanel == null)
+        {
+            foreach (Transform child in GetComponentsInChildren<Transform>(true))
+            {
+                string n = child.name.ToLower().Replace(" ", "").Replace("_", "");
+                if (n == "namechangepanel" || n == "namepanel" || n == "changenamepanel")
+                {
+                    nameChangePanel = child.gameObject;
+                    break;
+                }
+            }
+        }
+
+        if (nameChangePanel == null) return;
+
+        // 3. Auto-find TMP_InputField inside panel
+        if (nameInputField == null)
+        {
+            nameInputField = nameChangePanel.GetComponentInChildren<TMP_InputField>(true);
+        }
+
+        if (nameInputField != null)
+        {
+            nameInputField.interactable = true;
+            nameInputField.shouldHideMobileInput = false;
+
+            Graphic inputGraphic = nameInputField.targetGraphic;
+            if (inputGraphic == null) inputGraphic = nameInputField.GetComponent<Graphic>();
+            if (inputGraphic != null) inputGraphic.raycastTarget = true;
+
+            // Real-time text tracking as user types on mobile keyboard
+            nameInputField.onValueChanged.RemoveAllListeners();
+            nameInputField.onValueChanged.AddListener((val) =>
+            {
+                if (!string.IsNullOrEmpty(val))
+                    lastTypedName = val;
+            });
+
+            // Bind mobile soft keyboard "Done/Enter" action
+            nameInputField.onEndEdit.RemoveAllListeners();
+            nameInputField.onEndEdit.AddListener((val) =>
+            {
+                if (!string.IsNullOrEmpty(val))
+                    lastTypedName = val;
+                SaveName();
+            });
+        }
+
+        // 4. Auto-find Save and Cancel buttons inside NameChangePanel recursively
+        Transform[] allChildren = nameChangePanel.GetComponentsInChildren<Transform>(true);
+        foreach (Transform child in allChildren)
+        {
+            string nameLower = child.name.ToLower();
+            if (nameLower.Contains("save") || nameLower.Contains("ok") || nameLower.Contains("submit") || nameLower.Contains("confirm"))
+            {
+                Button btn = child.GetComponent<Button>();
+                if (btn == null) btn = child.gameObject.AddComponent<Button>();
+                Graphic g = child.GetComponent<Graphic>();
+                if (g != null) g.raycastTarget = true;
+
+                btn.onClick.RemoveAllListeners();
+                btn.onClick.AddListener(SaveName);
+                saveNameButton = btn;
+            }
+            else if (nameLower.Contains("cancel") || nameLower.Contains("close") || nameLower.Equals("x") || nameLower.Contains("red"))
+            {
+                Button btn = child.GetComponent<Button>();
+                if (btn == null) btn = child.gameObject.AddComponent<Button>();
+                Graphic g = child.GetComponent<Graphic>();
+                if (g != null) g.raycastTarget = true;
+
+                btn.onClick.RemoveAllListeners();
+                btn.onClick.AddListener(CloseNameDialog);
+                cancelNameButton = btn;
+            }
+        }
+    }
+
     public void OpenNameChangeDialog()
     {
+        EnsureNameChangeBinding();
+
         if (nameChangePanel == null)
             CreateDynamicNameChangePanel();
 
-        BindNamePanelButtons();
+        EnsureNameChangeBinding();
 
         if (nameChangePanel != null)
         {
             nameChangePanel.SetActive(true);
+            string currentName = PlayerPrefs.GetString("PlayerName", "Player");
+            lastTypedName = currentName;
+
             if (nameInputField != null)
             {
-                nameInputField.text = PlayerPrefs.GetString("PlayerName", "Player");
+                nameInputField.text = currentName;
+                if (nameInputField.textComponent != null)
+                    nameInputField.textComponent.text = currentName;
+
                 nameInputField.Select();
                 nameInputField.ActivateInputField();
             }
@@ -654,19 +770,74 @@ public class SplashManager : MonoBehaviour
 
     public void SaveName()
     {
-        string newName = "Player";
-        if (nameInputField != null && !string.IsNullOrWhiteSpace(nameInputField.text))
-            newName = nameInputField.text.Trim();
-        if (newName.Length > 12) newName = newName.Substring(0, 12);
+        string newName = "";
 
+        // 1. Priority 1: Check live lastTypedName variable from input field
+        if (!string.IsNullOrWhiteSpace(lastTypedName))
+        {
+            newName = lastTypedName.Trim();
+        }
+
+        // 2. Priority 2: Check nameInputField.text
+        if (string.IsNullOrWhiteSpace(newName) && nameInputField != null && !string.IsNullOrWhiteSpace(nameInputField.text))
+        {
+            newName = nameInputField.text.Trim();
+        }
+
+        // 3. Priority 3: Check textComponent text directly
+        if (string.IsNullOrWhiteSpace(newName) && nameInputField != null && nameInputField.textComponent != null && !string.IsNullOrWhiteSpace(nameInputField.textComponent.text))
+        {
+            newName = nameInputField.textComponent.text.Trim();
+        }
+
+        // Fallback default
+        if (string.IsNullOrWhiteSpace(newName))
+        {
+            newName = PlayerPrefs.GetString("PlayerName", "Player");
+        }
+
+        if (newName.Length > 12) newName = newName.Substring(0, 12);
+        if (string.IsNullOrWhiteSpace(newName)) newName = "Player";
+
+        // Save permanently to PlayerPrefs
         PlayerPrefs.SetString("PlayerName", newName);
         PlayerPrefs.Save();
+        lastTypedName = newName;
 
+        // Update preview name tag on 3D bean
         if (previewNameTag != null)
             previewNameTag.Setup(newName, new Color(0.33f, 0.92f, 0.22f), 1.70f);
 
+        // Update all active 3D name tags in scene
+        foreach (var tag in FindObjectsByType<CharacterNameTag>(FindObjectsSortMode.None))
+        {
+            tag.Setup(newName, new Color(0.33f, 0.92f, 0.22f), 1.70f);
+        }
+
+        // Update all UI text elements in Canvas displaying player name
+        RefreshAllUIPlayerNameTexts(newName);
+
         if (nameChangePanel != null)
             nameChangePanel.SetActive(false);
+
+        Debug.Log($"[SplashManager] SUCCESS! Saved new PlayerName: '{newName}'");
+    }
+
+    public void RefreshAllUIPlayerNameTexts(string playerName)
+    {
+        if (string.IsNullOrWhiteSpace(playerName)) playerName = PlayerPrefs.GetString("PlayerName", "Player");
+
+        foreach (var tmp in FindObjectsByType<TMPro.TextMeshProUGUI>(FindObjectsSortMode.None))
+        {
+            string tmpName = tmp.name.ToLower();
+            Transform p = tmp.transform.parent;
+            string pName = p != null ? p.name.ToLower() : "";
+
+            if (tmpName.Contains("playernametext") || tmpName.Contains("nametext") || tmpName == "playername" || pName.Contains("name_change") || pName.Contains("namechange"))
+            {
+                tmp.text = playerName;
+            }
+        }
     }
 
     public void CloseNameDialog()
@@ -677,36 +848,7 @@ public class SplashManager : MonoBehaviour
 
     private void BindNamePanelButtons()
     {
-        if (nameChangePanel == null)
-        {
-            Transform t = transform.Find("NameChangePanel");
-            if (t != null) nameChangePanel = t.gameObject;
-        }
-        if (nameChangePanel == null) return;
-
-        if (nameInputField == null)
-            nameInputField = nameChangePanel.GetComponentInChildren<TMP_InputField>(true);
-
-        Button[] btns = nameChangePanel.GetComponentsInChildren<Button>(true);
-        foreach (var btn in btns)
-        {
-            string bName = btn.name.ToLower();
-            if (saveNameButton == null && (bName.Contains("save") || bName.Contains("ok")))
-                saveNameButton = btn;
-            else if (cancelNameButton == null && (bName.Contains("cancel") || bName.Contains("close")))
-                cancelNameButton = btn;
-        }
-
-        if (saveNameButton != null)
-        {
-            saveNameButton.onClick.RemoveAllListeners();
-            saveNameButton.onClick.AddListener(SaveName);
-        }
-        if (cancelNameButton != null)
-        {
-            cancelNameButton.onClick.RemoveAllListeners();
-            cancelNameButton.onClick.AddListener(CloseNameDialog);
-        }
+        EnsureNameChangeBinding();
     }
 
     private void CreateDynamicNameChangePanel()
