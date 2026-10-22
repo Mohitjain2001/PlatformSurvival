@@ -252,6 +252,16 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.xorin.brain": {
+      "version": "https://github.com/lysto-gg/xorin-dist.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.ugui": "1.0.0",
+        "com.unity.nuget.newtonsoft-json": "3.2.1"
+      },
+      "hash": "33aa04e3e69582b604b436606cadacf737df611e"
+    },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",
       "depth": 0,

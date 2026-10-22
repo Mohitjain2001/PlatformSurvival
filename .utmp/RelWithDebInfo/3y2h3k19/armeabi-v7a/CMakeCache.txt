@@ -130,7 +130,7 @@ CMAKE_FIND_ROOT_PATH:UNINITIALIZED=/Users/mohitjain/PlatformSurvival/.utmp/RelWi
 CMAKE_INSTALL_PREFIX:PATH=/usr/local
 
 //No help, variable specified on the command line.
-CMAKE_LIBRARY_OUTPUT_DIRECTORY:UNINITIALIZED=/Users/mohitjain/PlatformSurvival/Library/Bee/Android/Prj/Mono2x/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/3y2h3k19/obj/armeabi-v7a
+CMAKE_LIBRARY_OUTPUT_DIRECTORY:UNINITIALIZED=/Users/mohitjain/PlatformSurvival/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/3y2h3k19/obj/armeabi-v7a
 
 //Path to a program.
 CMAKE_LINKER:FILEPATH=/Applications/Unity/Hub/Editor/6000.5.4f1/PlaybackEngines/AndroidPlayer/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/ld.lld
@@ -182,7 +182,7 @@ CMAKE_RANLIB:FILEPATH=/Applications/Unity/Hub/Editor/6000.5.4f1/PlaybackEngines/
 CMAKE_READELF:FILEPATH=/Applications/Unity/Hub/Editor/6000.5.4f1/PlaybackEngines/AndroidPlayer/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-readelf
 
 //No help, variable specified on the command line.
-CMAKE_RUNTIME_OUTPUT_DIRECTORY:UNINITIALIZED=/Users/mohitjain/PlatformSurvival/Library/Bee/Android/Prj/Mono2x/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/3y2h3k19/obj/armeabi-v7a
+CMAKE_RUNTIME_OUTPUT_DIRECTORY:UNINITIALIZED=/Users/mohitjain/PlatformSurvival/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/3y2h3k19/obj/armeabi-v7a
 
 //Flags used by the linker during the creation of dll's.
 CMAKE_SHARED_LINKER_FLAGS:STRING=
@@ -255,7 +255,7 @@ Unity_BINARY_DIR:STATIC=/Users/mohitjain/PlatformSurvival/.utmp/RelWithDebInfo/3
 Unity_IS_TOP_LEVEL:STATIC=ON
 
 //Value Computed by CMake
-Unity_SOURCE_DIR:STATIC=/Users/mohitjain/PlatformSurvival/Library/Bee/Android/Prj/Mono2x/Gradle/unityLibrary/src/main/cpp
+Unity_SOURCE_DIR:STATIC=/Users/mohitjain/PlatformSurvival/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/src/main/cpp
 
 //The directory containing a CMake configuration file for games-frame-pacing.
 games-frame-pacing_DIR:PATH=/Users/mohitjain/PlatformSurvival/.utmp/RelWithDebInfo/3y2h3k19/prefab/armeabi-v7a/prefab/lib/arm-linux-androideabi/cmake/games-frame-pacing
@@ -270,7 +270,7 @@ swappywrapper_IS_TOP_LEVEL:STATIC=OFF
 swappywrapper_LIB_DEPENDS:STATIC=general;android;general;games-frame-pacing::swappy_static;general;log;general;c++;
 
 //Value Computed by CMake
-swappywrapper_SOURCE_DIR:STATIC=/Users/mohitjain/PlatformSurvival/Library/Bee/Android/Prj/Mono2x/Gradle/unityLibrary/src/main/cpp/FramePacing
+swappywrapper_SOURCE_DIR:STATIC=/Users/mohitjain/PlatformSurvival/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/src/main/cpp/FramePacing
 
 
 ########################
@@ -355,7 +355,7 @@ CMAKE_GENERATOR_PLATFORM:INTERNAL=
 CMAKE_GENERATOR_TOOLSET:INTERNAL=
 //Source directory with the top level CMakeLists.txt file for this
 // project
-CMAKE_HOME_DIRECTORY:INTERNAL=/Users/mohitjain/PlatformSurvival/Library/Bee/Android/Prj/Mono2x/Gradle/unityLibrary/src/main/cpp
+CMAKE_HOME_DIRECTORY:INTERNAL=/Users/mohitjain/PlatformSurvival/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/src/main/cpp
 //Install .so files without execute permission.
 CMAKE_INSTALL_SO_NO_EXE:INTERNAL=0
 //ADVANCED property for variable: CMAKE_LINKER

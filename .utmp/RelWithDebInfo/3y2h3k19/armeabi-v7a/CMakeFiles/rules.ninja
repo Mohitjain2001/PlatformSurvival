@@ -42,7 +42,7 @@ rule CXX_SHARED_LIBRARY_LINKER__swappywrapper_RelWithDebInfo
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = /Applications/Unity/Hub/Editor/6000.5.4f1/PlaybackEngines/AndroidPlayer/SDK/cmake/3.22.1/bin/cmake --regenerate-during-build -S/Users/mohitjain/PlatformSurvival/Library/Bee/Android/Prj/Mono2x/Gradle/unityLibrary/src/main/cpp -B/Users/mohitjain/PlatformSurvival/.utmp/RelWithDebInfo/3y2h3k19/armeabi-v7a
+  command = /Applications/Unity/Hub/Editor/6000.5.4f1/PlaybackEngines/AndroidPlayer/SDK/cmake/3.22.1/bin/cmake --regenerate-during-build -S/Users/mohitjain/PlatformSurvival/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/src/main/cpp -B/Users/mohitjain/PlatformSurvival/.utmp/RelWithDebInfo/3y2h3k19/armeabi-v7a
   description = Re-running CMake...
   generator = 1
 
