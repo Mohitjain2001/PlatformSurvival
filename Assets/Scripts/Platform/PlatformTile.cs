@@ -133,6 +133,7 @@ public class PlatformTile : MonoBehaviour
     public void SetColors(Color normal, Color warning, Color danger)
     {
         normalColor = normal;
+        steppedColor = normal; // Keep stepped tiles the same layer color instead of turning white.
         warningColor = warning;
         dangerColor = danger;
         SetTileColor(normalColor);

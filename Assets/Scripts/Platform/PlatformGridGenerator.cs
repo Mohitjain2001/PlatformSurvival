@@ -95,6 +95,16 @@ public class PlatformGridGenerator : MonoBehaviour
         };
         GenerateGridForLevel(defaultConfig, out playerSpawn, out botSpawns);
     }
+    private Color[] GenerateRandomLayerColors(int count)
+    {
+        Color[] colors = new Color[Mathf.Max(count, 1)];
+        for (int i = 0; i < colors.Length; i++)
+        {
+            colors[i] = Color.HSVToRGB(Random.value, Random.Range(0.55f, 0.85f), Random.Range(0.75f, 1.0f));
+        }
+        return colors;
+    }
+
 
     public void GenerateGridForLevel(LevelConfig config, out Vector3 playerSpawn, out List<Vector3> botSpawns)
     {
@@ -161,6 +171,10 @@ public class PlatformGridGenerator : MonoBehaviour
         ClearGrid();
         generatedTiles.Clear();
 
+        Color[] runtimeLayerColors = Application.isPlaying
+            ? GenerateRandomLayerColors(effectiveLayerCount)
+            : layerNormalColors;
+
         List<Vector3> topLayerSpawnPoints = new List<Vector3>();
 
         for (int layer = 0; layer < effectiveLayerCount; layer++)
@@ -173,7 +187,7 @@ public class PlatformGridGenerator : MonoBehaviour
             GameObject layerParent = new GameObject($"Layer_{layer + 1}");
             layerParent.transform.SetParent(transform);
 
-            Color baseColor = layerNormalColors[layer % layerNormalColors.Length];
+            Color baseColor = runtimeLayerColors[layer % runtimeLayerColors.Length];
 
             FloorPattern pattern = FloorPattern.Solid;
             if (config != null && config.floorPatterns != null && config.floorPatterns.Length > 0)
@@ -201,7 +215,7 @@ public class PlatformGridGenerator : MonoBehaviour
                     GameObject tileObj = CreateTileObject(pos, layerParent.transform, layer);
                     PlatformTile tile = tileObj.GetComponent<PlatformTile>();
                     if (tile == null) tile = tileObj.AddComponent<PlatformTile>();
-                    Color normalCol = useNaturalModelColors ? Color.white : baseColor;
+                    Color normalCol = Application.isPlaying ? baseColor : (useNaturalModelColors ? Color.white : baseColor);
                     tile.SetColors(normalCol, tileWarningColor, tileDangerColor);
                     tile.SetInitialPosition(pos);
                     tile.SetInitialScale(tileObj.transform.localScale);
@@ -500,3 +514,5 @@ public class PlatformGridGenerator : MonoBehaviour
         return mesh;
     }
 }
+
+
